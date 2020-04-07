@@ -1,7 +1,7 @@
 {
   "name": "next-monaco-editor",
   "author": "Nikhil Saraf",
-  "version": "0.0.1-beta.11",
+  "version": "0.0.1-beta.12",
   "license": "MIT",
   "main": "dist/next-monaco-editor/index.js",
   "typings": "dist/next-monaco-editor/esm/index.d.ts",
