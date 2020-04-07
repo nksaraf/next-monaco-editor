@@ -1,9 +1,32 @@
 import React, { Suspense } from 'react';
-import { Loading } from './Loading';
 import { MonacoEditorProps } from './MonacoEditor';
 import { processDimensions } from './utils';
 export interface NextMonacoEditorProps extends MonacoEditorProps {
   loading?: React.ReactNode;
+}
+
+const loadingStyles = {
+  display: 'flex',
+  height: '100%',
+  width: '100%',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export function Loading({
+  children,
+  style = {},
+  className = 'next-monaco-editor-loading',
+}) {
+  return (
+    <div
+      data-editor="next-monaco-editor-loading"
+      className={className}
+      style={{ ...loadingStyles, ...style }}
+    >
+      {children}
+    </div>
+  );
 }
 
 let Editor: React.FC<NextMonacoEditorProps>;

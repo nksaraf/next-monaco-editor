@@ -1,6 +1,6 @@
 import monaco from './api';
 import React from 'react';
-import { processSize, noop } from './utils';
+import { noop, processDimensions } from './utils';
 
 export interface MonacoEditorProps {
   width?: string | number;
@@ -9,13 +9,20 @@ export interface MonacoEditorProps {
   defaultValue?: string;
   line?: number;
   style?: React.CSSProperties;
-  fileName?: string;
+  path?: string;
   language?: string;
   theme?: string | monaco.editor.IStandaloneThemeData;
+  themes?: { [key: string]: monaco.editor.IStandaloneThemeData };
   options?: monaco.editor.IEditorOptions;
-  overrideServices?: monaco.editor.IEditorOverrideServices;
+  overrideServices?:
+    | monaco.editor.IEditorOverrideServices
+    | ((
+        _monaco: typeof monaco,
+        model: monaco.editor.ITextModel
+      ) => monaco.editor.IEditorOverrideServices);
   className?: string;
-  getWorkerUrl?: monaco.Environment['getWorkerUrl'];
+  getWorker?: (label: string) => Worker | undefined;
+  getWorkerUrl?: (label: string) => string | undefined;
   editorDidMount?: (
     editor: monaco.editor.IStandaloneCodeEditor,
     _monaco: typeof monaco
@@ -43,9 +50,10 @@ export default function MonacoEditor({
   className = 'next-editor',
   line = 0,
   getWorkerUrl = noop as any,
+  getWorker = noop as any,
   language = 'javascript',
   theme = 'vs-dark',
-  fileName = 'model.js',
+  path = 'model.js',
   options = {},
   overrideServices = {},
   editorDidMount = noop,
@@ -54,25 +62,24 @@ export default function MonacoEditor({
 }: MonacoEditorProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  const isChanging = React.useRef(false);
+  const isChangingRef = React.useRef(false);
+  const subscriptionRef = React.useRef<monaco.IDisposable>(null);
 
   React.useEffect(() => {
     if (!containerRef.current) {
       console.error('Assign container ref to something');
       return;
-    } else {
-      console.log(containerRef.current);
     }
+
     const textValue = value != null ? value : defaultValue;
-    let subscription;
 
     // @ts-ignore
     window.MonacoEnvironment.getWorkerUrl = (
       _moduleId: string,
       label: string
     ) => {
-      console.log(_moduleId, label);
-      const url = getWorkerUrl(_moduleId, label);
+      console.log('Getting worker URL:', label);
+      const url = getWorkerUrl(label);
       if (url) return url;
 
       if (label === 'editorWorkerService') {
@@ -86,19 +93,25 @@ export default function MonacoEditor({
     };
 
     // @ts-ignore
-    // window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
-    //   console.log(_moduleId, label);
-    //   if (label === "other") return new XmlWorker();
-    // };
-
-    console.log(monaco.languages);
+    window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
+      console.log('Getting worker:', label);
+      const worker = getWorker(label);
+      if (worker) return worker;
+    };
 
     Object.assign(options, editorWillMount(monaco) || {});
-    const model = monaco.editor.createModel(
-      textValue,
-      language,
-      monaco.Uri.file(fileName)
-    );
+
+    let model = monaco.editor
+      .getModels()
+      .find(model => model.uri.path === path);
+
+    if (!model) {
+      model = monaco.editor.createModel(
+        textValue,
+        language,
+        monaco.Uri.file(path)
+      );
+    }
 
     editorRef.current = monaco.editor.create(
       containerRef.current,
@@ -108,7 +121,9 @@ export default function MonacoEditor({
         automaticLayout: true,
         ...options,
       },
-      overrideServices
+      typeof overrideServices === 'function'
+        ? overrideServices(monaco, model)
+        : overrideServices
     );
 
     if (typeof theme === 'string') {
@@ -130,12 +145,6 @@ export default function MonacoEditor({
     // After initializing monaco editor
     editorDidMount(editorRef.current, newMonaco);
 
-    subscription = editorRef.current.onDidChangeModelContent(event => {
-      if (!isChanging.current && editorRef.current) {
-        onChange(editorRef?.current?.getValue(), editorRef?.current, event);
-      }
-    });
-
     return () => {
       if (editorRef.current) {
         editorRef.current.dispose();
@@ -144,11 +153,24 @@ export default function MonacoEditor({
           model.dispose();
         }
       }
-      if (subscription) {
-        subscription.dispose();
+    };
+  }, [containerRef.current]);
+
+  React.useEffect(() => {
+    subscriptionRef.current = editorRef.current.onDidChangeModelContent(
+      event => {
+        if (!isChangingRef.current && editorRef.current) {
+          onChange(editorRef?.current?.getValue(), editorRef?.current, event);
+        }
+      }
+    );
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.dispose();
       }
     };
-  }, []);
+  }, [onChange]);
 
   React.useEffect(() => {
     if (editorRef.current) {
@@ -183,7 +205,7 @@ export default function MonacoEditor({
     if (editorRef.current) {
       const model = editorRef.current.getModel();
       if (model && value && value !== model.getValue()) {
-        isChanging.current = true;
+        isChangingRef.current = true;
         editorRef.current.pushUndoStop();
         model.pushEditOperations(
           [],
@@ -196,24 +218,17 @@ export default function MonacoEditor({
           () => null
         );
         editorRef.current.pushUndoStop();
-        isChanging.current = false;
+        isChangingRef.current = false;
       }
     }
   }, [value]);
-
-  const fixedWidth = processSize(width);
-  const fixedHeight = processSize(height);
-  const dimensions = {
-    width: fixedWidth,
-    height: fixedHeight,
-  };
 
   return (
     <div
       ref={containerRef}
       data-editor="next-monaco-editor"
       className={className}
-      style={{ ...dimensions, ...style }}
+      style={{ ...processDimensions(width, height), ...style }}
     />
   );
 }
