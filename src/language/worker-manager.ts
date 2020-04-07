@@ -2,12 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import monaco from "../api";
+import * as monaco from "monaco-editor";
 
 // import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 // import { CSSWorker } from './cssWorker';
 interface LanguageServiceConfig {
   languageId: string;
+  workerConfig?: any;
 }
 
 const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000; // 2min
@@ -25,7 +26,7 @@ export async function getWorker<T>(
 }
 
 export class WorkerManager<T> {
-  private _config: LanguageServiceConfig;
+  private _config: ;
   // private _config: LanguageServiceDefaultsImpl;
   private _idleCheckInterval: number;
   private _lastUsedTime: number;
@@ -79,11 +80,7 @@ export class WorkerManager<T> {
 
         label: this._config.languageId,
 
-        // passed in to the create() method
-        // createData: {
-        // 	languageSettings: this._config.diagnosticsOptions,
-        // 	languageId: this._config.languageId
-        // }
+        createData: this._config.workerConfig
       });
 
       this._client = <Promise<T>>(<any>this._worker.getProxy());
@@ -110,6 +107,7 @@ export function setupWorker<T>(
   // const providers: monaco.IDisposable[] = [];
   const {
     languageId,
+    workerConfig
     // modeConfiguration
   } = config;
   const client = new WorkerManager<T>(config);

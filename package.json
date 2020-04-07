@@ -52,6 +52,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "babel-loader": "^8.1.0",
     "monaco-editor": "^0.20.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "next-transpile-modules": "^3.2.0",

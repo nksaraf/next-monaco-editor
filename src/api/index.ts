@@ -6,6 +6,7 @@ declare module "monaco-editor" {
     interface ILang extends monaco.languages.ILanguageExtensionPoint {
       loader?: () => Promise<ILangImpl>;
       worker?: boolean;
+      workerConfig?: any;
     }
     
     interface ILangImpl {

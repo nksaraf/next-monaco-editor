@@ -74,11 +74,7 @@ export default function MonacoEditor({
     const textValue = value != null ? value : defaultValue;
 
     // @ts-ignore
-    window.MonacoEnvironment.getWorkerUrl = (
-      _moduleId: string,
-      label: string
-    ) => {
-      console.log('Getting worker URL:', label);
+    const getWorkerPath = (_moduleId: string, label: string) => {
       const url = getWorkerUrl(label);
       if (url) return url;
 
@@ -94,22 +90,25 @@ export default function MonacoEditor({
 
     // @ts-ignore
     window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
-      console.log('Getting worker:', label);
       const worker = getWorker(label);
       if (worker) return worker;
+
+      return new Worker(getWorkerPath(_moduleId, label));
     };
+
+    const properPath = path.startsWith('/') ? path : `/${path}`;
 
     Object.assign(options, editorWillMount(monaco) || {});
 
     let model = monaco.editor
       .getModels()
-      .find(model => model.uri.path === path);
+      .find(model => model.uri.path === properPath);
 
     if (!model) {
       model = monaco.editor.createModel(
         textValue,
         language,
-        monaco.Uri.file(path)
+        monaco.Uri.file(properPath)
       );
     }
 
@@ -136,7 +135,9 @@ export default function MonacoEditor({
     const newMonaco = {
       ...monaco,
       getModelWorker: async () => {
-        const getWorker = await monaco.languages.getWorker(language);
+        const getWorker = await monaco.languages.getWorker(
+          (model as any).getLanguageIdentifier().language
+        );
         const worker = await getWorker(model.uri);
         return worker;
       },

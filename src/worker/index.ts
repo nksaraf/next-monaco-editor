@@ -26,5 +26,37 @@ interface IWorker {
 
 const worker : IWorker = monacoWorker;
 
+
+export class BaseWorker {
+  ctx: IWorkerContext;
+  config: any;
+  constructor(_ctx, _config) {
+    this.ctx = _ctx;
+    this.config = _config;
+  }
+
+  getModels() {
+    return this.ctx.getMirrorModels();
+  }
+
+  getModel(uri: string) {
+    for (let model of this.getModels()) {
+			if (model.uri.toString() === uri) {
+				return model;
+			}
+		}
+		return null;
+  }
+}
+
+export const initialize = (Worker: typeof BaseWorker) => {
+	self.onmessage = () => {
+		worker.initialize((ctx, createData) => {
+			return new Worker(ctx, createData);
+		});
+	}
+}
+
+
 export { worker };
 export default worker;

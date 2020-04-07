@@ -1,20 +1,22 @@
-const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
-const withTM = require("next-transpile-modules")([
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const withTM = require('next-transpile-modules')([
   // `monaco-editor` isn't published to npm correctly: it includes both CSS
   // imports and non-Node friendly syntax, so it needs to be compiled.
-  "monaco-editor",
+  'monaco-editor',
 ]);
 
-module.exports = (languages = ["javascript", "typescript", "html", "css"]) => (nextConfig = {}) => {
+module.exports = (languages = ['javascript', 'typescript', 'html', 'css']) => (
+  nextConfig = {}
+) => {
   return withTM(
     Object.assign({}, nextConfig, {
       webpack(config, options) {
         const rule = config.module.rules
-          .find((rule) => rule.oneOf)
+          .find(rule => rule.oneOf)
           .oneOf.find(
-            (r) =>
+            r =>
               // Find the global CSS loader
-              r.issuer && r.issuer.include && r.issuer.include.includes("_app")
+              r.issuer && r.issuer.include && r.issuer.include.includes('_app')
           );
         if (rule) {
           rule.issuer.include = [
@@ -24,24 +26,44 @@ module.exports = (languages = ["javascript", "typescript", "html", "css"]) => (n
           ];
         }
 
+        config.module.rules.push({
+          test: /\.monaco\.worker\.(js|ts)$/,
+          use: [
+            {
+              loader: 'worker-loader',
+              options: {
+                name: 'static/[name].js',
+                publicPath: '/_next/',
+              },
+            },
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: ['next/babel'],
+              },
+            },
+          ],
+        });
 
-      config.module.rules.push({
-        test: /\.monaco\.worker\.(js|ts)$/,
-        loader: 'worker-loader',
-        options: {
-          name: 'static/[name].js',
-          publicPath: '/_next/'
-        }
-      })
+        config.module.rules.push({
+          test: /\.workerize\.(js|ts)$/,
+          loader: 'workerize-loader',
+          options: {
+            name: 'static/[name].js',
+            publicPath: '/_next/'
+          }
+        })
+
+        config.output.globalObject = 'self';
 
         config.plugins.push(
           new MonacoWebpackPlugin({
             languages,
-            filename: "static/[name].monaco.worker.js",
+            filename: 'static/[name].monaco.worker.js',
           })
         );
 
-        if (typeof nextConfig.webpack === "function") {
+        if (typeof nextConfig.webpack === 'function') {
           return nextConfig.webpack(config, options);
         }
 

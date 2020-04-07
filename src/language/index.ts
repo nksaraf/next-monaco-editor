@@ -1,4 +1,4 @@
-import monaco from "../api";
+import * as monaco from "monaco-editor";
 
 const languageDefinitions: { [languageId: string]: monaco.languages.ILang } = {};
 const lazyLanguageLoaders: { [languageId: string]: LazyLanguageLoader } = {};
