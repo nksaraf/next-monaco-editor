@@ -1,0 +1,6 @@
+{
+  "name": "next-monaco-editor/worker",
+  "main": "../dist/worker/index.js",
+  "typings": "../dist/worker/esm/worker/index.d.ts",
+  "module": "../dist/worker/esm/index.js"
+}
