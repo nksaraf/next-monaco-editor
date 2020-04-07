@@ -112,3 +112,5 @@
 // 'peekViewEditorGutter.background' // Background color of the gutter in the peek view editor.
 // 'peekViewResult.matchHighlightBackground' // Match highlight color in the peek view result list.
 // 'peekViewEditor.matchHighlightBackground' // Match highlight color in the peek view editor.
+
+// export 

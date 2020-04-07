@@ -5,7 +5,7 @@ const withTM = require('next-transpile-modules')([
   'monaco-editor',
 ]);
 
-module.exports = (languages = ['javascript', 'typescript', 'html', 'css']) => (
+module.exports = ({ languages = ['javascript', 'typescript'], ...monacoOptions } = {}) => (
   nextConfig = {}
 ) => {
   return withTM(
@@ -60,6 +60,8 @@ module.exports = (languages = ['javascript', 'typescript', 'html', 'css']) => (
           new MonacoWebpackPlugin({
             languages,
             filename: 'static/[name].monaco.worker.js',
+            publicPath: '/_next/',
+            ...monacoOptions
           })
         );
 

@@ -26,13 +26,12 @@ interface IWorker {
 
 const worker : IWorker = monacoWorker;
 
-
 export class BaseWorker {
   ctx: IWorkerContext;
-  config: any;
-  constructor(_ctx, _config) {
+  options: any;
+  constructor(_ctx: IWorkerContext, _options: any) {
     this.ctx = _ctx;
-    this.config = _config;
+    this.options = _options;
   }
 
   getModels() {
@@ -47,16 +46,20 @@ export class BaseWorker {
 		}
 		return null;
   }
+
+  getText(uri: string) {
+    return this.getModel(uri).getValue();
+  }
 }
 
 export const initialize = (Worker: typeof BaseWorker) => {
+  // @ts-ignore
 	self.onmessage = () => {
-		worker.initialize((ctx, createData) => {
-			return new Worker(ctx, createData);
+		worker.initialize((ctx, options) => {
+			return new Worker(ctx, options);
 		});
 	}
 }
-
 
 export { worker };
 export default worker;

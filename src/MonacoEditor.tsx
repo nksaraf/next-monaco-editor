@@ -1,6 +1,6 @@
-import monaco from './api';
 import React from 'react';
 import { noop, processDimensions } from './utils';
+import monaco from './api';
 
 export interface MonacoEditorProps {
   width?: string | number;
@@ -54,6 +54,7 @@ export default function MonacoEditor({
   language = 'javascript',
   theme = 'vs-dark',
   path = 'model.js',
+  themes = {},
   options = {},
   overrideServices = {},
   editorDidMount = noop,
@@ -125,6 +126,10 @@ export default function MonacoEditor({
         : overrideServices
     );
 
+    Object.keys(themes).forEach(themeName => {
+      monaco.editor.defineTheme(themeName, themes[themeName]);
+    });
+
     if (typeof theme === 'string') {
       monaco.editor.setTheme(theme);
     } else {
@@ -132,19 +137,23 @@ export default function MonacoEditor({
       monaco.editor.setTheme('custom');
     }
 
-    const newMonaco = {
-      ...monaco,
-      getModelWorker: async () => {
-        const getWorker = await monaco.languages.getWorker(
+    Object.assign(monaco, {
+      getDefaultWorker: async () => {
+        const getWorker = await monaco.getWorkerClient(
           (model as any).getLanguageIdentifier().language
         );
         const worker = await getWorker(model.uri);
         return worker;
       },
-    };
+      getWorker: async (label: string) => {
+        const getWorker = await monaco.getWorkerClient(label);
+        const worker = await getWorker(model.uri);
+        return worker;
+      },
+    });
 
     // After initializing monaco editor
-    editorDidMount(editorRef.current, newMonaco);
+    editorDidMount(editorRef.current, monaco);
 
     return () => {
       if (editorRef.current) {
