@@ -1,11 +1,43 @@
-import * as monaco from "monaco-editor";
+import * as monaco from 'monaco-editor';
 import { languageDefinitions, LazyLanguageLoader } from './language-loader';
+import { defaultProviders } from './worker-manager';
 
-declare module "monaco-editor" {
+declare module 'monaco-editor' {
   namespace languages {
+    interface ILangWorkerProviders {
+      reference?: boolean;
+      rename?: boolean;
+      signatureHelp?: boolean;
+      hover?: boolean;
+      documentSymbol?: boolean;
+      documentHighlight?: boolean;
+      definition?: boolean;
+      implementation?: boolean;
+      typeDefinition?: boolean;
+      codeLens?: boolean;
+      codeAction?: boolean;
+      documentFormattingEdit?: boolean;
+      documentRangeFormattingEdit?: boolean;
+      onTypeFormattingEdit?: boolean;
+      link?: boolean;
+      completionItem?: boolean;
+      color?: boolean;
+      foldingRange?: boolean;
+      declaration?: boolean;
+      selectionRange?: boolean;
+      // documentSemanticTokens?: boolean
+      // documentRangeSemanticTokens?: boolean
+    }
+
+    interface IGetWorker<T> {
+      (...uris: monaco.Uri[]): Promise<T>;
+    }
+
     interface ILangWorker {
       label?: string;
       options?: any;
+      providers?: boolean | ILangWorkerProviders;
+      onRegister?: (getWorker: IGetWorker<any>) => void;
     }
 
     interface ILangWorkerConfig extends ILangWorker {
@@ -16,25 +48,28 @@ declare module "monaco-editor" {
       loader?: () => Promise<ILangImpl>;
       worker?: ILangWorker | boolean;
     }
-    
+
     interface ILangImpl {
       config: monaco.languages.LanguageConfiguration;
       language: monaco.languages.IMonarchLanguage;
     }
   }
 
-  function getWorkerClient<T>(label: string): Promise<(...uris: monaco.Uri[]) => Promise<T>>;
+  function getWorkerClient<T>(
+    label: string
+  ): Promise<(...uris: monaco.Uri[]) => Promise<T>>;
   function addLanguage(languageDef: languages.ILang): void;
   function registerWorker(config: languages.ILangWorkerConfig): void;
   function getDefaultWorker(): Promise<any>;
   function getWorker(label: string): Promise<any>;
 }
 
-
-const getWorkerClient = async <T>(label: string): Promise<(...uris: monaco.Uri[]) => Promise<T>> => {
+const getWorkerClient = async <T>(
+  label: string
+): Promise<(...uris: monaco.Uri[]) => Promise<T>> => {
   const manager = await import('./worker-manager');
   return await manager.getWorkerClient(label);
-}
+};
 
 const addLanguage = (language: monaco.languages.ILang) => {
   const languageId = language.id;
@@ -48,22 +83,22 @@ const addLanguage = (language: monaco.languages.ILang) => {
       languageId,
       lazyLanguageLoader
         .whenLoaded()
-        .then((mod) => mod.language as any)
-        .catch((e) => {
+        .then(mod => mod.language as any)
+        .catch(e => {
           console.error(e);
           return;
         })
     );
-  
+
     monaco.languages.onLanguage(languageId, () => {
       lazyLanguageLoader
         .load()
-        .then((mod) => {
+        .then(mod => {
           if (mod && mod.config) {
             monaco.languages.setLanguageConfiguration(languageId, mod.config);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
           return;
         });
@@ -72,22 +107,40 @@ const addLanguage = (language: monaco.languages.ILang) => {
 
   if (language.worker) {
     const config = typeof language.worker === 'object' ? language.worker : {};
-    monaco.registerWorker({ languageId, ...config  });
+    monaco.registerWorker({ languageId, ...config });
   }
-}
+};
 
-const registerWorker = ({ languageId, label = languageId, options = {} }: monaco.languages.ILangWorkerConfig) => {
-  monaco.languages.onLanguage(languageId, () => {
-    import("./worker-manager")
-      .then((mod) => {
-        mod.setupWorker({ languageId, label, options })
+const registerWorker = ({
+  languageId,
+  label = languageId,
+  options = {},
+  providers = defaultProviders,
+  onRegister,
+}: monaco.languages.ILangWorkerConfig) => {
+  if (languageId) {
+    monaco.languages.onLanguage(languageId, () => {
+      import('./worker-manager')
+        .then(mod => {
+          mod.setupWorker({ languageId, label, options, providers, onRegister });
+        })
+        .catch(err => {
+          console.error(err);
+          return;
+        });
+    });
+  } else {
+    import('./worker-manager')
+      .then(mod => {
+        mod.setupWorker({ languageId, label, options, providers, onRegister });
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         return;
       });
-  });
-}
+  }
+  
+};
 
 Object.assign(monaco, { addLanguage, registerWorker, getWorkerClient });
 
@@ -101,4 +154,3 @@ export default monaco;
 // 	mimetypes: ['text/typescript'],
 // 	loader: () => <Promise<any>>import('./typescript')
 // });
-

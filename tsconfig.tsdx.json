@@ -15,7 +15,7 @@
       "*": ["src/*", "node_modules/*"],
       "next-monaco-editor/*": ["src/*"]
     },
-    "jsx": "preserve",
+    "jsx": "react",
     "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true,

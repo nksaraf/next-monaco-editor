@@ -18,16 +18,17 @@ export interface IWorkerContext<H = undefined> {
   getMirrorModels(): IMirrorModel[];
 }
 
-interface IWorker {
+interface IWorkerInitializer {
   initialize: (
     initalizer: (ctx: IWorkerContext, createData: any) => any
   ) => void;
 }
 
-const worker: IWorker = monacoWorker;
+export const initalizer: IWorkerInitializer = monacoWorker;
+
 
 export interface BaseWorker {
-  constructor(_ctx: IWorkerContext, _options: any): BaseWorker;
+  // constructor()
   getModels(): IMirrorModel[];
   getModel(uri: string): IMirrorModel;
   getText(uri: string): string;
@@ -193,20 +194,20 @@ export class BaseWorker {
     return this.getModel(uri).getValue();
   }
 
-  provide<T>(
+  private _provide<T>(
     provider: string,
     uri: string,
-    ...args
+    ...args: any[]
   ): monaco.languages.ProviderResult<T> {
     return this[
       'provide' + provider.charAt(0).toUpperCase() + provider.slice(1)
     ](this.getModel(uri), ...args);
   }
 
-  resolve<T>(
+  private _resolve<T>(
     resolver: string,
     uri: string,
-    ...args
+    ...args: any[]
   ): monaco.languages.ProviderResult<T> {
     return this[
       'resolve' + resolver.charAt(0).toUpperCase() + resolver.slice(1)
@@ -214,14 +215,11 @@ export class BaseWorker {
   }
 }
 
-export const initialize = (Worker: typeof BaseWorker) => {
+export const initialize = (WorkerClass: typeof BaseWorker) => {
   // @ts-ignore
   self.onmessage = () => {
-    worker.initialize((ctx, options) => {
-      return new Worker(ctx, options);
+    initalizer.initialize((ctx, options) => {
+      return new WorkerClass(ctx, options);
     });
   };
 };
-
-export { worker };
-export default worker;

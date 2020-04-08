@@ -15,32 +15,44 @@ const editorApi = project.getSourceFile(project.getSourceFiles()[0].getFilePath(
 const language = editorApi.getNamespaces().find(n => n.getName() === 'languages');
 const providers = language.getFunctions().filter(f => f.getName().startsWith('register') && f.getName() !== 'register');
 
-// providers.forEach(provider => {
-//   // console.log(provider.getName());
-//   // console.log(provider.compilerNode.parameters[1].type.getText());
+let content = [];
+let config = [];
 
-//   const providerInterface = language.getInterfaceOrThrow(provider.compilerNode.parameters[1].type.getText());
-//   const decls = [];
+providers.forEach(provider => {
+  // console.log(provider.getName());
+  // console.log(provider.compilerNode.parameters[1].type.getText());
 
-//   providerInterface.getMethods().forEach(method => {
-//     const name = method.getName();
-//     if (name.startsWith('provide')) {
-//       let providerName = name.slice(7);
-//       providerName = providerName.charAt(0).toLowerCase() + providerName.slice(1);
-//       decls.push(`${method.getName()}: getProvider(getWorker, '${providerName}')`)
-//     }
-//     if (name.startsWith('resolve')) {
-//       let providerName = name.slice(7);
-//       providerName = providerName.charAt(0).toLowerCase() + providerName.slice(1);
-//       decls.push(`${method.getName()}: getResolver(getWorker, '${providerName}')`)
-//     }
-//   });
+  const providerInterface = language.getInterfaceOrThrow(provider.compilerNode.parameters[1].type.getText());
+  const decls = [];
 
-//   console.log(`monaco.languages.${provider.getName()}(languageId, {
-//   ${decls.join(',\n')}
-// });
-// `)
-// })
+  const providerName = provider.getName().slice(8, provider.getName().length - 8);
+  config.push(`${providerName.charAt(0).toLowerCase() + providerName.slice(1)}: true,`);
+
+  providerInterface.getMethods().forEach(method => {
+    const name = method.getName();
+    if (name.startsWith('provide')) {
+      let providerName = name.slice(7);
+      providerName = providerName.charAt(0).toLowerCase() + providerName.slice(1);
+      decls.push(`${method.getName()}: getProvider(getWorker, '${providerName}')`)
+    }
+    if (name.startsWith('resolve')) {
+      let providerName = name.slice(7);
+      providerName = providerName.charAt(0).toLowerCase() + providerName.slice(1);
+      decls.push(`${method.getName()}: getResolver(getWorker, '${providerName}')`)
+    }
+  });
+
+  content.push(`if (providers.${providerName.charAt(0).toLowerCase() + providerName.slice(1)}) {
+      monaco.languages.${provider.getName()}(languageId, {
+  ${decls.join(',\n')}
+});
+}
+`)
+})
+
+// console.log(config.join('\n'));
+
+console.log(content.join('\n'))
 
 // const decls = [];
 
@@ -59,7 +71,10 @@ const providers = language.getFunctions().filter(f => f.getName().startsWith('re
 //     }
 
 //     const params = method.getParameters().slice(1);
-//     const printedParams = [`model: IMirrorModel`, ...(params.filter(p => p.getName() !== 'token').map(p => {
+//     const printedParams = [`model: IMirrorModel`, ...(params.filter(p => 
+//         // p.getName() !== 'token'
+//         p
+//         ).map(p => {
 //         return `${p.getName()}: ${p.getType().getText().replace(/import\(.*\)/, 'monaco')}`;
 //     }))].join(', ')
 
@@ -69,7 +84,7 @@ const providers = language.getFunctions().filter(f => f.getName().startsWith('re
 //       providerName = providerName.charAt(0).toLowerCase() + providerName.slice(1);
 //   // provideHover?(model: IMirrorModel, position: monaco.Position): ProviderResult<monaco.languages.Hover>;
 
-//       decls.push(`${method.getName()}?(${printedParams}): ${returnType}`)
+//       decls.push(`${method.getName()}?(${printedParams})`)
 //     }
 //     if (name.startsWith('resolve')) {
 //       let providerName = name.slice(7);
