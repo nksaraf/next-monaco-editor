@@ -15,13 +15,14 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "npm-run-all --parallel build:*",
+    "prepublishOnly": "yarn build",
+    "dev": "next",
     "build:main": "tsdx build --name next-monaco-editor && yarn build:entry next-monaco-editor",
     "build:api": "tsdx build -i ./src/api/index.ts --name api && yarn build:entry api",
     "build:worker": "tsdx build -i ./src/worker/index.ts --name worker && yarn build:entry worker",
     "build:entry": "deno --allow-write --allow-read scripts/entry.ts",
     "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "yarn build"
+    "lint": "tsdx lint"
   },
   "peerDependencies": {
     "next": "*",
@@ -29,7 +30,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "prettier --write"
     }
   },
   "prettier": {
@@ -42,16 +43,20 @@
     "@types/jest": "^25.2.1",
     "@types/react": "^16.9.32",
     "@types/react-dom": "^16.9.6",
+    "esm": "^3.2.25",
     "husky": "^4.2.3",
     "next": "^9.3.4",
     "npm-run-all": "^4.1.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "ts-morph": "^7.0.1",
     "tsdx": "^0.13.1",
     "tslib": "^1.11.1",
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
     "babel-loader": "^8.1.0",
     "dedent": "^0.7.0",
     "monaco-editor": "^0.20.0",
