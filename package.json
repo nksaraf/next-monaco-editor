@@ -28,11 +28,6 @@
     "next": "*",
     "react": ">=16"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "prettier --write"
-    }
-  },
   "prettier": {
     "printWidth": 80,
     "semi": true,
