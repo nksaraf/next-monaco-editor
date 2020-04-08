@@ -1,0 +1,1 @@
+Deno.copyFileSync('./src/plugins/prettier.monaco.worker.ts', './plugins/prettier.monaco.worker.ts');

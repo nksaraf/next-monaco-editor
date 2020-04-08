@@ -17,7 +17,7 @@ export interface MonacoEditorProps {
   overrideServices?:
     | monaco.editor.IEditorOverrideServices
     | ((
-        _monaco: typeof monaco,
+        monacoApi: typeof monaco,
         model: monaco.editor.ITextModel
       ) => monaco.editor.IEditorOverrideServices);
   className?: string;
@@ -25,19 +25,20 @@ export interface MonacoEditorProps {
   getWorkerUrl?: (label: string) => string | undefined;
   editorDidMount?: (
     editor: monaco.editor.IStandaloneCodeEditor,
-    _monaco: typeof monaco
+    monacoApi: typeof monaco
   ) => void;
   editorWillMount?: (
-    _monaco: typeof monaco
+    monacoApi: typeof monaco
   ) => monaco.editor.IEditorOptions | void;
   onChange?: (
     newValue: string,
     editor: monaco.editor.IStandaloneCodeEditor,
     event: monaco.editor.IModelContentChangedEvent
   ) => void;
+  plugins: ((monacoApi: typeof monaco) => void)[];
 }
 
-const getNextWorkerPath = (label) => {
+const getNextWorkerPath = (label: string) => {
   return `_next/static/${label}.monaco.worker.js`;
 };
 
@@ -54,6 +55,7 @@ export default function MonacoEditor({
   language = 'javascript',
   theme = 'vs-dark',
   path = 'model.js',
+  plugins = [],
   themes = {},
   options = {},
   overrideServices = {},
@@ -100,6 +102,10 @@ export default function MonacoEditor({
     const properPath = path.startsWith('/') ? path : `/${path}`;
 
     Object.assign(options, editorWillMount(monaco) || {});
+
+    plugins.forEach((plugin) => {
+      plugin(monaco);
+    });
 
     let model = monaco.editor
       .getModels()

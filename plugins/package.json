@@ -1,0 +1,6 @@
+{
+  "name": "next-monaco-editor/plugins",
+  "main": "../dist/plugins/index.js",
+  "typings": "../dist/plugins/esm/plugins/index.d.ts",
+  "module": "../dist/plugins/esm/index.js"
+}
