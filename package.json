@@ -1,7 +1,7 @@
 {
   "name": "next-monaco-editor",
   "author": "Nikhil Saraf",
-  "version": "0.0.1-beta.16",
+  "version": "0.0.1-beta.17",
   "license": "MIT",
   "main": "dist/next-monaco-editor/index.js",
   "typings": "dist/next-monaco-editor/esm/index.d.ts",
@@ -60,7 +60,6 @@
     "monaco-editor-webpack-plugin": "^1.9.0",
     "next-transpile-modules": "^3.2.0",
     "prettier": "^2.0.4",
-    "rollup-plugin-ignore-import": "^1.3.2",
     "worker-loader": "^2.0.0",
     "workerize-loader": "^1.1.0"
   }
