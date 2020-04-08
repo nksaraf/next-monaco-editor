@@ -1,6 +1,6 @@
 import prettier from 'prettier/standalone';
 import babylon from 'prettier/parser-babel';
-import{ BaseWorker, initialize } from 'next-monaco-editor/worker';
+import{ BaseWorker, initialize } from '../worker';
 
 class PrettierWorker extends BaseWorker {
 	provideDocumentFormattingEdits = (model) => {
