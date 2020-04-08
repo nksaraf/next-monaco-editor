@@ -122,7 +122,13 @@ const registerWorker = ({
     monaco.languages.onLanguage(languageId, () => {
       import('./worker-manager')
         .then(mod => {
-          mod.setupWorker({ languageId, label, options, providers, onRegister });
+          mod.setupWorker({
+            languageId,
+            label,
+            options,
+            providers,
+            onRegister,
+          });
         })
         .catch(err => {
           console.error(err);
@@ -139,7 +145,6 @@ const registerWorker = ({
         return;
       });
   }
-  
 };
 
 Object.assign(monaco, { addLanguage, registerWorker, getWorkerClient });

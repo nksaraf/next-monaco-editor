@@ -26,7 +26,6 @@ interface IWorkerInitializer {
 
 export const initalizer: IWorkerInitializer = monacoWorker;
 
-
 export interface BaseWorker {
   // constructor()
   getModels(): IMirrorModel[];

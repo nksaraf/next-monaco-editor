@@ -154,34 +154,39 @@ const getResolver = (getWorker, resolver) => {
 };
 
 export const defaultProviders = {
-  reference: true, 
-  rename: true, 
-  signatureHelp: true, 
-  hover: true, 
-  documentSymbol: true, 
-  documentHighlight: true, 
-  definition: true, 
-  implementation: true, 
-  typeDefinition: true, 
-  codeLens: true, 
-  codeAction: true, 
-  documentFormattingEdit: true, 
-  documentRangeFormattingEdit: true, 
-  onTypeFormattingEdit: true, 
-  link: true, 
-  completionItem: true, 
-  color: true, 
-  foldingRange: true, 
-  declaration: true, 
-  selectionRange: true, 
-  documentSemanticTokens: true, 
-  documentRangeSemanticTokens: true, 
-}
+  reference: true,
+  rename: true,
+  signatureHelp: true,
+  hover: true,
+  documentSymbol: true,
+  documentHighlight: true,
+  definition: true,
+  implementation: true,
+  typeDefinition: true,
+  codeLens: true,
+  codeAction: true,
+  documentFormattingEdit: true,
+  documentRangeFormattingEdit: true,
+  onTypeFormattingEdit: true,
+  link: true,
+  completionItem: true,
+  color: true,
+  foldingRange: true,
+  declaration: true,
+  selectionRange: true,
+  documentSemanticTokens: true,
+  documentRangeSemanticTokens: true,
+};
 
 export function setupWorker<T>(
   config: monaco.languages.ILangWorkerConfig
 ): monaco.languages.IGetWorker<T> {
-  const { languageId, options, providers : providersConfig = defaultProviders, onRegister } = config;
+  const {
+    languageId,
+    options,
+    providers: providersConfig = defaultProviders,
+    onRegister,
+  } = config;
   const client = new WorkerManager<T>(config);
 
   const getWorker: monaco.languages.IGetWorker<any> = async (...uris) => {
@@ -198,7 +203,10 @@ export function setupWorker<T>(
     return;
   }
 
-  let providers = (typeof providersConfig === 'boolean' && providersConfig) ? defaultProviders : providersConfig as monaco.languages.ILangWorkerProviders;
+  let providers =
+    typeof providersConfig === 'boolean' && providersConfig
+      ? defaultProviders
+      : (providersConfig as monaco.languages.ILangWorkerProviders);
 
   if (providers.reference) {
     monaco.languages.registerReferenceProvider(languageId, {

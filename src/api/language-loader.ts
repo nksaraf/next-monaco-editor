@@ -1,7 +1,11 @@
-import * as monaco from "monaco-editor";
+import * as monaco from 'monaco-editor';
 
-export const languageDefinitions: { [languageId: string]: monaco.languages.ILang } = {};
-export const lazyLanguageLoaders: { [languageId: string]: LazyLanguageLoader } = {};
+export const languageDefinitions: {
+  [languageId: string]: monaco.languages.ILang;
+} = {};
+export const lazyLanguageLoaders: {
+  [languageId: string]: LazyLanguageLoader;
+} = {};
 
 export class LazyLanguageLoader {
   public static getOrCreate(languageId: string): LazyLanguageLoader {
@@ -13,7 +17,7 @@ export class LazyLanguageLoader {
 
   private readonly _languageId: string;
   private _loadingTriggered: boolean;
-  
+
   private _lazyLoadPromise: Promise<monaco.languages.ILangImpl>;
   private _lazyLoadPromiseResolve!: (value: monaco.languages.ILangImpl) => void;
   private _lazyLoadPromiseReject!: (err: any) => void;
@@ -35,8 +39,8 @@ export class LazyLanguageLoader {
     if (!this._loadingTriggered) {
       this._loadingTriggered = true;
       languageDefinitions[this._languageId].loader().then(
-        (mod) => this._lazyLoadPromiseResolve(mod),
-        (err) => this._lazyLoadPromiseReject(err)
+        mod => this._lazyLoadPromiseResolve(mod),
+        err => this._lazyLoadPromiseReject(err)
       );
     }
     return this._lazyLoadPromise;
