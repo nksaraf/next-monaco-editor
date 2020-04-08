@@ -1,7 +1,7 @@
 {
   "name": "next-monaco-editor",
   "author": "Nikhil Saraf",
-  "version": "0.0.1-beta.17",
+  "version": "0.0.1-beta.18",
   "license": "MIT",
   "main": "dist/next-monaco-editor/index.js",
   "typings": "dist/next-monaco-editor/esm/index.d.ts",
@@ -20,7 +20,7 @@
     "dev": "next",
     "build:main": "tsdx build --name next-monaco-editor --tsconfig ./tsconfig.tsdx.json && yarn build:entry next-monaco-editor",
     "build:api": "tsdx build -i ./src/api/index.ts --tsconfig ./tsconfig.tsdx.json --name api && yarn build:entry api",
-    "build:plugins": "tsdx build -i ./src/plugins/index.ts --tsconfig ./tsconfig.tsdx.json --name plugins && yarn build:entry plugins",
+    "build:plugins": "tsdx build -i ./src/plugins/index.ts --tsconfig ./tsconfig.tsdx.json --name plugins && yarn build:entry plugins && deno --allow-write --allow-read scripts/copy-workers.ts",
     "build:worker": "tsdx build -i ./src/worker/index.ts --tsconfig ./tsconfig.tsdx.json --name worker && yarn build:entry worker",
     "build:entry": "deno --allow-write --allow-read scripts/entry.ts",
     "test": "tsdx test --passWithNoTests",
