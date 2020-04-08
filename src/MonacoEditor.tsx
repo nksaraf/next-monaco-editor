@@ -37,7 +37,7 @@ export interface MonacoEditorProps {
   ) => void;
 }
 
-const getNextWorkerPath = label => {
+const getNextWorkerPath = (label) => {
   return `_next/static/${label}.monaco.worker.js`;
 };
 
@@ -103,7 +103,7 @@ export default function MonacoEditor({
 
     let model = monaco.editor
       .getModels()
-      .find(model => model.uri.path === properPath);
+      .find((model) => model.uri.path === properPath);
 
     if (!model) {
       model = monaco.editor.createModel(
@@ -126,7 +126,7 @@ export default function MonacoEditor({
         : overrideServices
     );
 
-    Object.keys(themes).forEach(themeName => {
+    Object.keys(themes).forEach((themeName) => {
       monaco.editor.defineTheme(themeName, themes[themeName]);
     });
 
@@ -168,7 +168,7 @@ export default function MonacoEditor({
 
   React.useEffect(() => {
     subscriptionRef.current = editorRef.current.onDidChangeModelContent(
-      event => {
+      (event) => {
         if (!isChangingRef.current && editorRef.current) {
           onChange(editorRef?.current?.getValue(), editorRef?.current, event);
         }
