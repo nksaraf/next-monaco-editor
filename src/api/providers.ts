@@ -36,6 +36,8 @@ const getProvider = (getWorker, provider) => {
         ...args.slice(0, args.length - 1)
       );
     } catch (e) {
+      console.error(e)
+
       return null;
     }
   };
@@ -53,6 +55,7 @@ const getSignatureHelpProvider = getWorker => {
         context
       );
     } catch (e) {
+      console.error(e)
       return null;
     }
   };
@@ -69,18 +72,13 @@ const getResolver = (getWorker, resolver) => {
         ...args.slice(0, args.length - 1)
       );
     } catch (e) {
+      console.error(e)
       return null;
     }
   };
 };
 
-interface IProvidersConfig {
-  getWorker: monaco.languages.IGetWorker<any>
-  languageId: string;
-  providers?: monaco.languages.ILangWorkerProviders | boolean;
-}
-
-export const setupWorkerProviders = ({ providers = defaultProviderConfig, languageId, getWorker }: IProvidersConfig) => {
+export const setupWorkerProviders = ({ providers = defaultProviderConfig, languageId, getWorker }: monaco.worker.IProvidersConfig) => {
   if (!providers) {
     return;
   }
@@ -88,7 +86,7 @@ export const setupWorkerProviders = ({ providers = defaultProviderConfig, langua
   providers =
     typeof providers === 'boolean' && providers
       ? defaultProviderConfig
-      : (providers as monaco.languages.ILangWorkerProviders);
+      : (providers as monaco.worker.ILangWorkerProviders);
 
   if (providers.reference) {
     monaco.languages.registerReferenceProvider(languageId, {

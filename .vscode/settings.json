@@ -1,0 +1,13 @@
+{
+  "files.exclude": {
+    "worker": true,
+    "plugins": true,
+    "api": true,
+    "next-env.d.ts": true,
+    "yarn.lock": true,
+    "tsconfig.json": true,
+    "tsconfig.tsdx.json": true,
+    "LICENSE": true,
+    ".gitignore": true
+  }
+}

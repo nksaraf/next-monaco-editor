@@ -12,4 +12,8 @@ export function processDimensions(width, height) {
   };
 }
 
+export const getNextWorkerPath = (label: string) => {
+  return `_next/static/${label}.monaco.worker.js`;
+};
+
 export function noop() {}

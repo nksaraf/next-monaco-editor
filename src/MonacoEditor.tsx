@@ -1,6 +1,33 @@
 import React from 'react';
-import { noop, processDimensions } from './utils';
+import { noop, processDimensions, getNextWorkerPath } from './utils';
 import monaco from './api';
+import defaultThemes, { ThemeNames } from './themes';
+import './monaco.css';
+import { SetThemeAction } from './themes/SelectThemeAction';
+
+const setCommandPaletteCommands = (monaco, editor) => {
+  // for firefox support (wasn't able to intercept key)
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_C,
+    () => {
+      editor.trigger('ctrl-shift-c', 'editor.action.quickCommand', null);
+    }
+  );
+
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P,
+    () => {
+      editor.trigger('ctrl-shift-p', 'editor.action.quickCommand', null);
+    }
+  );
+
+  window.addEventListener('keydown', (event: any) => {
+    if (event.metaKey && event.shiftKey && event.code === 'KeyP') {
+      editor.trigger('ctrl-shift-p', 'editor.action.quickCommand', null);
+      event.stopPropagation();
+    }
+  });
+};
 
 export interface MonacoEditorProps {
   width?: string | number;
@@ -11,7 +38,7 @@ export interface MonacoEditorProps {
   style?: React.CSSProperties;
   path?: string;
   language?: string;
-  theme?: string | monaco.editor.IStandaloneThemeData;
+  theme?: ThemeNames | monaco.editor.IStandaloneThemeData;
   themes?: { [key: string]: monaco.editor.IStandaloneThemeData };
   options?: monaco.editor.IEditorOptions;
   overrideServices?:
@@ -35,216 +62,254 @@ export interface MonacoEditorProps {
     editor: monaco.editor.IStandaloneCodeEditor,
     event: monaco.editor.IModelContentChangedEvent
   ) => void;
-  plugins: ((monacoApi: typeof monaco) => void)[];
+  plugins?: ((monacoApi: typeof monaco) => void)[];
 }
 
-const getNextWorkerPath = (label: string) => {
-  return `_next/static/${label}.monaco.worker.js`;
-};
+export const MonacoEditor = React.forwardRef<
+  monaco.editor.IStandaloneCodeEditor,
+  MonacoEditorProps
+>(
+  (
+    {
+      width = '100%',
+      height = '100%',
+      value,
+      defaultValue = '',
+      style = {},
+      className = 'next-editor',
+      line = 0,
+      getWorkerUrl = noop as any,
+      getWorker = noop as any,
+      language = 'javascript',
+      theme = 'vs-dark',
+      path = 'model.js',
+      plugins = [],
+      themes = {},
+      options = {},
+      overrideServices = {},
+      editorDidMount = noop,
+      editorWillMount = noop,
+      onChange = noop,
+    }: MonacoEditorProps,
+    ref
+  ) => {
+    const containerRef = React.useRef<HTMLDivElement>(null);
+    const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+    const isChangingRef = React.useRef(false);
+    const subscriptionRef = React.useRef<monaco.IDisposable>(null);
 
-export default function MonacoEditor({
-  width = '100%',
-  height = '100%',
-  value,
-  defaultValue = '',
-  style = {},
-  className = 'next-editor',
-  line = 0,
-  getWorkerUrl = noop as any,
-  getWorker = noop as any,
-  language = 'javascript',
-  theme = 'vs-dark',
-  path = 'model.js',
-  plugins = [],
-  themes = {},
-  options = {},
-  overrideServices = {},
-  editorDidMount = noop,
-  editorWillMount = noop,
-  onChange = noop,
-}: MonacoEditorProps) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  const isChangingRef = React.useRef(false);
-  const subscriptionRef = React.useRef<monaco.IDisposable>(null);
-
-  React.useEffect(() => {
-    if (!containerRef.current) {
-      console.error('Assign container ref to something');
-      return;
-    }
-
-    const textValue = value != null ? value : defaultValue;
-
-    // @ts-ignore
-    const getWorkerPath = (_moduleId: string, label: string) => {
-      const url = getWorkerUrl(label);
-      if (url) return url;
-
-      if (label === 'editorWorkerService') {
-        return getNextWorkerPath('editor');
-      } else {
-        if (label === 'typescript' || label === 'javascript') {
-          return getNextWorkerPath('ts');
-        }
-        return getNextWorkerPath(label);
+    React.useEffect(() => {
+      if (!containerRef.current) {
+        console.error('Assign container ref to something');
+        return;
       }
-    };
+      // @ts-ignore
+      const getWorkerPath = (_moduleId: string, label: string) => {
+        const url = getWorkerUrl(label);
+        if (url) return url;
 
-    // @ts-ignore
-    window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
-      const worker = getWorker(label);
-      if (worker) return worker;
+        if (label === 'editorWorkerService') {
+          return getNextWorkerPath('editor');
+        } else {
+          if (label === 'typescript' || label === 'javascript') {
+            return getNextWorkerPath('ts');
+          }
+          return getNextWorkerPath(label);
+        }
+      };
 
-      return new Worker(getWorkerPath(_moduleId, label));
-    };
+      // @ts-ignore
+      window.MonacoEnvironment.getWorker = (
+        _moduleId: string,
+        label: string
+      ) => {
+        const worker = getWorker(label);
+        if (worker) return worker;
 
-    const properPath = path.startsWith('/') ? path : `/${path}`;
+        return new Worker(getWorkerPath(_moduleId, label));
+      };
 
-    Object.assign(options, editorWillMount(monaco) || {});
+      const textValue = value != null ? value : defaultValue;
+      const properPath = path.startsWith('/') ? path : `/${path}`;
 
-    plugins.forEach((plugin) => {
-      plugin(monaco);
-    });
+      Object.assign(options, editorWillMount(monaco) || {});
 
-    let model = monaco.editor
-      .getModels()
-      .find((model) => model.uri.path === properPath);
+      plugins.forEach((plugin) => {
+        plugin(monaco);
+      });
 
-    if (!model) {
-      model = monaco.editor.createModel(
-        textValue,
-        language,
-        monaco.Uri.file(properPath)
-      );
-    }
+      let model = monaco.editor
+        .getModels()
+        .find((model) => model.uri.path === properPath);
 
-    editorRef.current = monaco.editor.create(
-      containerRef.current,
-      {
-        model,
-        language,
-        automaticLayout: true,
-        ...options,
-      },
-      typeof overrideServices === 'function'
-        ? overrideServices(monaco, model)
-        : overrideServices
-    );
-
-    Object.keys(themes).forEach((themeName) => {
-      monaco.editor.defineTheme(themeName, themes[themeName]);
-    });
-
-    if (typeof theme === 'string') {
-      monaco.editor.setTheme(theme);
-    } else {
-      monaco.editor.defineTheme('custom', theme);
-      monaco.editor.setTheme('custom');
-    }
-
-    Object.assign(monaco, {
-      getDefaultWorker: async () => {
-        const getWorker = await monaco.getWorkerClient(
-          (model as any).getLanguageIdentifier().language
+      if (!model) {
+        model = monaco.editor.createModel(
+          textValue,
+          language,
+          monaco.Uri.file(properPath)
         );
-        const worker = await getWorker(model.uri);
-        return worker;
-      },
-      getWorker: async (label: string) => {
-        const getWorker = await monaco.getWorkerClient(label);
-        const worker = await getWorker(model.uri);
-        return worker;
-      },
-    });
-
-    // After initializing monaco editor
-    editorDidMount(editorRef.current, monaco);
-
-    return () => {
-      if (editorRef.current) {
-        editorRef.current.dispose();
-        const model = editorRef.current.getModel();
-        if (model) {
-          model.dispose();
-        }
       }
-    };
-  }, [containerRef.current]);
 
-  React.useEffect(() => {
-    subscriptionRef.current = editorRef.current.onDidChangeModelContent(
-      (event) => {
-        if (!isChangingRef.current && editorRef.current) {
-          onChange(editorRef?.current?.getValue(), editorRef?.current, event);
-        }
-      }
-    );
+      editorRef.current = monaco.editor.create(
+        containerRef.current,
+        {
+          model,
+          language,
+          automaticLayout: true,
+          ...options,
+        },
+        typeof overrideServices === 'function'
+          ? overrideServices(monaco, model)
+          : overrideServices
+      );
 
-    return () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.dispose();
-      }
-    };
-  }, [onChange]);
+      const allThemes = {
+        ...defaultThemes,
+        ...themes,
+      };
 
-  React.useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.setScrollPosition({ scrollTop: line });
-    }
-  }, [line]);
+      Object.keys(allThemes).forEach((themeName) => {
+        monaco.editor.defineTheme(themeName, allThemes[themeName]);
+      });
 
-  React.useEffect(() => {
-    if (editorRef.current) {
+      // Set current theme based on predefined themes or if object, set as a custom theme
       if (typeof theme === 'string') {
         monaco.editor.setTheme(theme);
       } else {
         monaco.editor.defineTheme('custom', theme);
         monaco.editor.setTheme('custom');
       }
-    }
-  }, [theme]);
 
-  React.useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.updateOptions(options);
-    }
-  }, [options]);
-
-  React.useEffect(() => {
-    if (editorRef.current) {
-      monaco.editor.setModelLanguage(editorRef.current.getModel(), language);
-    }
-  }, [language]);
-
-  React.useEffect(() => {
-    if (editorRef.current) {
-      const model = editorRef.current.getModel();
-      if (model && value && value !== model.getValue()) {
-        isChangingRef.current = true;
-        editorRef.current.pushUndoStop();
-        model.pushEditOperations(
-          [],
-          [
-            {
-              range: model.getFullModelRange(),
-              text: value,
-            },
-          ],
-          () => null
+      // console.log(monaco.)
+      const { formatOnSave = true } = options;
+      if (formatOnSave) {
+        editorRef.current.addCommand(
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+          () => {
+            editorRef.current.trigger(
+              'ctrl-s',
+              'editor.action.formatDocument',
+              null
+            );
+          }
         );
-        editorRef.current.pushUndoStop();
-        isChangingRef.current = false;
       }
-    }
-  }, [value]);
+      setCommandPaletteCommands(monaco, editorRef.current);
+      editorRef.current.addAction(new SetThemeAction(monaco) as any);
 
-  return (
-    <div
-      ref={containerRef}
-      data-editor="next-monaco-editor"
-      className={className}
-      style={{ ...processDimensions(width, height), ...style }}
-    />
-  );
-}
+      Object.assign(monaco.worker, {
+        getDefault: async () => {
+          const getWorker = await monaco.worker.getClient(
+            (model as any).getLanguageIdentifier().language
+          );
+          const worker = await getWorker(model.uri);
+          return worker;
+        },
+        get: async (label: string) => {
+          const getWorker = await monaco.worker.getClient(label);
+          const worker = await getWorker(model.uri);
+          return worker;
+        },
+      });
+
+      if (ref) {
+        if (typeof ref === 'function') {
+          ref(editorRef.current);
+        } else {
+          (ref as any).current = editorRef.current;
+        }
+      }
+
+      // After initializing monaco editor
+      editorDidMount(editorRef.current, monaco);
+
+      return () => {
+        if (editorRef.current) {
+          editorRef.current.dispose();
+          const model = editorRef.current.getModel();
+          if (model) {
+            model.dispose();
+          }
+        }
+      };
+    }, [containerRef.current]);
+
+    React.useEffect(() => {
+      subscriptionRef.current = editorRef.current.onDidChangeModelContent(
+        (event) => {
+          if (!isChangingRef.current && editorRef.current) {
+            onChange(editorRef?.current?.getValue(), editorRef?.current, event);
+          }
+        }
+      );
+
+      return () => {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.dispose();
+        }
+      };
+    }, [onChange]);
+
+    React.useEffect(() => {
+      if (editorRef.current) {
+        editorRef.current.setScrollPosition({ scrollTop: line });
+      }
+    }, [line]);
+
+    React.useEffect(() => {
+      if (editorRef.current) {
+        if (typeof theme === 'string') {
+          monaco.editor.setTheme(theme);
+        } else {
+          monaco.editor.defineTheme('custom', theme);
+          monaco.editor.setTheme('custom');
+        }
+      }
+    }, [theme]);
+
+    React.useEffect(() => {
+      if (editorRef.current) {
+        editorRef.current.updateOptions(options);
+      }
+    }, [options]);
+
+    React.useEffect(() => {
+      if (editorRef.current) {
+        monaco.editor.setModelLanguage(editorRef.current.getModel(), language);
+      }
+    }, [language]);
+
+    React.useEffect(() => {
+      if (editorRef.current) {
+        const model = editorRef.current.getModel();
+        if (model && value && value !== model.getValue()) {
+          isChangingRef.current = true;
+          editorRef.current.pushUndoStop();
+          model.pushEditOperations(
+            [],
+            [
+              {
+                range: model.getFullModelRange(),
+                text: value,
+              },
+            ],
+            () => null
+          );
+          editorRef.current.pushUndoStop();
+          isChangingRef.current = false;
+        }
+      }
+    }, [value]);
+
+    return (
+      <div
+        ref={containerRef}
+        data-editor="next-monaco-editor"
+        className={className}
+        style={{ ...processDimensions(width, height), ...style }}
+      />
+    );
+  }
+);
+
+export default MonacoEditor;

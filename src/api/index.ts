@@ -1,10 +1,15 @@
 import * as monaco from 'monaco-editor';
 import { languageDefinitions, LazyLanguageLoader } from './language-loader';
-import {  setupWorker } from './worker-manager';
-import {  defaultProviderConfig } from './providers';
+import { setupWorker, getWorkerClient } from './worker-manager';
+import { defaultProviderConfig } from './providers';
 
 declare module 'monaco-editor' {
-  namespace languages {
+  namespace worker {
+    interface IProvidersConfig {
+      getWorker: IGetWorker<any>
+      languageId: string;
+      providers?: ILangWorkerProviders | boolean;
+    }
     interface ILangWorkerProviders {
       reference?: boolean;
       rename?: boolean;
@@ -29,7 +34,7 @@ declare module 'monaco-editor' {
       // documentSemanticTokens?: boolean
       // documentRangeSemanticTokens?: boolean
     }
-
+    
     interface IGetWorker<T> {
       (...uris: monaco.Uri[]): Promise<T>;
     }
@@ -37,14 +42,36 @@ declare module 'monaco-editor' {
     interface ILangWorkerConfig {
       label?: string;
       languageId?: string;
+      // to be passed on to the worker
       options?: any;
+      /* if boolean, all providers registered/not-registered, 
+      if object, more control over which specific providers are registered */
       providers?: boolean | ILangWorkerProviders;
-      onRegister?: (getWorker: IGetWorker<any>) => void;
+      onRegister?: (getWorker: IGetWorker<any>, monacoApi: typeof monaco) => void;
     }
 
+    function register(config: worker.ILangWorkerConfig): void;
+    function getClient<T>(
+      label: string
+    ): Promise<(...uris: monaco.Uri[]) => Promise<T>>;
+  
+    // provided in MonacoEditor.tsx
+    function getDefault(): Promise<any>;
+    function get(label: string): Promise<any>;
+  }
+
+  namespace editor  {
+    interface IEditorOptions {
+      formatOnSave?: boolean;
+    }
+  }
+
+  namespace languages {
     interface ILang extends monaco.languages.ILanguageExtensionPoint {
+      // eg. () => import('./typescript');
       loader?: () => Promise<ILangImpl>;
-      worker?: Omit<ILangWorkerConfig, 'languageId'> | boolean;
+      // if true, worker with languageId as label is registered
+      worker?: Omit<worker.ILangWorkerConfig, 'languageId'> | boolean;
     }
 
     interface ILangImpl {
@@ -53,23 +80,11 @@ declare module 'monaco-editor' {
     }
   }
 
-  function getWorkerClient<T>(
-    label: string
-  ): Promise<(...uris: monaco.Uri[]) => Promise<T>>;
-  function addLanguage(languageDef: languages.ILang): void;
-  function registerWorker(config: languages.ILangWorkerConfig): void;
-  function getDefaultWorker(): Promise<any>;
-  function getWorker(label: string): Promise<any>;
+  // provided in this file
+  function registerLanguage(languageDef: languages.ILang): void;
 }
 
-const getWorkerClient = async <T>(
-  label: string
-): Promise<(...uris: monaco.Uri[]) => Promise<T>> => {
-  const manager = await import('./worker-manager');
-  return await manager.getWorkerClient(label);
-};
-
-const addLanguage = (language: monaco.languages.ILang) => {
+const registerLanguage = (language: monaco.languages.ILang) => {
   const languageId = language.id;
   languageDefinitions[languageId] = language;
 
@@ -105,7 +120,7 @@ const addLanguage = (language: monaco.languages.ILang) => {
 
   if (language.worker) {
     const config = typeof language.worker === 'object' ? language.worker : {};
-    monaco.registerWorker({ languageId, ...config });
+    monaco.worker.register({ languageId, ...config });
   }
 };
 
@@ -115,7 +130,7 @@ const registerWorker = ({
   options = {},
   providers = defaultProviderConfig,
   onRegister,
-}: monaco.languages.ILangWorkerConfig) => {
+}: monaco.worker.ILangWorkerConfig) => {
   if (languageId) {
     monaco.languages.onLanguage(languageId, () => {
       setupWorker({
@@ -131,7 +146,8 @@ const registerWorker = ({
   }
 };
 
-Object.assign(monaco, { addLanguage, registerWorker, getWorkerClient });
+
+Object.assign(monaco, { worker: { register: registerWorker, getClient: getWorkerClient }, registerLanguage});
 
 export { monaco };
 export default monaco;

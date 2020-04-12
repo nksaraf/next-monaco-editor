@@ -5,7 +5,7 @@ const withTM = require('next-transpile-modules')([
   'monaco-editor',
 ]);
 
-module.exports = ({ languages = ['javascript', 'typescript'], ...monacoOptions } = {}) => (
+module.exports = (monacoOptions = {}) => (
   nextConfig = {}
 ) => {
   return withTM(
@@ -23,7 +23,8 @@ module.exports = ({ languages = ['javascript', 'typescript'], ...monacoOptions }
             rule.issuer.include,
             // Allow `monaco-editor` to import global CSS:
             /[\\/]node_modules[\\/]monaco-editor[\\/]/,
-            // /[\\/]node_modules[\\/]next-monaco-editor[\\/]plugins[\\/]/,
+            /[\\/]node_modules[\\/]next-monaco-editor[\\/]/,
+            /.[\\/]src[\\/]/,
           ];
         }
 
@@ -59,7 +60,6 @@ module.exports = ({ languages = ['javascript', 'typescript'], ...monacoOptions }
 
         config.plugins.push(
           new MonacoWebpackPlugin({
-            languages,
             filename: 'static/[name].monaco.worker.js',
             publicPath: '/_next/',
             ...monacoOptions

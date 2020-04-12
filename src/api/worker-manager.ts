@@ -8,7 +8,7 @@ import { setupWorkerProviders } from './providers';
 const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000; // 2min
 
 export class WorkerManager<T> {
-  private _config: monaco.languages.ILangWorkerConfig;
+  private _config: monaco.worker.ILangWorkerConfig;
   // private _config: LanguageServiceDefaultsImpl;
   private _idleCheckInterval: number;
   private _lastUsedTime: number;
@@ -17,7 +17,7 @@ export class WorkerManager<T> {
   private _worker: monaco.editor.MonacoWebWorker<T>;
   private _client: Promise<T>;
 
-  constructor(config: monaco.languages.ILangWorkerConfig) {
+  constructor(config: monaco.worker.ILangWorkerConfig) {
     this._config = config;
     this._worker = null;
     this._idleCheckInterval = window.setInterval(
@@ -78,7 +78,7 @@ export class WorkerManager<T> {
   }
 }
 
-const workerClients: { [key: string]: monaco.languages.IGetWorker<any> } = {
+const workerClients: { [key: string]: monaco.worker.IGetWorker<any> } = {
   javascript: monaco.languages.typescript.getJavaScriptWorker,
   typescript: monaco.languages.typescript.getTypeScriptWorker,
 };
@@ -99,8 +99,8 @@ export async function getWorkerClient<T>(
 }
 
 export function setupWorker<T>(
-  config: monaco.languages.ILangWorkerConfig
-): monaco.languages.IGetWorker<T> {
+  config: monaco.worker.ILangWorkerConfig
+): monaco.worker.IGetWorker<T> {
   const {
     languageId,
     providers,
@@ -109,7 +109,7 @@ export function setupWorker<T>(
   
   const client = new WorkerManager<T>(config);
 
-  const getWorker: monaco.languages.IGetWorker<any> = async (...uris) => {
+  const getWorker: monaco.worker.IGetWorker<any> = async (...uris) => {
     return await client.getSyncedWorker(...uris);
   };
 
@@ -120,7 +120,7 @@ export function setupWorker<T>(
   }
 
   if (onRegister) {
-    onRegister(getWorker);
+    onRegister(getWorker, monaco);
   }
 
   return getWorker;
