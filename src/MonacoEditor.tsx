@@ -169,7 +169,10 @@ export const MonacoEditor = React.forwardRef<
       };
 
       Object.keys(allThemes).forEach((themeName) => {
-        monaco.editor.defineTheme(themeName, allThemes[themeName]);
+        monaco.editor.defineTheme(
+          themeName,
+          allThemes[themeName as keyof typeof allThemes]
+        );
       });
 
       // Set current theme based on predefined themes or if object, set as a custom theme
@@ -186,7 +189,7 @@ export const MonacoEditor = React.forwardRef<
         editorRef.current.addCommand(
           monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
           () => {
-            editorRef.current.trigger(
+            editorRef.current?.trigger(
               'ctrl-s',
               'editor.action.formatDocument',
               null
@@ -202,12 +205,12 @@ export const MonacoEditor = React.forwardRef<
           const getWorker = await monaco.worker.getClient(
             (model as any).getLanguageIdentifier().language
           );
-          const worker = await getWorker(model.uri);
+          const worker = await getWorker(model?.uri);
           return worker;
         },
         get: async (label: string) => {
           const getWorker = await monaco.worker.getClient(label);
-          const worker = await getWorker(model.uri);
+          const worker = await getWorker(model?.uri);
           return worker;
         },
       });
@@ -235,20 +238,26 @@ export const MonacoEditor = React.forwardRef<
     }, [containerRef.current]);
 
     React.useEffect(() => {
-      subscriptionRef.current = editorRef.current.onDidChangeModelContent(
-        (event) => {
-          if (!isChangingRef.current && editorRef.current) {
-            onChange(editorRef?.current?.getValue(), editorRef?.current, event);
+      if (editorRef.current) {
+        subscriptionRef.current = editorRef.current.onDidChangeModelContent(
+          (event) => {
+            if (!isChangingRef.current && editorRef.current) {
+              onChange(
+                editorRef?.current?.getValue(),
+                editorRef?.current,
+                event
+              );
+            }
           }
-        }
-      );
+        );
+      }
 
       return () => {
         if (subscriptionRef.current) {
           subscriptionRef.current.dispose();
         }
       };
-    }, [onChange]);
+    }, [onChange, editorRef.current]);
 
     React.useEffect(() => {
       if (editorRef.current) {
@@ -299,7 +308,7 @@ export const MonacoEditor = React.forwardRef<
           isChangingRef.current = false;
         }
       }
-    }, [value]);
+    }, [value, editorRef.current]);
 
     return (
       <div

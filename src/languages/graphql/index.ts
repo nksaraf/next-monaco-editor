@@ -3,7 +3,7 @@ import 'next-monaco-editor/plugins/prettier.monaco.worker';
 import monaco from 'next-monaco-editor/api';
 import { prettier } from 'next-monaco-editor/plugins';
 
-export default (api: typeof monaco) => {
+export default (api: typeof monaco, schemaUrl:  string) => {
   api.registerLanguage({
     id: 'graphql',
     extensions: ['.graphql', '.gql'],
@@ -16,6 +16,9 @@ export default (api: typeof monaco) => {
           hover: true,
           completionItem: true,
           completionTriggerCharacters: [' ', ':', '(', '\n']
+        },
+        options: {
+          uri: schemaUrl
         }
       }
   });

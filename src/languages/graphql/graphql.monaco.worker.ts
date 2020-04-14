@@ -89,7 +89,7 @@ class GraphQLWorker extends BaseWorker {
 	constructor(ctx: IWorkerContext<undefined>, options: any) {
 		super(ctx, options);
 		this.languageService = new LanguageService({
-			uri: "https://graphql-pokemon.now.sh/"
+			uri: this.options.uri
 		});
 	}
 

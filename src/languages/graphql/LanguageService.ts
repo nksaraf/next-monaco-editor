@@ -9,7 +9,7 @@
 // import { UrlLoader } from '@graphql-toolkit/url-loader';
 
 import { getIntrospectionQuery, buildClientSchema, print, printSchema } from 'graphql';
-import { isWebUri } from 'valid-url';
+// import { isWebUri } from 'valid-url';
 import { fetch } from 'cross-fetch';
 import { makeRemoteExecutableSchema } from 'graphql-tools-fork';
 import { Loader, SingleFileOptions } from '@graphql-toolkit/common';
@@ -17,17 +17,17 @@ import { parse, GraphQLSchema, ParseOptions } from 'graphql';
 import { Position } from 'graphql-language-service-types';
 import * as graphqlLS from 'graphql-language-service-interface';
 
-class UrlLoader {
+export class UrlLoader {
     loaderId() {
         return 'url';
     }
-    async canLoad(pointer, options) {
-        return this.canLoadSync(pointer, options);
-    }
-    canLoadSync(pointer, _options) {
-        return !!isWebUri(pointer);
-    }
-    async load(pointer, options) {
+    // async canLoad(pointer, options) {
+    //     return this.canLoadSync(pointer, options);
+    // }
+    // canLoadSync(pointer, _options) {
+    //     return !!isWebUri(pointer);
+    // }
+    async load(pointer: string, options: any) {
         let headers = {};
         let fetch$1 = fetch;
         let method = 'POST';
@@ -110,13 +110,11 @@ export class LanguageService {
   private _parser: typeof parse;
   private _uri: string;
   private _schema: GraphQLSchema | null;
-  // private _schemaLoaders: Loader<string, SingleFileOptions>[];
 
-  constructor({ uri, parser, schemaLoaders }: LSPConfig) {
+  constructor({ uri, parser }: LSPConfig) {
     this._uri = uri;
     this._parser = parser || parse;
     this._schema = null;
-        // this._schemaLoaders = schemaLoaders || [new UrlLoader()];
   }
 
   public get schema() {
@@ -134,10 +132,6 @@ export class LanguageService {
     if (!this._uri) {
       throw new Error('uri missing');
     }
-    // const schema = await loadSchema(this._uri, {
-    //   // load from endpoint
-    //   loaders: this._schemaLoaders,
-    // });
     const loaded = await new UrlLoader().load(this._uri, {});
     this._schema = loaded.schema;
     return loaded.schema;
