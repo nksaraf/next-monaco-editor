@@ -6,7 +6,7 @@ import { defaultProviderConfig } from './providers';
 declare module 'monaco-editor' {
   namespace worker {
     interface IProvidersConfig {
-      getWorker: IGetWorker<any>
+      getWorker: IWorkerAccessor<any>
       languageId: string;
       providers?: ILangWorkerProviders | boolean;
     }
@@ -27,6 +27,7 @@ declare module 'monaco-editor' {
       onTypeFormattingEdit?: boolean;
       link?: boolean;
       completionItem?: boolean;
+      completionTriggerCharacters?: string[];
       color?: boolean;
       foldingRange?: boolean;
       declaration?: boolean;
@@ -35,7 +36,7 @@ declare module 'monaco-editor' {
       // documentRangeSemanticTokens?: boolean
     }
     
-    interface IGetWorker<T> {
+    interface IWorkerAccessor<T> {
       (...uris: monaco.Uri[]): Promise<T>;
     }
 
@@ -47,7 +48,7 @@ declare module 'monaco-editor' {
       /* if boolean, all providers registered/not-registered, 
       if object, more control over which specific providers are registered */
       providers?: boolean | ILangWorkerProviders;
-      onRegister?: (getWorker: IGetWorker<any>, monacoApi: typeof monaco) => void;
+      onRegister?: (getWorker: IWorkerAccessor<any>, monacoApi: typeof monaco) => void;
     }
 
     function register(config: worker.ILangWorkerConfig): void;

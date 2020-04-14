@@ -7,9 +7,9 @@ import {
 } from 'monaco-editor/esm/vs/base/parts/quickopen/browser/quickOpenModel';
 import { matchesFuzzy } from 'monaco-editor/esm/vs/base/common/filters';
 
-class QuickSelectAction extends BaseEditorQuickOpenAction {
-  constructor()
-}
+// class QuickSelectAction extends BaseEditorQuickOpenAction {
+//   constructor()
+// }
 
 export class SetThemeAction extends BaseEditorQuickOpenAction {
   api: typeof monaco;

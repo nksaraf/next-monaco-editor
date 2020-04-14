@@ -14,17 +14,18 @@ export class WorkerManager<T> {
   private _lastUsedTime: number;
   // private _configChangeListener: monaco.IDisposable;
 
-  private _worker: monaco.editor.MonacoWebWorker<T>;
-  private _client: Promise<T>;
+  private _worker: monaco.editor.MonacoWebWorker<T> | null;
+  private _client: Promise<T> | null;
 
   constructor(config: monaco.worker.ILangWorkerConfig) {
     this._config = config;
-    this._worker = null;
     this._idleCheckInterval = window.setInterval(
       () => this._checkIfIdle(),
       30 * 1000
     );
     this._lastUsedTime = 0;
+    this._worker = null;
+    this._client = null;
     // this._configChangeListener = this._config.onDidChange(() => this._stopWorker());
   }
 
@@ -73,12 +74,12 @@ export class WorkerManager<T> {
 
   async getSyncedWorker(...resources: monaco.Uri[]): Promise<T> {
     const client = await this._getClient();
-    await this._worker.withSyncedResources(resources);
+    await this._worker?.withSyncedResources(resources);
     return client;
   }
 }
 
-const workerClients: { [key: string]: monaco.worker.IGetWorker<any> } = {
+const workerClients: { [key: string]: monaco.worker.IWorkerAccessor<any> } = {
   javascript: monaco.languages.typescript.getJavaScriptWorker,
   typescript: monaco.languages.typescript.getTypeScriptWorker,
 };
@@ -100,7 +101,7 @@ export async function getWorkerClient<T>(
 
 export function setupWorker<T>(
   config: monaco.worker.ILangWorkerConfig
-): monaco.worker.IGetWorker<T> {
+): monaco.worker.IWorkerAccessor<T> {
   const {
     languageId,
     providers,
@@ -109,11 +110,11 @@ export function setupWorker<T>(
   
   const client = new WorkerManager<T>(config);
 
-  const getWorker: monaco.worker.IGetWorker<any> = async (...uris) => {
+  const getWorker: monaco.worker.IWorkerAccessor<any> = async (...uris) => {
     return await client.getSyncedWorker(...uris);
   };
 
-  workerClients[config.label] = getWorker;
+  workerClients[config.label ?? config.languageId as any] = getWorker;
   
   if (languageId) {
     setupWorkerProviders({ providers, languageId, getWorker})

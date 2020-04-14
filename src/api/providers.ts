@@ -25,11 +25,11 @@ export const defaultProviderConfig = {
   documentRangeSemanticTokens: true,
 };
 
-const getProvider = (getWorker, provider) => {
-  return async (model, ...args) => {
+const getProvider = (getWorker: monaco.worker.IWorkerAccessor<any>, provider: string) => {
+  return async (model: monaco.editor.IModel, ...args: any[]) => {
     let resource = model.uri;
-    const worker = await getWorker(resource);
     try {
+      const worker = await getWorker(resource);
       return await worker._provide(
         provider,
         resource.toString(),
@@ -37,17 +37,16 @@ const getProvider = (getWorker, provider) => {
       );
     } catch (e) {
       console.error(e)
-
       return null;
     }
   };
 };
 
-const getSignatureHelpProvider = getWorker => {
+const getSignatureHelpProvider = (getWorker: monaco.worker.IWorkerAccessor<any>) => {
   return async (model, position, token, context) => {
     let resource = model.uri;
-    const worker = await getWorker(resource);
     try {
+      const worker = await getWorker(resource);
       return await worker._provide(
         'signatureHelp',
         resource.toString(),
@@ -61,11 +60,11 @@ const getSignatureHelpProvider = getWorker => {
   };
 };
 
-const getResolver = (getWorker, resolver) => {
-  return async (model, ...args) => {
+const getResolver = (getWorker: monaco.worker.IWorkerAccessor<any>, resolver: string) => {
+  return async (model: monaco.editor.IModel, ...args: any[]) => {
     let resource = model.uri;
-    const worker = await getWorker(resource);
     try {
+      const worker = await getWorker(resource);
       return await worker._resolve(
         resolver,
         resource.toString(),
@@ -175,6 +174,7 @@ export const setupWorkerProviders = ({ providers = defaultProviderConfig, langua
     monaco.languages.registerCompletionItemProvider(languageId, {
       provideCompletionItems: getProvider(getWorker, 'completionItems'),
       resolveCompletionItem: getResolver(getWorker, 'completionItem'),
+      triggerCharacters: providers.completionTriggerCharacters
     });
   }
   if (providers.color) {

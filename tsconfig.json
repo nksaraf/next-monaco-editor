@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "packages", "languages"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -7,13 +7,28 @@
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": false,
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "*": ["src/*", "node_modules/*"],
-      "next-monaco-editor/*": ["src/*"]
+      "next-monaco-editor/*": ["src/*"],
+      "next-monaco-editor": ["src/index.tsx"],
+      "graphql-language-service-parser": [
+        "packages/graphql-language-service-parser/src/index.ts"
+      ],
+      "graphql-language-service-interface": [
+        "packages/graphql-language-service-interface/src/index.ts"
+      ],
+      "graphql-language-service-types": [
+        "packages/graphql-language-service-types/src/index.ts"
+      ],
+      "graphql-language-service-utils": [
+        "packages/graphql-language-service-utils/src/index.ts"
+      ],
+      "graphql-languageservice": [
+        "packages/graphql-languageservice/src/index.ts"
+      ]
     },
     "jsx": "preserve",
     "esModuleInterop": true,

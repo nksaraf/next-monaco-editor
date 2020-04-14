@@ -1,13 +1,13 @@
 import React from 'react';
 import themes from './themes';
 import Spectrum from 'react-spectrum';
-import Color from 'color';
 import { NextMonacoEditorProps } from './index';
+import 'magic-components';
 export function Loading({
   children,
   style = {},
   className = 'next-monaco-editor-loading',
-}) {
+}: React.PropsWithChildren<{ style?: any; className?: string }>) {
   return (
     <div
       data-editor="next-monaco-editor-loading"
@@ -19,22 +19,25 @@ export function Loading({
   );
 }
 export const SpectrumLoading = (props: NextMonacoEditorProps) => {
-  const { theme: themeName } = props;
+  const { theme: themeName, options = {} } = props;
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(
     new Set(
-      theme.rules.map((r) =>
-        r.foreground ? Color(`#${r.foreground}`).toString() : ''
-      )
+      theme.rules.map((r: any) => (r.foreground ? `#${r.foreground}` : ''))
     ).values()
   ) as string[]).filter((v) => v.length > 0);
   if (colors.length < 3) {
     colors = colors.concat(['#757575', '#999999', '#0871F2', '#BF5AF2']);
   }
   const backgroundColor = theme?.colors?.['editor.background'] ?? '#1e1e1e';
-  const { fontSize = 12, lineHeight = fontSize * 1.5 } = props.options;
-  const lines = (props.defaultValue || props.value).split('\n');
-  const paddingLeft = props.options.lineNumbers === 'off' ? 26 : 62;
+  const lineNumberColor =
+    theme?.colors?.['editorLineNumber.foreground'] ??
+    ({ 'vs-dark': '#858585', vs: '#237893', 'hc-black': 'white' } as any)[
+      theme.base
+    ];
+  const { fontSize = 12, lineHeight = fontSize * 1.5 } = options;
+  const lines = (props.defaultValue || props.value || '').split('\n');
+  const paddingLeft = options.lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(
     Math.max(
       Math.max(...lines.map((l) => l.length).sort((a, b) => b - a)) *
@@ -49,12 +52,32 @@ export const SpectrumLoading = (props: NextMonacoEditorProps) => {
     <Loading>
       <div
         style={{
+          position: 'relative',
           width: '100%',
           padding: (lineHeight - fontSize) / 2,
           paddingLeft,
           backgroundColor,
         }}
       >
+        <div
+          style={{
+            position: 'absolute',
+            height: '100%',
+            width: paddingLeft,
+            left: 0,
+            top: 0,
+          }}
+        >
+          <div
+            style={{
+              margin: '0 auto',
+              width: fontSize - 2,
+              borderRadius: '8px',
+              backgroundColor: lineNumberColor,
+              height: lines.length * lineHeight,
+            }}
+          ></div>
+        </div>
         <Spectrum
           width={width}
           wordWidths={[

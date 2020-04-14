@@ -108,6 +108,7 @@ export interface BaseWorker {
     position: monaco.Position,
     item: monaco.languages.CompletionItem
   ): monaco.languages.ProviderResult<monaco.languages.CompletionItem>;
+  completionTriggerCharacters?: string[],
   provideDocumentColors?(
     model: IMirrorModel
   ): monaco.languages.ProviderResult<monaco.languages.IColorInformation[]>;
@@ -166,7 +167,7 @@ export class BaseWorker {
   }
 
   getText(uri: string) {
-    return this.getModel(uri).getValue();
+    return this.getModel(uri)?.getValue();
   }
 
   private _provide<T>(
@@ -174,9 +175,14 @@ export class BaseWorker {
     uri: string,
     ...args: any[]
   ): monaco.languages.ProviderResult<T> {
-    return this[
-      'provide' + provider.charAt(0).toUpperCase() + provider.slice(1)
-    ](this.getModel(uri), ...args);
+    const providerFunc = 'provide' + provider.charAt(0).toUpperCase() + provider.slice(1);
+    if ((this as any)[providerFunc]) {
+      return (this as any)[providerFunc](this.getModel(uri), ...args);
+    } else {
+      console.error(`No provider for ${provider}`);
+      return null;
+    }
+    
   }
 
   private _resolve<T>(
@@ -184,8 +190,12 @@ export class BaseWorker {
     uri: string,
     ...args: any[]
   ): monaco.languages.ProviderResult<T> {
-    return this[
-      'resolve' + resolver.charAt(0).toUpperCase() + resolver.slice(1)
-    ](this.getModel(uri), ...args);
+    const resolverFunc = 'resolve' + resolver.charAt(0).toUpperCase() + resolver.slice(1);
+    if ((this as any)[resolverFunc]) {
+      return (this as any)[resolverFunc](this.getModel(uri), ...args);
+    } else {
+      console.error(`No resolver for ${resolver}`);
+      return null;
+    }
   }
 }

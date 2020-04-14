@@ -5,9 +5,15 @@
     "api": true,
     "next-env.d.ts": true,
     "yarn.lock": true,
-    "tsconfig.json": true,
     "tsconfig.tsdx.json": true,
     "LICENSE": true,
-    ".gitignore": true
+    ".gitignore": true,
+    "next-plugin": true,
+    "reference/monaco-editor-boilerplate": true,
+    "reference": true,
+    "scripts": true
+  },
+  "search.exclude": {
+    "**/node_modules": false
   }
 }

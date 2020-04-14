@@ -23,12 +23,21 @@ interface IWorkerInitializer {
 export * from './base-worker';
 export * from './types';
 
+declare global {
+  const importScripts: any
+}
+
 export const monacoWorker: IWorkerInitializer = workerApi;
 export const initialize = (WorkerClass: typeof BaseWorker) => {
   // @ts-ignore
   self.onmessage = () => {
-    monacoWorker.initialize((ctx, options) => {
+    try {
+      monacoWorker.initialize((ctx, options) => {
       return new WorkerClass(ctx, options);
     });
+  } catch(err) {
+    console.error(err);
+    throw err;
+  }
   };
 };

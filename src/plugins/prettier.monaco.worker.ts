@@ -1,16 +1,34 @@
-import prettier from 'prettier/standalone';
-import babylon from 'prettier/parser-babel';
-import graphql from 'prettier/parser-graphql';
-import html from 'prettier/parser-html';
-import markdown from 'prettier/parser-markdown';
-import{ BaseWorker, initialize } from '../worker';
+import  prettier from 'prettier/standalone';
+import{ BaseWorker, initialize, IWorkerContext } from '../worker';
+
+declare global {
+  // const prettier: any
+  const prettierPlugins: any
+}
 
 class PrettierWorker extends BaseWorker {
-	provideDocumentFormattingEdits : BaseWorker['provideDocumentFormattingEdits'] = async (model, other) => {
+  options: { parser: string, plugins: string[] };
+  loader: Promise<any>;
+  constructor(ctx: IWorkerContext<undefined>, config: { parser: string, plugins: string[] }) {
+    super(ctx, config);
+    this.options = config;
+    this.loader = this.importPrettier();
+  }
+
+  async importPrettier() {
+    await importScripts("https://unpkg.com/prettier@2.0.4/standalone.js");
+    for (var plugin of this.options.plugins) {
+      await importScripts(`https://unpkg.com/prettier@2.0.4/${plugin}.js`);
+    }
+  }
+
+	provideDocumentFormattingEdits : BaseWorker['provideDocumentFormattingEdits'] = async (model) => {
+    await this.loader;
+    const { plugins,...options } = this.options;
 		const text = prettier.format(model.getValue(), {
-      plugins: [babylon, markdown, graphql, html],
+      plugins: prettierPlugins,
       singleQuote: true,
-      ...this.options
+      ...options
     });
 
     return [
