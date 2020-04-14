@@ -7,7 +7,6 @@
     "yarn.lock": true,
     "tsconfig.tsdx.json": true,
     "LICENSE": true,
-    ".gitignore": true,
     "next-plugin": true,
     "reference/monaco-editor-boilerplate": true,
     "reference": true,

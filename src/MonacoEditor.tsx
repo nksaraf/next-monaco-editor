@@ -2,20 +2,23 @@ import React from 'react';
 import { noop, processDimensions, getNextWorkerPath } from './utils';
 import monaco from './api';
 import defaultThemes, { ThemeNames } from './themes';
-import './monaco.css';
+import './css/monaco.css';
 import { SetThemeAction } from './themes/SelectThemeAction';
 
-const setCommandPaletteCommands = (monaco, editor) => {
+const commandPaletteShortcuts = (
+  monacoApi: typeof monaco,
+  editor: monaco.editor.IStandaloneCodeEditor
+) => {
   // for firefox support (wasn't able to intercept key)
   editor.addCommand(
-    monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_C,
+    monacoApi.KeyMod.CtrlCmd | monacoApi.KeyMod.Shift | monacoApi.KeyCode.KEY_C,
     () => {
       editor.trigger('ctrl-shift-c', 'editor.action.quickCommand', null);
     }
   );
 
   editor.addCommand(
-    monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P,
+    monacoApi.KeyMod.CtrlCmd | monacoApi.KeyMod.Shift | monacoApi.KeyCode.KEY_P,
     () => {
       editor.trigger('ctrl-shift-p', 'editor.action.quickCommand', null);
     }
@@ -168,6 +171,8 @@ export const MonacoEditor = React.forwardRef<
         ...themes,
       };
 
+      editorRef.current.updateOptions({ tabSize: 2 });
+
       Object.keys(allThemes).forEach((themeName) => {
         monaco.editor.defineTheme(
           themeName,
@@ -197,7 +202,7 @@ export const MonacoEditor = React.forwardRef<
           }
         );
       }
-      setCommandPaletteCommands(monaco, editorRef.current);
+      commandPaletteShortcuts(monaco, editorRef.current);
       editorRef.current.addAction(new SetThemeAction(monaco) as any);
 
       Object.assign(monaco.worker, {

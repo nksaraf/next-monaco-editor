@@ -19,9 +19,9 @@
     "prepublishOnly": "yarn build",
     "dev": "next",
     "build:main": "tsdx build --name next-monaco-editor --tsconfig ./tsconfig.tsdx.json && yarn create:entry next-monaco-editor",
-    "build:api": "tsdx build -i ./src/api/index.ts --tsconfig ./tsconfig.tsdx.json --name api && yarn create:entry api",
-    "build:plugins": "tsdx build -i ./src/plugins/index.ts --tsconfig ./tsconfig.tsdx.json --name plugins && yarn create:entry plugins && yarn deno scripts/copy-workers.ts",
-    "build:worker": "tsdx build -i ./src/worker/index.ts --tsconfig ./tsconfig.tsdx.json --name worker && yarn create:entry worker",
+    "build:api": "tsdx build -i ./src/api/index.ts --transpileOnly --name api && yarn create:entry api",
+    "build:plugins": "tsdx build -i ./src/plugins/index.ts --transpileOnly --name plugins && yarn create:entry plugins && yarn deno scripts/copy-workers.ts",
+    "build:worker": "tsdx build -i ./src/worker/index.ts --transpileOnly --name worker && yarn create:entry worker",
     "create:entry": "yarn deno scripts/entry.ts",
     "deno": "deno --allow-all"
   },
@@ -38,6 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/node": "^7.8.7",
+    "@graphql-toolkit/common": "^0.10.3",
     "@types/color": "^3.0.1",
     "@types/dedent": "^0.7.0",
     "@types/jest": "^25.2.1",
@@ -50,13 +51,15 @@
     "graphql": "^15.0.0",
     "graphql-config": "^3.0.0-rc.2",
     "husky": "^4.2.3",
-    "magic-components": "^0.0.2-beta.7",
+    "magic-components": "^0.0.2-beta.8",
     "match-sorter": "^4.1.0",
     "monaco-themes": "^0.3.3",
     "next": "^9.3.4",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-json-view": "^1.19.1",
     "ts-morph": "^7.0.1",
     "tsdx": "^0.13.1",
     "tslib": "^1.11.1",
@@ -64,14 +67,13 @@
     "vscode-languageserver-types": "^3.15.1"
   },
   "dependencies": {
-    "@graphql-toolkit/common": "^0.10.3",
     "babel-loader": "^8.1.0",
     "monaco-editor": "^0.20.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "monaco-languages": "^1.10.0",
     "next-transpile-modules": "^3.2.0",
-    "prettier": "^2.0.4",
     "react-spectrum": "^1.1.7",
+    "react-split": "^2.0.7",
     "worker-loader": "^2.0.0",
     "workerize-loader": "^1.1.0"
   }
