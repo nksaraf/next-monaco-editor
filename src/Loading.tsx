@@ -56,6 +56,7 @@ export const SpectrumLoading = (props: NextMonacoEditorProps) => {
           width: '100%',
           padding: (lineHeight - fontSize) / 2,
           paddingLeft,
+          paddingTop: 12,
           backgroundColor,
         }}
       >
@@ -64,6 +65,8 @@ export const SpectrumLoading = (props: NextMonacoEditorProps) => {
             position: 'absolute',
             height: '100%',
             width: paddingLeft,
+            paddingTop: 12,
+
             left: 0,
             top: 0,
           }}

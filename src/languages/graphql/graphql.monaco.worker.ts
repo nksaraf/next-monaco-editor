@@ -13,11 +13,13 @@ import {
     // Diagnostic,
     // getRange,
     // getAutocompleteSuggestions,
-		getTokenRange, getRange,
+		getTokenRange, getRange, getTokenAtPosition, getTypeInfo,
     
 	} from 'graphql-language-service-interface';
 
 	import { LanguageService } from './LanguageService';
+import { RuleKinds } from 'graphql-language-service-parser';
+import { visit, SelectionSetNode } from 'graphql';
 
 export function toMonacoRange(range: GraphQLRange): monaco.IRange {
   return {
@@ -112,7 +114,34 @@ class GraphQLWorker extends BaseWorker {
       }
     }
 
-		const suggestions = await this.languageService.getCompletion(model.getValue(), graphQLPosition);
+    const token = getTokenAtPosition(model.getValue(), graphQLPosition);
+    const state =
+      token.state.kind === 'Invalid' ? token.state.prevState : token.state;
+
+		let suggestions = await this.languageService.getCompletion(model.getValue(), graphQLPosition);
+
+    if (
+      state.kind === RuleKinds.SELECTION_SET ||
+      state.kind === RuleKinds.FIELD ||
+      state.kindnd === RuleKinds.ALIASED_FIELD
+    ) {
+      try {
+        const ast =  await this.languageService.parse(model.getValue());
+        let offset  = model.offsetAt(position);
+        let lowest: SelectionSetNode | null = null;
+        visit(ast, {
+          SelectionSet: (val) => {
+            if (val.loc?.start <= offset && offset <= val.loc?.end)  {
+              lowest = val;
+            }
+            // if  ()
+          }
+        })
+  
+        suggestions = suggestions.filter(sug => !lowest.selections.some(sel => sel.name.value === sug.label))
+      } catch (e) {}
+    }
+
 		return { incomplete: true,
 			suggestions: suggestions.map(suggestion =>
       toCompletion(

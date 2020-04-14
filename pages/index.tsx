@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SuspenseList } from 'react';
 import Editor from 'next-monaco-editor';
 import monaco from 'next-monaco-editor/api';
 import registerGraphql from '../src/languages/graphql';
@@ -50,13 +50,35 @@ export default function App() {
   React.useEffect(() => {
     new UrlLoader().load(uri, {}).then((r) => setSchema(r.schema));
   }, []);
+  // const firstEdit = React.useRef(false);
   const [result, setResult] = React.useState({});
 
   React.useEffect(() => {
-    if (editorRef.current?.getModel()?.getValue() !== query) {
+    if (
+      editorRef.current &&
+      editorRef.current?.getModel()?.getValue() !== query
+    ) {
+      editorRef.current.pushUndoStop();
+      const model = editorRef.current.getModel();
+      model.pushEditOperations(
+        [],
+        [
+          {
+            range: model.getFullModelRange(),
+            text: query,
+          },
+        ],
+        () => null
+      );
+      editorRef.current.pushUndoStop();
       editorRef.current?.getModel()?.setValue(query);
     }
   }, [query, editorRef.current]);
+
+  const onChange = React.useCallback((val: string) => {
+    // debugger;
+    setQuery(val);
+  }, []);
 
   return (
     <>
@@ -68,23 +90,16 @@ export default function App() {
           },
           '.graphiql-explorer-root': {
             fontFamily: 'SFMono,monospace !important',
-            flexDirection: 'column-reverse !important' as any,
+            px: '16px !important',
+            py: '16px !important',
           },
           '.graphiql-explorer-root input': {
             fontSize: '12px',
-            // minWidth: 'fit-content',
             minWidth: '8ch !important',
             width: 'none !important',
           },
-          '.graphiql-explorer-actions': {
-            borderTop: 'none !important',
-            // minWidth: 'fit-content',
-            // borderBottom: 'solid 2px lightgray !important',
-          },
           '.graphiql-explorer-actions select': {
             marginLeft: 2,
-            // minWidth: 'fit-content',
-            // borderBottom: ''
           },
           '.doc-explorer-title-bar': {
             display: 'none !important',
@@ -93,34 +108,40 @@ export default function App() {
             cursor: 'col-resize',
             backgroundColor: 'grey.200',
           },
+          '.monaco-editor': {
+            paddingTop: '12px',
+          },
         }}
       />
       {/* <row width="100vw" height="100vh" alignItems="flex-start" gap={0}> */}
-      <Split
+      <row
+        as={Split}
+        width="100vw"
+        noMotion
+        maxHeight="100vh"
         sizes={[20, 45, 35]}
-        style={{ display: 'flex' }}
         direction="horizontal"
-        cursor="col-resize"
-        // gutterStyle={{
-        //   cursor: 'col-resize',
-        // }}
         onDrag={() => {
           editorRef.current?.layout();
         }}
       >
         <div height="100vh" overflow="scroll">
           <div>
-            <Explorer
-              width="20vw"
-              query={query}
-              onEdit={setQuery}
-              explorerIsOpen={true}
-              schema={schema}
-            />
+            {schema && (
+              <Explorer
+                width="20vw"
+                query={query}
+                // query={editorRef.current?.getModel()?.getValue()}
+                onEdit={setQuery}
+                // onEdit={editValue}
+                explorerIsOpen={true}
+                schema={schema}
+              />
+            )}
           </div>
         </div>
         <Editor
-          onChange={(val: string) => setQuery(val)}
+          onChange={onChange}
           defaultValue={query}
           height="100vh"
           // width="45vw"
@@ -158,6 +179,8 @@ export default function App() {
               }
             }
 
+            editorRef.current?.focus();
+
             const opAction: monaco.editor.IActionDescriptor = {
               id: 'graphql-run',
               label: 'Run Operation',
@@ -194,7 +217,7 @@ export default function App() {
           </div>
           {/* <button>Run</button> */}
         </div>
-      </Split>
+      </row>
       {/* </row> */}
     </>
   );

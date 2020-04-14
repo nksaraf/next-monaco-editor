@@ -5844,10 +5844,10 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-magic-components@^0.0.2-beta.8:
-  version "0.0.2-beta.8"
-  resolved "https://registry.yarnpkg.com/magic-components/-/magic-components-0.0.2-beta.8.tgz#6a4e74f9251860d9f1407b393136b4b007467ed7"
-  integrity sha512-20p/Z4pILbbfm1yfabjVXml0CL8mkXX9dyp9fOztjpeWAszYNeDPaZY2/MB5AJ7oWIWa0dFVj+d5czcRkDDu2Q==
+magic-components@^0.0.2-beta.10:
+  version "0.0.2-beta.10"
+  resolved "https://registry.yarnpkg.com/magic-components/-/magic-components-0.0.2-beta.10.tgz#8a29b3df119796da2709ebe89b8ffa6cac21aa99"
+  integrity sha512-3zrrBmuLDVDEj06Ui4q3Zftsfrcydyp4DSSQruWQkYZ3IhabLtDH/6xKC7yA2FzwiCSOYXZ3y048izuQbV8L1A==
   dependencies:
     "@nksaraf/colors" "^0.0.2"
     color "^3.1.2"
