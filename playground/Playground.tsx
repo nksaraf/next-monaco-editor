@@ -236,11 +236,11 @@ export function Playground() {
             registerGraphql(monaco, settings[currentProject]);
           }}
           editorDidMount={(editor, monaco) => {
-            editorRef.current?.focus();
-            const model = editor.getModel();
-            models[model?.uri?.toString() as string] = model;
-            setModels({ ...models });
-            currentModelRef.current = model?.uri;
+            // editorRef.current?.focus();
+            // const model = editor.getModel();
+            // models[model?.uri?.toString() as string] = model;
+            // setModels({ ...models });
+            // currentModelRef.current = model?.uri;
 
             const getOperationNames = async () => {
               const worker = await monaco.worker.get('graphql');
@@ -252,35 +252,35 @@ export function Playground() {
               return operations;
             };
 
-            editor.addAction({
-              id: 'graphql.editSettings',
-              label: 'Edit GraphQL Settings',
-              contextMenuOrder: 1,
-              contextMenuGroupId: 'graphql',
-              run: async () => {
-                console.log(editor.getModel());
-                const settingsUri = monaco.Uri.file('settings.yaml');
-                if (models[settingsUri.toString()]) {
-                  editor.setModel(models[settingsUri.toString()]);
-                } else {
-                  const model = monaco.editor.createModel(
-                    YAML.stringify({ projects: settings }),
-                    'yaml',
-                    settingsUri
-                  );
-                  models[settingsUri.toString()] = model;
-                  editor.setModel(model);
-                }
-                editor;
-                // console.log();
-                // const operations = await getOperationNames();
-                // if (operations.length > 1) {
-                //   editor.trigger('graphql.run', 'graphql.selectOperation', {});
-                // } else {
-                //   executeCurrentOp(operations[0]);
-                // }
-              },
-            });
+            // editor.addAction({
+            //   id: 'graphql.editSettings',
+            //   label: 'Edit GraphQL Settings',
+            //   contextMenuOrder: 1,
+            //   contextMenuGroupId: 'graphql',
+            //   run: async () => {
+            //     console.log(editor.getModel());
+            //     const settingsUri = monaco.Uri.file('settings.yaml');
+            //     if (models[settingsUri.toString()]) {
+            //       editor.setModel(models[settingsUri.toString()]);
+            //     } else {
+            //       const model = monaco.editor.createModel(
+            //         YAML.stringify({ projects: settings }),
+            //         'yaml',
+            //         settingsUri
+            //       );
+            //       models[settingsUri.toString()] = model;
+            //       editor.setModel(model);
+            //     }
+            //     editor;
+            //     // console.log();
+            //     // const operations = await getOperationNames();
+            //     // if (operations.length > 1) {
+            //     //   editor.trigger('graphql.run', 'graphql.selectOperation', {});
+            //     // } else {
+            //     //   executeCurrentOp(operations[0]);
+            //     // }
+            //   },
+            // });
 
             editor.addSelectAction({
               id: 'graphql.selectOperation',
@@ -319,7 +319,6 @@ export function Playground() {
             },
             fontFamily: MONO_FONTS,
             fontSize: 12,
-            formatOnSave: true,
           }}
         />
         <div width="35vw" height="100vh" overflow="scroll">
