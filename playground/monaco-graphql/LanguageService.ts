@@ -28,6 +28,7 @@ export class UrlLoader {
     //     return !!isWebUri(pointer);
     // }
     async load(pointer: string, options: any) {
+      console.log(pointer,options );
         let headers = {};
         let fetch$1 = fetch;
         let method = 'POST';
@@ -109,10 +110,12 @@ type LSPConfig = {
 export class LanguageService {
   private _parser: typeof parse;
   private _uri: string;
+  private _headers: any;
   private _schema: GraphQLSchema | null;
 
-  constructor({ uri, parser }: LSPConfig) {
+  constructor({ uri, headers, parser }: LSPConfig) {
     this._uri = uri;
+    this._headers = headers;
     this._parser = parser || parse;
     this._schema = null;
   }
@@ -132,7 +135,7 @@ export class LanguageService {
     if (!this._uri) {
       throw new Error('uri missing');
     }
-    const loaded = await new UrlLoader().load(this._uri, {});
+    const loaded = await new UrlLoader().load(this._uri, { headers: this._headers});
     this._schema = loaded.schema;
     return loaded.schema;
   }

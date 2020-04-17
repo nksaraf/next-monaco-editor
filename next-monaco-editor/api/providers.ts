@@ -25,63 +25,80 @@ export const defaultProviderConfig = {
   documentRangeSemanticTokens: true,
 };
 
-const getProvider = (getWorker: monaco.worker.IWorkerAccessor<any>, provider: string) => {
+export const getProvider = (
+  getWorker: monaco.worker.IWorkerAccessor<any>,
+  provider: string
+) => {
   return async (model: monaco.editor.IModel, ...args: any[]) => {
     let resource = model.uri;
     try {
       const worker = await getWorker(resource);
-      return await worker._provide(
+      return await worker.provide(
         provider,
         resource.toString(),
         ...args.slice(0, args.length - 1)
       );
     } catch (e) {
-      console.error(e)
+      console.error(e);
       return null;
     }
   };
 };
 
-const getSignatureHelpProvider = (getWorker: monaco.worker.IWorkerAccessor<any>) => {
-  return async (model, position, token, context) => {
+const getSignatureHelpProvider = (
+  getWorker: monaco.worker.IWorkerAccessor<any>
+) => {
+  return async (
+    model: monaco.editor.ITextModel,
+    position: monaco.IPosition,
+    token: monaco.CancellationToken,
+    context: monaco.languages.SignatureHelpContext
+  ) => {
     let resource = model.uri;
     try {
       const worker = await getWorker(resource);
-      return await worker._provide(
+      return await worker.provide(
         'signatureHelp',
         resource.toString(),
         position,
         context
       );
     } catch (e) {
-      console.error(e)
+      console.error(e);
       return null;
     }
   };
 };
 
-const getResolver = (getWorker: monaco.worker.IWorkerAccessor<any>, resolver: string) => {
+export const getResolver = (
+  getWorker: monaco.worker.IWorkerAccessor<any>,
+  resolver: string
+) => {
   return async (model: monaco.editor.IModel, ...args: any[]) => {
     let resource = model.uri;
     try {
       const worker = await getWorker(resource);
-      return await worker._resolve(
+      return await worker.resolve(
         resolver,
         resource.toString(),
         ...args.slice(0, args.length - 1)
       );
     } catch (e) {
-      console.error(e)
+      console.error(e);
       return null;
     }
   };
 };
 
-export const setupWorkerProviders = ({ providers = defaultProviderConfig, languageId, getWorker }: monaco.worker.IProvidersConfig) => {
+export const setupWorkerProviders = ({
+  providers = defaultProviderConfig,
+  languageId,
+  getWorker,
+}: monaco.worker.IProvidersConfig) => {
   if (!providers) {
     return;
   }
-  
+
   providers =
     typeof providers === 'boolean' && providers
       ? defaultProviderConfig
@@ -174,7 +191,7 @@ export const setupWorkerProviders = ({ providers = defaultProviderConfig, langua
     monaco.languages.registerCompletionItemProvider(languageId, {
       provideCompletionItems: getProvider(getWorker, 'completionItems'),
       resolveCompletionItem: getResolver(getWorker, 'completionItem'),
-      triggerCharacters: providers.completionTriggerCharacters
+      triggerCharacters: providers.completionTriggerCharacters,
     });
   }
   if (providers.color) {
@@ -198,4 +215,4 @@ export const setupWorkerProviders = ({ providers = defaultProviderConfig, langua
       provideSelectionRanges: getProvider(getWorker, 'selectionRanges'),
     });
   }
-}
+};

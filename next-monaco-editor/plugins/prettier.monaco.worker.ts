@@ -1,3 +1,4 @@
+// @ts-ignore
 import  prettier from 'prettier/standalone';
 import{ BaseWorker, initialize, IWorkerContext } from '../worker';
 

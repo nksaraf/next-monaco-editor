@@ -170,7 +170,7 @@ export class BaseWorker {
     return this.getModel(uri)?.getValue();
   }
 
-  private _provide<T>(
+  provide<T>(
     provider: string,
     uri: string,
     ...args: any[]
@@ -185,7 +185,7 @@ export class BaseWorker {
     
   }
 
-  private _resolve<T>(
+  resolve<T>(
     resolver: string,
     uri: string,
     ...args: any[]

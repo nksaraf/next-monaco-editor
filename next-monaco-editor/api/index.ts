@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor';
 import { languageDefinitions, LazyLanguageLoader } from './language-loader';
 import { setupWorker, getWorkerClient } from './worker-manager';
 import { defaultProviderConfig } from './providers';
+import { IQuickSelectAction } from './QuickSelectAction';
 
 declare module 'monaco-editor' {
   namespace worker {
@@ -64,6 +65,10 @@ declare module 'monaco-editor' {
   namespace editor  {
     interface IEditorOptions {
       formatOnSave?: boolean;
+    }
+
+    interface IStandaloneCodeEditor {
+      addSelectAction: (action: IQuickSelectAction) => monaco.IDisposable
     }
   }
 

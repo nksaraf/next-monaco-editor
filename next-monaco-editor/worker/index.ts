@@ -1,3 +1,4 @@
+// @ts-ignore
 import { MirrorTextModel } from 'monaco-editor/esm/vs/editor/common/model/mirrorTextModel';
 
 MirrorTextModel.prototype.getFullModelRange = function () {
@@ -9,6 +10,7 @@ MirrorTextModel.prototype.getFullModelRange = function () {
   };
 }
 
+// @ts-ignore
 import * as workerApi from 'monaco-editor/esm/vs/editor/editor.worker';
 
 import { BaseWorker } from './base-worker';

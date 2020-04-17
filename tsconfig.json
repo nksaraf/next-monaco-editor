@@ -1,5 +1,5 @@
 {
-  "include": ["src", "packages", "languages", "pages"],
+  "include": ["packages", "next-monaco-editor", "pages", "playground"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -8,12 +8,13 @@
     "declaration": true,
     "sourceMap": true,
     "rootDir": "./",
+    "suppressImplicitAnyIndexErrors": true,
     "strict": false,
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "next-monaco-editor/*": ["src/*"],
-      "next-monaco-editor": ["src/index.tsx"],
+      "next-monaco-editor/*": ["next-monaco-editor/*"],
+      "next-monaco-editor": ["next-monaco-editor/index.tsx"],
       "graphql-language-service-parser": [
         "packages/graphql-language-service-parser/src/index.ts"
       ],

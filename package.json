@@ -51,7 +51,7 @@
     "graphql": "^15.0.0",
     "graphql-config": "^3.0.0-rc.2",
     "husky": "^4.2.3",
-    "magic-components": "^0.0.2-beta.10",
+    "magic-components": "^0.0.2-beta.14",
     "match-sorter": "^4.1.0",
     "monaco-themes": "^0.3.3",
     "next": "^9.3.4",
@@ -68,13 +68,16 @@
   },
   "dependencies": {
     "babel-loader": "^8.1.0",
+    "json-to-pretty-yaml": "^1.2.2",
     "monaco-editor": "^0.20.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "monaco-languages": "^1.10.0",
     "next-transpile-modules": "^3.2.0",
+    "react-modal": "^3.11.2",
     "react-spectrum": "^1.1.7",
     "react-split": "^2.0.7",
     "worker-loader": "^2.0.0",
-    "workerize-loader": "^1.1.0"
+    "workerize-loader": "^1.1.0",
+    "yaml": "^1.8.3"
   }
 }

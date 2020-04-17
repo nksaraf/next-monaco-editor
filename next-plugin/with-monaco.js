@@ -24,7 +24,7 @@ module.exports = (monacoOptions = {}) => (
             // Allow `monaco-editor` to import global CSS:
             /[\\/]node_modules[\\/]monaco-editor[\\/]/,
             /[\\/]node_modules[\\/]next-monaco-editor[\\/]/,
-            /.[\\/]src[\\/]/,
+            /.[\\/]next-monaco-editor[\\/]/,
           ];
         }
 

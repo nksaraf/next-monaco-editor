@@ -87,7 +87,6 @@ const workerClients: { [key: string]: monaco.worker.IWorkerAccessor<any> } = {
 export async function getWorkerClient<T>(
   label: string
 ): Promise<(...uris: monaco.Uri[]) => Promise<T>> {
-  console.log(label);
   if (!workerClients[label]) {
     throw new Error(`Worker ${label} not registered!`);
   }

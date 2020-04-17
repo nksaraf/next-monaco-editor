@@ -3,12 +3,12 @@ import { MonacoEditorProps } from './MonacoEditor';
 import { processDimensions } from './utils';
 import { monaco } from './api';
 import { Loading, SpectrumLoading } from './Loading';
-export interface NextMonacoEditorProps extends MonacoEditorProps {
+export interface EditorProps extends MonacoEditorProps {
   loading?: React.ReactNode;
 }
 
 let Editor: React.ForwardRefExoticComponent<
-  React.PropsWithoutRef<NextMonacoEditorProps> &
+  React.PropsWithoutRef<EditorProps> &
     React.RefAttributes<monaco.editor.IStandaloneCodeEditor>
 >;
 if (typeof window !== 'undefined') {
@@ -16,10 +16,10 @@ if (typeof window !== 'undefined') {
   MonacoEditor.displayName = 'MonacoEditor';
   Editor = React.forwardRef<
     monaco.editor.IStandaloneCodeEditor,
-    NextMonacoEditorProps
+    EditorProps
   >(
     (
-      { width = 800, height = 600, loading, ...props }: NextMonacoEditorProps,
+      { width = 800, height = 600, loading, ...props }: EditorProps,
       ref
     ) => {
       props.theme =
@@ -44,8 +44,8 @@ if (typeof window !== 'undefined') {
 } else {
   Editor = React.forwardRef<
     monaco.editor.IStandaloneCodeEditor,
-    NextMonacoEditorProps
-  >(({ width = 800, height = 600 }: NextMonacoEditorProps, ref) => {
+    EditorProps
+  >(({ width = 800, height = 600 }: EditorProps, ref) => {
     return <div style={processDimensions(width, height)} ref={ref as any} />;
   });
 }
@@ -53,4 +53,3 @@ if (typeof window !== 'undefined') {
 Editor.displayName = 'Editor';
 
 export { Editor };
-export default Editor;

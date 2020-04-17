@@ -1,8 +1,8 @@
 import React from 'react';
 import themes from './themes';
 import Spectrum from 'react-spectrum';
-import { NextMonacoEditorProps } from './index';
-import 'magic-components';
+import { EditorProps } from './Editor';
+
 export function Loading({
   children,
   style = {},
@@ -18,7 +18,7 @@ export function Loading({
     </div>
   );
 }
-export const SpectrumLoading = (props: NextMonacoEditorProps) => {
+export const SpectrumLoading = (props: EditorProps) => {
   const { theme: themeName, options = {} } = props;
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(

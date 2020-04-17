@@ -1,9 +1,9 @@
-export function processSize(size) {
+export function processSize(size: string | number) {
   size = String(size);
   return !/^\d+$/.test(size) ? size : `${size}px`;
 }
 
-export function processDimensions(width, height) {
+export function processDimensions(width: string | number, height: string | number) {
   const fixedWidth = processSize(width);
   const fixedHeight = processSize(height);
   return {
