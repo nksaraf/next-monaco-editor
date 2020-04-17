@@ -139,7 +139,7 @@ class GraphQLWorker extends BaseWorker {
     super(ctx, options);
     console.log(options);
     this.languageService = new LanguageService({
-      uri: this.options.settings.uri,
+      schema: this.options.settings.schema,
       headers: this.options.settings.headers
     });
   }

@@ -17,7 +17,7 @@
     "start": "tsdx watch",
     "build": "npm-run-all --parallel build:*",
     "prepublishOnly": "yarn build",
-    "dev": "next",
+    "dev": "next -p 6969",
     "build:main": "tsdx build --name next-monaco-editor --tsconfig ./tsconfig.tsdx.json && yarn create:entry next-monaco-editor",
     "build:api": "tsdx build -i ./src/api/index.ts --transpileOnly --name api && yarn create:entry api",
     "build:plugins": "tsdx build -i ./src/plugins/index.ts --transpileOnly --name plugins && yarn create:entry plugins && yarn deno scripts/copy-workers.ts",

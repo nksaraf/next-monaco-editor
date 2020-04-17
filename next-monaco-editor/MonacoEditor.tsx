@@ -195,7 +195,6 @@ function useEditorRef() {
   ) => {
     React.useEffect(() => {
       if (editorRef.current) {
-        console.log(deps);
         return effect(editorRef.current);
       }
     }, [...deps]);

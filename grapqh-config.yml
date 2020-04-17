@@ -1,0 +1,6 @@
+pokemon:
+  schema: https://graphql-pokemon.now.sh/
+fauna:
+  schema: https://graphql.fauna.com/graphql
+  headers:
+    Authorization: Bearer fnADlqhXNYACEk3cEXoaPlrwxncM-sUFKbHKkXHj

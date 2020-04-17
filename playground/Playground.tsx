@@ -4,11 +4,9 @@ import monaco from 'next-monaco-editor/api';
 import registerGraphql from './monaco-graphql';
 import { UrlLoader } from './monaco-graphql/LanguageService';
 import { Global } from 'magic-components';
-import dedent from 'dedent';
 import Explorer from 'graphiql-explorer';
 import { GraphQLSchema } from 'graphql';
 import dynamic from 'next/dynamic';
-import { AnimatePresence } from 'magic-components';
 import { GraphQLogo } from './GraphQLogo';
 import { Modal } from './Modal';
 import YAML from 'yaml';
@@ -50,25 +48,34 @@ const globalStyles: any = {
   },
 };
 
-function useGraphQLSchema({ uri, headers }: any) {
+function useGraphQLSchema(config: any) {
   const [schema, setSchema] = React.useState<GraphQLSchema | null>(null);
+
+  const { schema: schemaURI, headers } = config || {};
   React.useEffect(() => {
-    new UrlLoader()
-      .load(uri, { headers })
-      .then((r: { schema: GraphQLSchema | null }) => setSchema(r.schema));
-  }, [uri]);
+    if (schemaURI) {
+      new UrlLoader()
+        .load(schemaURI, { headers })
+        .then((r: { schema: GraphQLSchema | null }) => setSchema(r.schema));
+    }
+  }, [schemaURI]);
   return schema;
 }
 
 // Hook
 function useLocalStorage<T>(
   key: string,
-  initialValue?: T
+  initialValue?: T,
+  overrideInitial: boolean = false
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
+      if (overrideInitial) {
+        window.localStorage.setItem(key, JSON.stringify(initialValue));
+        return initialValue;
+      }
       // Get from local storage by key
       const item = window.localStorage.getItem(key);
       // Parse stored json or if none return initialValue
@@ -107,51 +114,105 @@ function useLocalStorage<T>(
   return [storedValue, setValue as any];
 }
 
-export function Playground() {
-  const [currentProject, setCurrentProject] = useLocalStorage(
-    'current-project',
-    'pokemon'
+function useFiles(initialFiles: any) {
+  const [files, setFiles] = useLocalStorage('files', initialFiles);
+  const filesRef = React.useRef<object>(files);
+  filesRef.current = files;
+
+  const setFile = React.useCallback(
+    (path: string, value: string) => {
+      setFiles((files: any) => ({ ...files, [fixPath(path)]: value }));
+    },
+    [setFiles]
   );
-  const currentProjectRef = React.useRef(null);
-  currentProjectRef.current = currentProject;
-  const [settings, setSettings] = useLocalStorage<{ [key: string]: any }>(
-    'settings',
+
+  const getFile = (path: string) => files[fixPath(path)];
+  return { filesRef, setFile, getFile };
+}
+
+function graphqlPath(project: string) {
+  return `/${project}.graphql`;
+}
+
+const GRAPHQL_CONFIG_PATH = '/graphql-config.yml';
+
+function useGraphQL() {
+  const [settings, setSettingsState] = useLocalStorage<{ [key: string]: any }>(
+    'graphql-config',
     {
       pokemon: {
-        uri: 'https://graphql-pokemon.now.sh/',
+        schema: 'https://graphql-pokemon.now.sh/',
         headers: {},
       },
     }
   );
-  const settingsRef = React.useRef(null);
-  const filesRef = React.useRef(null);
+
+  const settingsRef = React.useRef<any>(settings);
   settingsRef.current = settings;
 
-  const schema = useGraphQLSchema(settings[currentProject]);
+  const initialFiles = {
+    [GRAPHQL_CONFIG_PATH]: YAML.stringify(settings),
+  };
+
+  if (settings) {
+    Object.keys(settings).forEach((key) => {
+      initialFiles[graphqlPath(key)] = '';
+    });
+  }
+
+  const files = useFiles(initialFiles);
+  React.useEffect(() => {
+    try {
+      const sett = YAML.parse(files.filesRef.current[GRAPHQL_CONFIG_PATH]);
+      setSettingsState(sett);
+      Object.keys(sett).forEach((s) => {
+        if (!files.filesRef.current[graphqlPath(s)]) {
+          files.setFile(graphqlPath(s), '');
+        }
+      });
+    } catch (e) {
+      // c
+    }
+  }, [
+    files.filesRef.current[GRAPHQL_CONFIG_PATH],
+    setSettingsState,
+    files.setFile,
+  ]);
+
+  const setSettings = React.useCallback(
+    (newValue: object) => {
+      setSettingsState(newValue);
+      files.setFile(GRAPHQL_CONFIG_PATH, YAML.stringify(newValue));
+    },
+    [setSettingsState]
+  );
+
+  return { ...files, settingsRef, setSettings };
+}
+
+export function Playground() {
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>(null);
-  const [query, setQuery] = useLocalStorage(
-    'queries',
-    () => {}
+  const [currentProject, setCurrentProject] = useLocalStorage(
+    'current-project',
+    'pokemon'
+  );
+  const currentProjectRef = React.useRef<string>('');
+  currentProjectRef.current = currentProject;
+
+  const { filesRef, setFile, settingsRef, setSettings } = useGraphQL();
+  const [path, setPath] = useLocalStorage('open-file', GRAPHQL_CONFIG_PATH);
+  const onChange = React.useCallback(
+    (val: string) => {
+      setFile(path, val);
+    },
+    [setFile, path]
+  );
+
+  const schema = useGraphQLSchema(
+    settingsRef.current[currentProjectRef.current]
   );
   const [result, setResult] = React.useState({});
   const [open, setOpen] = React.useState(false);
-  const [path, setPath] = useLocalStorage('path', '/query.graphql');
-  const onSettingsChange = React.useCallback(
-    (val) => {
-      try {
-        const sett = YAML.parse(val);
-        setSettings(sett);
-      } catch (e) {}
-    },
-    [setSettings]
-  );
-
-  filesRef.current = {
-    '/query.graphql': query,
-    '/settings.yaml': YAML.stringify(settings),
-  };
-
-  const onChange = path === '/settings.yaml' ? onSettingsChange : setQuery;
 
   return (
     <>
@@ -178,7 +239,7 @@ export function Playground() {
                 value={currentProject}
                 onChange={(e) => setCurrentProject(e.currentTarget.value)}
               >
-                {Object.keys(settings).map((proj) => (
+                {Object.keys(settingsRef.current).map((proj) => (
                   <option value={proj} id={proj} key={proj}>
                     {proj}
                   </option>
@@ -188,9 +249,11 @@ export function Playground() {
             {schema && (
               <Explorer
                 width="100%"
-                query={query}
+                query={filesRef.current[graphqlPath(currentProjectRef.current)]}
                 // query={editorRef.current?.getModel()?.getValue()}
-                onEdit={setQuery}
+                onEdit={(value: string) =>
+                  setFile(graphqlPath(currentProjectRef.current), value)
+                }
                 // onEdit={editValue}
                 explorerIsOpen={true}
                 schema={schema}
@@ -205,16 +268,18 @@ export function Playground() {
           path={path}
           style={{ overflow: 'hidden' }}
           editorWillMount={(monaco: any) => {
-            registerGraphql(monaco, settings[currentProject]);
+            registerGraphql(monaco, settingsRef.current[currentProject]);
           }}
           editorDidMount={(editor, monaco) => {
             const executeCurrentOp = async (opname?: string) => {
-              debugger;
               // monaco.
               try {
                 const model = monaco.editor
                   .getModels()
-                  .find((model) => model.uri.path === '/query.graphql');
+                  .find(
+                    (model) =>
+                      model.uri.path === graphqlPath(currentProjectRef.current)
+                  );
                 if (!model) {
                   return;
                 }
@@ -236,7 +301,7 @@ export function Playground() {
                 const projSettings =
                   settingsRef.current[currentProjectRef.current];
                 console.log(projSettings);
-                const result = await fetch(projSettings.uri, {
+                const result = await fetch(projSettings.schema, {
                   method: 'POST',
                   headers: {
                     'content-type': 'application/json',
@@ -254,11 +319,13 @@ export function Playground() {
             const getOperationNames = async () => {
               const worker = await monaco.worker.get(
                 'graphql',
-                '/query.graphql'
+                graphqlPath(currentProjectRef.current)
               );
               // const typescript = await monaco.worker.get('typescript');
               const ast = await worker.getAST(
-                monaco.Uri.file('/query.graphql').toString()
+                monaco.Uri.file(
+                  graphqlPath(currentProjectRef.current)
+                ).toString()
               );
               const operations = ast.definitions
                 .map((d: any) => d?.name?.value)
@@ -267,18 +334,18 @@ export function Playground() {
             };
 
             editor.addAction({
-              id: 'graphql.editSettings',
-              label: 'Edit GraphQL Settings',
+              id: 'graphql.editConfig',
+              label: 'Preferences: GraphQL Config',
               contextMenuOrder: 2,
               contextMenuGroupId: 'graphql',
               run: async () => {
-                setPath('/settings.yaml');
+                setPath(GRAPHQL_CONFIG_PATH);
               },
             });
 
             editor.addSelectAction({
               id: 'graphql.selectOperation',
-              label: 'Run GrapQL Operation by name',
+              label: 'Run GraphQL Operation by Name',
               choices: () => getOperationNames(),
               runChoice: function (value, mode) {
                 if (mode === 1) executeCurrentOp(value);
@@ -297,10 +364,11 @@ export function Playground() {
             });
 
             editor.addSelectAction({
-              id: 'editor.action.switchFile',
-              label: 'Switch File',
+              id: 'editor.action.openFile',
+              label: 'Open File',
               contextMenuOrder: 3,
-              contextMenuGroupId: 'modification',
+              contextMenuGroupId: 'navigation',
+              keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
               choices: () =>
                 Object.keys(filesRef.current).map((f) =>
                   fixPath(f).substring(1)
@@ -322,7 +390,6 @@ export function Playground() {
               // run: runGraphQL(monaco, editor),
               run: async () => {
                 const operations = await getOperationNames();
-                console.log(operations);
                 if (operations.length > 1) {
                   editor.trigger('graphql.run', 'graphql.selectOperation', {});
                 } else {
@@ -348,46 +415,29 @@ export function Playground() {
           <ResultViewer result={result} />
         </div>
         <row gap={3} position="fixed" right={4} top={3}>
-          <grid
+          <Button
             onClick={() =>
               editorRef.current?.trigger('play button', 'graphql.run', {})
             }
-            fontSize={7}
-            as="button"
-            border="none"
             backgroundColor="blue.800"
-            borderRadius="100px"
-            height="1.5em"
-            width="1.5em"
-            p={2}
-            cursor="pointer"
-            boxShadow="large"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            placeItems="center"
           >
             <svg viewBox="10 10 60 60">
               <polygon fill="white" points="32,25 32,58 60,42"></polygon>
             </svg>
-          </grid>
-          <grid
-            onClick={() => setOpen((open) => !open)}
-            fontSize={7}
-            as="button"
-            cursor="pointer"
-            border="none"
+          </Button>
+          <Button
+            // onClick={() => setOpen((open) => !open)}
+            onClick={() =>
+              editorRef.current?.trigger(
+                'graphql config',
+                'graphql.editConfig',
+                {}
+              )
+            }
             backgroundColor="#E535AB"
-            borderRadius="100px"
-            height="1.5em"
-            width="1.5em"
-            p={2}
-            boxShadow="large"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            placeItems="center"
           >
             <GraphQLogo color="white" />
-          </grid>
+          </Button>
         </row>
       </row>
       <Modal isOpen={open} toggle={setOpen}>
@@ -406,7 +456,7 @@ export function Playground() {
           <ReactJSON
             displayDataTypes={false}
             name="projects"
-            src={settings}
+            src={settingsRef.current}
             onEdit={(a) => setSettings(a.updated_src as any)}
             onDelete={(a) => setSettings(a.updated_src as any)}
             onAdd={(a) => setSettings(a.updated_src as any)}
@@ -418,6 +468,27 @@ export function Playground() {
         </column>
       </Modal>
     </>
+  );
+}
+
+function Button(props: any) {
+  return (
+    <grid
+      fontSize={7}
+      as="button"
+      cursor="pointer"
+      border="none"
+      backgroundColor="#E535AB"
+      borderRadius="100px"
+      height="1.5em"
+      width="1.5em"
+      p={2}
+      boxShadow="large"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      placeItems="center"
+      {...props}
+    />
   );
 }
 

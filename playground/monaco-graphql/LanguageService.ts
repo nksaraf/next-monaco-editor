@@ -113,8 +113,8 @@ export class LanguageService {
   private _headers: any;
   private _schema: GraphQLSchema | null;
 
-  constructor({ uri, headers, parser }: LSPConfig) {
-    this._uri = uri;
+  constructor({ schema, headers, parser }: LSPConfig) {
+    this._uri = schema;
     this._headers = headers;
     this._parser = parser || parse;
     this._schema = null;
