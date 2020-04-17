@@ -188,32 +188,23 @@ export interface MonacoEditorProps {
 // const editorStates = new Map();
 // const useFS = ({ files }) => {};
 
-type EditorRef = React.MutableRefObject<
-  monaco.editor.IStandaloneCodeEditor | undefined
-> & {
-  useEffect: (
-    func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+function useEditorRef() {
+  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+  const useEditorEffect = (
+    effect: (
+      editor: monaco.editor.IStandaloneCodeEditor
+    ) => void | (() => void),
     deps: any[]
-  ) => void;
-};
-
-const useEditorRef = (): EditorRef => {
-  const editorRef: any = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  editorRef.useEffect = React.useCallback(
-    (
-      func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
-      deps: any[]
-    ) => {
-      return React.useEffect(() => {
-        if (editorRef.current) {
-          func(editorRef.current);
-        }
-      }, [...deps, editorRef.current]);
-    },
-    []
-  );
-  return editorRef as EditorRef;
-};
+  ) => {
+    React.useEffect(() => {
+      if (editorRef.current) {
+        console.log(deps);
+        return effect(editorRef.current);
+      }
+    }, [...deps]);
+  };
+  return { editorRef, useEditorEffect };
+}
 
 export const MonacoEditor = React.forwardRef<
   monaco.editor.IStandaloneCodeEditor,
@@ -244,7 +235,7 @@ export const MonacoEditor = React.forwardRef<
     ref
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
-    const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+    const { editorRef, useEditorEffect } = useEditorRef();
     const subscriptionRef = React.useRef<monaco.IDisposable>(null);
 
     React.useEffect(() => {
@@ -341,28 +332,43 @@ export const MonacoEditor = React.forwardRef<
       };
     }, []);
 
-    React.useEffect(() => {
-      if (editorRef.current) {
-        // @ts-ignore
-        subscriptionRef.current = editorRef.current.onDidChangeModelContent(
-          (event) => {
-            if (editorRef.current) {
-              onChange(
-                editorRef?.current?.getValue(),
-                editorRef?.current,
-                event
-              );
-            }
+    useEditorEffect(
+      (editor) => {
+        subscriptionRef.current = editor.onDidChangeModelContent((event) => {
+          if (editor) {
+            onChange(editor?.getValue(), editor, event);
           }
-        );
-      }
+        });
+        return () => {
+          if (subscriptionRef.current) {
+            subscriptionRef.current.dispose();
+          }
+        };
+      },
+      [onChange]
+    );
+    // React.useEffect(() => {
+    //   if (editorRef.current) {
+    //     // @ts-ignore
+    //     subscriptionRef.current = editorRef.current.onDidChangeModelContent(
+    //       (event) => {
+    //         if (editorRef.current) {
+    //           onChange(
+    //             editorRef?.current?.getValue(),
+    //             editorRef?.current,
+    //             event
+    //           );
+    //         }
+    //       }
+    //     );
+    //   }
 
-      return () => {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.dispose();
-        }
-      };
-    }, [onChange, editorRef.current]);
+    //   return () => {
+    //     if (subscriptionRef.current) {
+    //       subscriptionRef.current.dispose();
+    //     }
+    //   };
+    // }, [onChange, editorRef.current]);
 
     // React.useEffect(() => {
     //   if (editorRef.current) {
@@ -374,24 +380,25 @@ export const MonacoEditor = React.forwardRef<
       setTheme(monaco, theme);
     }, [theme]);
 
-    React.useEffect(() => {
-      if (editorRef.current) {
-        editorRef.current.updateOptions(options);
-      }
-    }, [options, editorRef.current]);
+    useEditorEffect(
+      (editor) => {
+        editor.updateOptions(options);
+      },
+      [options]
+    );
 
-    React.useEffect(() => {
-      if (editorRef.current) {
-        const model = editorRef.current.getModel();
-        if (model) {
-          monaco.editor.setModelLanguage(model, language);
-        }
-      }
-    }, [language, editorRef.current]);
+    // React.useEffect(() => {
+    //   if (editorRef.current) {
+    //     const model = editorRef.current.getModel();
+    //     if (model) {
+    //       monaco.editor.setModelLanguage(model, language);
+    //     }
+    //   }
+    // }, [language, editorRef.current]);
 
-    React.useEffect(() => {
-      if (editorRef.current) {
-        const model = editorRef.current.getModel();
+    useEditorEffect(
+      (editor) => {
+        const model = editor.getModel();
         if (model && value && value !== model.getValue()) {
           // isChangingRef.current = true;
           // editorRef.current.pushUndoStop();
@@ -408,8 +415,9 @@ export const MonacoEditor = React.forwardRef<
           // editorRef.current.pushUndoStop();
           // isChangingRef.current = false;
         }
-      }
-    }, [value, editorRef.current]);
+      },
+      [value]
+    );
 
     return (
       <div
