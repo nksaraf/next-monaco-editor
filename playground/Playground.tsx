@@ -59,45 +59,6 @@ function useGraphQLSchema({ uri, headers }: any) {
   return schema;
 }
 
-function useQueryText(
-  editorRef?: any,
-  initialValue?: string
-): [string, React.Dispatch<React.SetStateAction<string>>] {
-  const [query, setQuery] = useLocalStorage(
-    'query',
-    initialValue ||
-      dedent`query MyQuery1 {
-
-      }`
-  );
-
-  React.useEffect(() => {
-    if (
-      editorRef.current &&
-      editorRef.current?.getModel()?.getValue() !== query
-    ) {
-      editorRef.current.pushUndoStop();
-      const model = editorRef.current.getModel();
-      if (!model) {
-        return;
-      }
-      model.pushEditOperations(
-        [],
-        [
-          {
-            range: model.getFullModelRange(),
-            text: query,
-          },
-        ],
-        () => null
-      );
-      editorRef.current.pushUndoStop();
-      editorRef.current.getModel()?.setValue(query);
-    }
-  }, [query, editorRef.current]);
-  return [query, setQuery];
-}
-
 // Hook
 function useLocalStorage<T>(
   key: string,
@@ -122,13 +83,17 @@ function useLocalStorage<T>(
   // ... persists the new value to localStorage.
   const setValue = (value: T) => {
     try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      // Save state
-      setStoredValue(valueToStore);
-      // Save to local storage
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      setStoredValue((storedValue) => {
+        // Allow value to be a function so we have same API as useState
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+
+        // Save to local storages
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+
+        // Save state
+        return valueToStore;
+      });
     } catch (error) {
       // A more advanced implementation would handle the error case
       console.log(error);
@@ -154,13 +119,15 @@ export function Playground() {
   );
   const schema = useGraphQLSchema(settings[currentProject]);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>(null);
-  const [query, setQuery] = useQueryText(editorRef);
+  const [query, setQuery] = useLocalStorage(
+    'query',
+
+    dedent`query MyQuery1 {
+
+      }`
+  );
   const [result, setResult] = React.useState({});
   const [open, setOpen] = React.useState(false);
-  const [models, setModels] = React.useState<{
-    [key: string]: monaco.editor.ITextModel | null;
-  }>({});
-  const currentModelRef = React.useRef<monaco.Uri | null | undefined>(null);
 
   async function executeCurrentOp(opname?: string) {
     // monaco.
