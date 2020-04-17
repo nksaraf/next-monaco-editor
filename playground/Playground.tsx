@@ -194,7 +194,7 @@ export function Playground() {
         </div>
         <Editor
           onChange={setQuery}
-          defaultValue={query}
+          value={query}
           height="100vh"
           path="query.graphql"
           style={{ overflow: 'hidden' }}
