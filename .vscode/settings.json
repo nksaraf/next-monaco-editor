@@ -7,7 +7,12 @@
     "yarn.lock": true,
     "tsconfig.tsdx.json": true,
     "LICENSE": true,
-    "scripts": true
+    "scripts": true,
+    "node_modules": true,
+    "packages": true,
+    ".vscode": true,
+    "dist": true,
+    "next-plugin": true
   },
   "search.exclude": {
     "**/node_modules": false

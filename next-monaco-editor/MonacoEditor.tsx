@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { noop, processDimensions, getNextWorkerPath } from './utils';
 import monaco from './api';
 import defaultThemes, { ThemeNames, themeNames } from './themes';
@@ -78,7 +78,7 @@ function setupThemes(
   });
 }
 
-function setMonacoTheme(
+function setTheme(
   monacoApi: typeof monaco,
   theme: string | monaco.editor.IStandaloneThemeData | undefined
 ) {
@@ -110,15 +110,23 @@ function setupMonacoEnvironment(
   };
   // @ts-ignore
   window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
+    console.log(label);
     const worker = getWorker(label);
     if (worker) return worker;
     return new Worker(getWorkerPath(_moduleId, label));
   };
 }
 
-function setupWorkerApi(monacoApi: typeof monaco, model: monaco.editor.IModel) {
+function setupWorkerApi(
+  monacoApi: typeof monaco,
+  editor: monaco.editor.IStandaloneCodeEditor
+  // defaultModel: monaco.editor.IModel
+) {
   Object.assign(monacoApi.worker, {
-    getDefault: async () => {
+    getDefault: async (model?: monaco.editor.IModel | null) => {
+      if (!model) {
+        model = editor.getModel();
+      }
       if (!model) {
         return null;
       }
@@ -128,7 +136,10 @@ function setupWorkerApi(monacoApi: typeof monaco, model: monaco.editor.IModel) {
       const worker = await getWorker(model?.uri);
       return worker;
     },
-    get: async (label: string) => {
+    get: async (label: string, model?: monaco.editor.IModel | null) => {
+      if (!model) {
+        model = editor.getModel();
+      }
       if (!model) {
         return null;
       }
@@ -147,6 +158,7 @@ export interface MonacoEditorProps {
   line?: number;
   style?: React.CSSProperties;
   path?: string;
+  files?: { [key: string]: string };
   language?: string;
   theme?: ThemeNames | monaco.editor.IStandaloneThemeData;
   themes?: { [key: string]: monaco.editor.IStandaloneThemeData };
@@ -154,8 +166,8 @@ export interface MonacoEditorProps {
   overrideServices?:
     | monaco.editor.IEditorOverrideServices
     | ((
-        monacoApi: typeof monaco,
-        model: monaco.editor.ITextModel
+        monacoApi: typeof monaco
+        // model: monaco.editor.ITextModel
       ) => monaco.editor.IEditorOverrideServices);
   className?: string;
   getWorker?: (label: string) => Worker | undefined;
@@ -175,35 +187,85 @@ export interface MonacoEditorProps {
   plugins?: ((monacoApi: typeof monaco) => void)[];
 }
 
-// const editorStates = new Map();
-// const useFS = ({ files }) => {};
-
-type EditorRef = React.MutableRefObject<
-  monaco.editor.IStandaloneCodeEditor | undefined
-> & {
-  useEffect: (
-    func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+function useEditorRef() {
+  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+  const useEditorEffect = (
+    effect: (
+      editor: monaco.editor.IStandaloneCodeEditor
+    ) => void | (() => void),
     deps: any[]
-  ) => void;
-};
+  ) => {
+    React.useEffect(() => {
+      if (editorRef.current) {
+        console.log(deps);
+        return effect(editorRef.current);
+      }
+    }, [...deps]);
+  };
+  return { editorRef, useEditorEffect };
+}
 
-const useEditorRef = (): EditorRef => {
-  const editorRef: any = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  editorRef.useEffect = React.useCallback(
-    (
-      func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
-      deps: any[]
-    ) => {
-      return React.useEffect(() => {
-        if (editorRef.current) {
-          func(editorRef.current);
-        }
-      }, [...deps, editorRef.current]);
-    },
-    []
+// static removePath(path: string) {
+//   // Remove editor states
+//   editorStates.delete(path);
+
+//   // Remove associated models
+//   const model = monaco.editor
+//     .getModels()
+//     .find(model => model.uri.path === path);
+
+//   model && model.dispose();
+// }
+
+// static renamePath(oldPath: string, newPath: string) {
+//   const selection = editorStates.get(oldPath);
+
+//   editorStates.delete(oldPath);
+//   editorStates.set(newPath, selection);
+
+//   this.removePath(oldPath);
+// }
+
+var editorStates = new Map();
+
+function initializeModel(path: string, value?: string, language?: string) {
+  let model = findModel(path);
+
+  if (model) {
+    // If a model exists, we need to update it's value
+    // This is needed because the content for the file might have been modified externally
+    // Use `pushEditOperations` instead of `setValue` or `applyEdits` to preserve undo stack
+    if (value) {
+      model.pushEditOperations(
+        [],
+        [
+          {
+            range: model.getFullModelRange(),
+            text: value,
+          },
+        ],
+        () => null
+      );
+    }
+  } else {
+    model = monaco.editor.createModel(
+      value || '',
+      'graphql',
+      monaco.Uri.file(path)
+    );
+    model.updateOptions({
+      tabSize: 2,
+      insertSpaces: true,
+    });
+  }
+}
+
+function findModel(path: string) {
+  path = path.startsWith('/') ? path : `/${path}`;
+  return (
+    monaco.editor.getModels().find((model) => model.uri.path === path) || null
   );
-  return editorRef as EditorRef;
-};
+}
 
 export const MonacoEditor = React.forwardRef<
   monaco.editor.IStandaloneCodeEditor,
@@ -217,12 +279,16 @@ export const MonacoEditor = React.forwardRef<
       defaultValue = '',
       style = {},
       className = 'next-editor',
-      line = 0,
+      // line = 0,
       getWorkerUrl = noop as any,
       getWorker = noop as any,
-      language = 'javascript',
+      // language = 'javascript',
       theme = 'vs-dark',
       path = 'model.js',
+      files = {
+        [path.startsWith('/') ? path : `/${path}`]:
+          value != null ? value : defaultValue,
+      },
       plugins = [],
       themes = {},
       options = {},
@@ -234,8 +300,41 @@ export const MonacoEditor = React.forwardRef<
     ref
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
-    const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+    const { editorRef, useEditorEffect } = useEditorRef();
     const subscriptionRef = React.useRef<monaco.IDisposable>(null);
+
+    function openFile(
+      editor: monaco.editor.IStandaloneCodeEditor,
+      path: string,
+      value?: string
+    ) {
+      path = path.startsWith('/') ? path : `/${path}`;
+      initializeModel(path, value);
+      const model = findModel(path);
+      editor.setModel(model);
+      const editorState = editorStates.get(path);
+      if (editorState) {
+        editor.restoreViewState(editorState);
+      }
+
+      editor.focus();
+    }
+
+    React.useEffect(() => {
+      Object.keys(files).forEach((path) =>
+        initializeModel(
+          path,
+          files[path]
+          // language
+        )
+      );
+
+      return () => {
+        monaco.editor.getModels().forEach((model) => {
+          model.dispose();
+        });
+      };
+    }, []);
 
     React.useEffect(() => {
       if (!containerRef.current) {
@@ -245,45 +344,39 @@ export const MonacoEditor = React.forwardRef<
 
       setupMonacoEnvironment(getWorkerUrl, getWorker);
 
-      Object.assign(options, editorWillMount(monaco) || {});
+      options = Object.assign(
+        { automaticLayout: true, formatOnSave: true },
+        options,
+        editorWillMount(monaco) || {}
+      );
 
       plugins.forEach((plugin) => {
         plugin(monaco);
       });
 
-      const modelValue = value != null ? value : defaultValue;
-      const modelPath = path.startsWith('/') ? path : `/${path}`;
-
-      let model = monaco.editor
-        .getModels()
-        .find((model) => model.uri.path === modelPath);
-
-      if (!model) {
-        model = monaco.editor.createModel(
-          modelValue,
-          language,
-          monaco.Uri.file(modelPath)
-        );
-      }
+      var services =
+        typeof overrideServices === 'function'
+          ? overrideServices(monaco)
+          : overrideServices;
 
       editorRef.current = monaco.editor.create(
         containerRef.current,
-        {
-          model,
-          language,
-          automaticLayout: true,
-          ...options,
-        },
-        typeof overrideServices === 'function'
-          ? overrideServices(monaco, model)
-          : overrideServices
+        { model: findModel(path), language: 'graphql', ...options },
+        services
       );
 
-      editorRef.current.updateOptions({ tabSize: 2 });
+      // editorRef.current.onLan(console.log);
 
-      // console.log(monaco.)
-      const { formatOnSave = true } = options;
-      if (formatOnSave) {
+      // editor ref
+      if (ref) {
+        if (typeof ref === 'function') {
+          ref(editorRef.current);
+        } else {
+          (ref as any).current = editorRef.current;
+        }
+      }
+
+      if (options.formatOnSave) {
         editorRef.current.addCommand(
           monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
           () => {
@@ -302,20 +395,10 @@ export const MonacoEditor = React.forwardRef<
         );
       };
 
-      setupThemes(monaco, editorRef.current, themes);
-
       // CMD + Shift + P (like vscode), CMD + Shift + C
       setupCommandPaletteShortcuts(monaco, editorRef.current);
-      setupWorkerApi(monaco, model);
-
-      // editor ref
-      if (ref) {
-        if (typeof ref === 'function') {
-          ref(editorRef.current);
-        } else {
-          (ref as any).current = editorRef.current;
-        }
-      }
+      setupThemes(monaco, editorRef.current, themes);
+      setupWorkerApi(monaco, editorRef.current);
 
       // After initializing monaco editor
       editorDidMount(editorRef.current, monaco);
@@ -323,65 +406,25 @@ export const MonacoEditor = React.forwardRef<
       return () => {
         if (editorRef.current) {
           editorRef.current.dispose();
-          const model = editorRef.current.getModel();
-          if (model) {
-            model.dispose();
-          }
         }
       };
     }, []);
 
-    React.useEffect(() => {
-      if (editorRef.current) {
-        // @ts-ignore
-        subscriptionRef.current = editorRef.current.onDidChangeModelContent(
-          (event) => {
-            if (editorRef.current) {
-              onChange(
-                editorRef?.current?.getValue(),
-                editorRef?.current,
-                event
-              );
-            }
-          }
-        );
-      }
+    // useEditorEffect(
+    //   (editor) => {
+    //     var oldModel = editor.getModel();
+    //     if (oldModel) {
+    //       editorStates.set(oldModel.uri.path, editor.saveViewState());
+    //     }
+    //     openFile(editor, path, value || files[path]);
+    //   },
+    //   [path]
+    // );
 
-      return () => {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.dispose();
-        }
-      };
-    }, [onChange, editorRef.current]);
-
-    // React.useEffect(() => {
-    //   if (editorRef.current) {
-    //     editorRef.current.setScrollPosition({ scrollTop: line });
-    //   }
-    // }, [line, editorRef.current]);
-
-    React.useEffect(() => {
-      setMonacoTheme(monaco, theme);
-    }, [theme]);
-
-    React.useEffect(() => {
-      if (editorRef.current) {
-        editorRef.current.updateOptions(options);
-      }
-    }, [options, editorRef.current]);
-
-    React.useEffect(() => {
-      if (editorRef.current) {
-        const model = editorRef.current.getModel();
-        if (model) {
-          monaco.editor.setModelLanguage(model, language);
-        }
-      }
-    }, [language, editorRef.current]);
-
-    React.useEffect(() => {
-      if (editorRef.current) {
-        const model = editorRef.current.getModel();
+    useEditorEffect(
+      (editor) => {
+        const model = editor.getModel();
+        value = value || files[path];
         if (model && value && value !== model.getValue()) {
           // isChangingRef.current = true;
           // editorRef.current.pushUndoStop();
@@ -398,8 +441,53 @@ export const MonacoEditor = React.forwardRef<
           // editorRef.current.pushUndoStop();
           // isChangingRef.current = false;
         }
-      }
-    }, [value, editorRef.current]);
+      },
+      [value || files[path]]
+    );
+
+    useEditorEffect(
+      (editor) => {
+        console.log('here');
+        // @ts-ignore
+        subscriptionRef.current = editor.onDidChangeModelContent((event) => {
+          onChange(editor.getValue(), editor, event);
+        });
+
+        return () => {
+          if (subscriptionRef.current) {
+            subscriptionRef.current.dispose();
+          }
+        };
+      },
+      [onChange]
+    );
+
+    // React.useEffect(() => {
+    //   if (editorRef.current) {
+    //     editorRef.current.setScrollPosition({ scrollTop: line });
+    //   }
+    // }, [line, editorRef.current]);
+
+    React.useEffect(() => {
+      setTheme(monaco, theme);
+    }, [theme]);
+
+    useEditorEffect(
+      (editor) => {
+        editor.updateOptions(options);
+      },
+      [options]
+    );
+
+    // useEditorEffect(
+    //   (editor) => {
+    //     const model = editor.getModel();
+    //     if (model && language) {
+    //       monaco.editor.setModelLanguage(model, language);
+    //     }
+    //   },
+    //   [language]
+    // );
 
     return (
       <div

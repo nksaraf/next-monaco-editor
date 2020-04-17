@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Editor from 'next-monaco-editor';
 import monaco from 'next-monaco-editor/api';
 import registerGraphql from './monaco-graphql';
@@ -63,38 +63,30 @@ function useQueryText(
   editorRef?: any,
   initialValue?: string
 ): [string, React.Dispatch<React.SetStateAction<string>>] {
-  const [query, setQuery] = useLocalStorage(
-    'query',
-    initialValue ||
-      dedent`query MyQuery1 {
-
-      }`
-  );
-
-  React.useEffect(() => {
-    if (
-      editorRef.current &&
-      editorRef.current?.getModel()?.getValue() !== query
-    ) {
-      editorRef.current.pushUndoStop();
-      const model = editorRef.current.getModel();
-      if (!model) {
-        return;
-      }
-      model.pushEditOperations(
-        [],
-        [
-          {
-            range: model.getFullModelRange(),
-            text: query,
-          },
-        ],
-        () => null
-      );
-      editorRef.current.pushUndoStop();
-      editorRef.current.getModel()?.setValue(query);
-    }
-  }, [query, editorRef.current]);
+  // React.useEffect(() => {
+  //   if (
+  //     editorRef.current &&
+  //     editorRef.current?.getModel()?.getValue() !== query
+  //   ) {
+  //     editorRef.current.pushUndoStop();
+  //     const model = editorRef.current.getModel();
+  //     if (!model) {
+  //       return;
+  //     }
+  //     model.pushEditOperations(
+  //       [],
+  //       [
+  //         {
+  //           range: model.getFullModelRange(),
+  //           text: query,
+  //         },
+  //       ],
+  //       () => null
+  //     );
+  //     editorRef.current.pushUndoStop();
+  //     editorRef.current.getModel()?.setValue(query);
+  //   }
+  // }, [query, editorRef.current]);
   return [query, setQuery];
 }
 
@@ -120,20 +112,27 @@ function useLocalStorage<T>(
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = (value: T) => {
-    try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      // Save state
-      setStoredValue(valueToStore);
-      // Save to local storage
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.log(error);
-    }
-  };
+  const setValue = React.useCallback(
+    (value: T) => {
+      try {
+        setStoredValue((storedValue) => {
+          // Allow value to be a function so we have same API as useState
+          const valueToStore =
+            value instanceof Function ? value(storedValue) : value;
+
+          // Save to local storages
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+
+          // Save state
+          return valueToStore;
+        });
+      } catch (error) {
+        // A more advanced implementation would handle the error case
+        console.log(error);
+      }
+    },
+    [setStoredValue]
+  );
 
   return [storedValue, setValue as any];
 }
@@ -154,13 +153,31 @@ export function Playground() {
   );
   const schema = useGraphQLSchema(settings[currentProject]);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>(null);
-  const [query, setQuery] = useQueryText(editorRef);
+  const [query, setQuery] = useLocalStorage(
+    'query',
+    dedent`query MyQuery1 {
+
+      }`
+  );
   const [result, setResult] = React.useState({});
   const [open, setOpen] = React.useState(false);
-  const [models, setModels] = React.useState<{
-    [key: string]: monaco.editor.ITextModel | null;
-  }>({});
-  const currentModelRef = React.useRef<monaco.Uri | null | undefined>(null);
+  const [path, setPath] = React.useState('/query.graphql');
+  const onSettingsChange = useCallback(
+    (val) => {
+      try {
+        const sett = YAML.parse(val);
+        setSettings(sett);
+      } catch (e) {}
+    },
+    [setSettings]
+  );
+
+  const files = {
+    '/query.graphql': query,
+    '/settings.yaml': YAML.stringify(settings),
+  };
+
+  const onChange = path === '/settings.yaml' ? onSettingsChange : setQuery;
 
   async function executeCurrentOp(opname?: string) {
     // monaco.
@@ -226,22 +243,19 @@ export function Playground() {
           </div>
         </div>
         <Editor
-          onChange={setQuery}
-          defaultValue={query}
+          onChange={onChange}
+          files={files}
           height="100vh"
-          path="query.graphql"
-          style={{ overflow: 'hidden' }}
+          path={path}
           language="graphql"
-          editorWillMount={(monaco: any) => {
+          style={{ overflow: 'hidden' }}
+          editorWillMount={(monaco) => {
+            monaco.languages.onLanguage('graphql', () =>
+              console.log('graphqllll')
+            );
             registerGraphql(monaco, settings[currentProject]);
           }}
           editorDidMount={(editor, monaco) => {
-            editorRef.current?.focus();
-            const model = editor.getModel();
-            models[model?.uri?.toString() as string] = model;
-            setModels({ ...models });
-            currentModelRef.current = model?.uri;
-
             const getOperationNames = async () => {
               const worker = await monaco.worker.get('graphql');
               // const typescript = await monaco.worker.get('typescript');
@@ -252,35 +266,35 @@ export function Playground() {
               return operations;
             };
 
-            editor.addAction({
-              id: 'graphql.editSettings',
-              label: 'Edit GraphQL Settings',
-              contextMenuOrder: 1,
-              contextMenuGroupId: 'graphql',
-              run: async () => {
-                console.log(editor.getModel());
-                const settingsUri = monaco.Uri.file('settings.yaml');
-                if (models[settingsUri.toString()]) {
-                  editor.setModel(models[settingsUri.toString()]);
-                } else {
-                  const model = monaco.editor.createModel(
-                    YAML.stringify({ projects: settings }),
-                    'yaml',
-                    settingsUri
-                  );
-                  models[settingsUri.toString()] = model;
-                  editor.setModel(model);
-                }
-                editor;
-                // console.log();
-                // const operations = await getOperationNames();
-                // if (operations.length > 1) {
-                //   editor.trigger('graphql.run', 'graphql.selectOperation', {});
-                // } else {
-                //   executeCurrentOp(operations[0]);
-                // }
-              },
-            });
+            // editor.addAction({
+            //   id: 'graphql.editSettings',
+            //   label: 'Edit GraphQL Settings',
+            //   contextMenuOrder: 1,
+            //   contextMenuGroupId: 'graphql',
+            //   run: async () => {
+            //     console.log(editor.getModel());
+            //     const settingsUri = monaco.Uri.file('settings.yaml');
+            //     if (models[settingsUri.toString()]) {
+            //       editor.setModel(models[settingsUri.toString()]);
+            //     } else {
+            //       const model = monaco.editor.createModel(
+            //         YAML.stringify({ projects: settings }),
+            //         'yaml',
+            //         settingsUri
+            //       );
+            //       models[settingsUri.toString()] = model;
+            //       editor.setModel(model);
+            //     }
+            //     editor;
+            //     // console.log();
+            //     // const operations = await getOperationNames();
+            //     // if (operations.length > 1) {
+            //     //   editor.trigger('graphql.run', 'graphql.selectOperation', {});
+            //     // } else {
+            //     //   executeCurrentOp(operations[0]);
+            //     // }
+            //   },
+            // });
 
             editor.addSelectAction({
               id: 'graphql.selectOperation',
@@ -319,53 +333,30 @@ export function Playground() {
             },
             fontFamily: MONO_FONTS,
             fontSize: 12,
-            formatOnSave: true,
           }}
         />
         <div width="35vw" height="100vh" overflow="scroll">
           <ResultViewer result={result} />
         </div>
         <row gap={3} position="fixed" right={4} top={3}>
-          <grid
+          <Button
             onClick={() =>
               editorRef.current?.trigger('play button', 'graphql.run', {})
             }
-            fontSize={7}
-            as="button"
-            border="none"
             backgroundColor="blue.800"
-            borderRadius="100px"
-            height="1.5em"
-            width="1.5em"
             p={2}
-            cursor="pointer"
-            boxShadow="large"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            placeItems="center"
           >
             <svg viewBox="10 10 60 60">
               <polygon fill="white" points="32,25 32,58 60,42"></polygon>
             </svg>
-          </grid>
-          <grid
+          </Button>
+          <Button
             onClick={() => setOpen((open) => !open)}
-            fontSize={7}
-            as="button"
-            cursor="pointer"
-            border="none"
             backgroundColor="#E535AB"
-            borderRadius="100px"
-            height="1.5em"
-            width="1.5em"
             p={2}
-            boxShadow="large"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            placeItems="center"
           >
             <GraphQLogo color="white" />
-          </grid>
+          </Button>
         </row>
       </row>
       <Modal isOpen={open} toggle={setOpen}>
@@ -396,6 +387,25 @@ export function Playground() {
         </column>
       </Modal>
     </>
+  );
+}
+
+function Button(props) {
+  return (
+    <grid
+      fontSize={7}
+      as="button"
+      border="none"
+      borderRadius="100px"
+      height="1.5em"
+      width="1.5em"
+      cursor="pointer"
+      boxShadow="large"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      placeItems="center"
+      {...props}
+    />
   );
 }
 
