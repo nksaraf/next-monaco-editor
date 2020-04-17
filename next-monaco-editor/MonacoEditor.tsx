@@ -35,8 +35,7 @@ function setupCommandPaletteShortcuts(
 function setupThemes(
   monacoApi: typeof monaco,
   editor: monaco.editor.IStandaloneCodeEditor,
-  themes: MonacoEditorProps['themes'],
-  theme: MonacoEditorProps['theme']
+  themes: MonacoEditorProps['themes']
 ) {
   const allThemes = {
     ...defaultThemes,
@@ -49,9 +48,6 @@ function setupThemes(
       allThemes[themeName as keyof typeof allThemes]
     );
   });
-
-  // Set current theme based on predefined themes or if object, set as a custom theme
-  setMonacoTheme(monacoApi, theme);
 
   editor.addSelectAction({
     id: 'editor.action.selectTheme',
@@ -182,6 +178,33 @@ export interface MonacoEditorProps {
 // const editorStates = new Map();
 // const useFS = ({ files }) => {};
 
+type EditorRef = React.MutableRefObject<
+  monaco.editor.IStandaloneCodeEditor | undefined
+> & {
+  useEffect: (
+    func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+    deps: any[]
+  ) => void;
+};
+
+const useEditorRef = (): EditorRef => {
+  const editorRef: any = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+  editorRef.useEffect = React.useCallback(
+    (
+      func: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+      deps: any[]
+    ) => {
+      return React.useEffect(() => {
+        if (editorRef.current) {
+          func(editorRef.current);
+        }
+      }, [...deps, editorRef.current]);
+    },
+    []
+  );
+  return editorRef as EditorRef;
+};
+
 export const MonacoEditor = React.forwardRef<
   monaco.editor.IStandaloneCodeEditor,
   MonacoEditorProps
@@ -279,7 +302,7 @@ export const MonacoEditor = React.forwardRef<
         );
       };
 
-      setupThemes(monaco, editorRef.current, themes, theme);
+      setupThemes(monaco, editorRef.current, themes);
 
       // CMD + Shift + P (like vscode), CMD + Shift + C
       setupCommandPaletteShortcuts(monaco, editorRef.current);
