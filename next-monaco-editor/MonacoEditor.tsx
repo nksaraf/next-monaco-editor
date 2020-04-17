@@ -78,7 +78,7 @@ function setupThemes(
   });
 }
 
-function setMonacoTheme(
+function setTheme(
   monacoApi: typeof monaco,
   theme: string | monaco.editor.IStandaloneThemeData | undefined
 ) {
@@ -116,9 +116,16 @@ function setupMonacoEnvironment(
   };
 }
 
-function setupWorkerApi(monacoApi: typeof monaco, model: monaco.editor.IModel) {
+function setupWorkerApi(
+  monacoApi: typeof monaco,
+  editor: monaco.editor.IStandaloneCodeEditor
+  // defaultModel: monaco.editor.IModel
+) {
   Object.assign(monacoApi.worker, {
-    getDefault: async () => {
+    getDefault: async (model?: monaco.editor.IModel | null) => {
+      if (!model) {
+        model = editor.getModel();
+      }
       if (!model) {
         return null;
       }
@@ -128,7 +135,10 @@ function setupWorkerApi(monacoApi: typeof monaco, model: monaco.editor.IModel) {
       const worker = await getWorker(model?.uri);
       return worker;
     },
-    get: async (label: string) => {
+    get: async (label: string, model?: monaco.editor.IModel | null) => {
+      if (!model) {
+        model = editor.getModel();
+      }
       if (!model) {
         return null;
       }
@@ -306,7 +316,7 @@ export const MonacoEditor = React.forwardRef<
 
       // CMD + Shift + P (like vscode), CMD + Shift + C
       setupCommandPaletteShortcuts(monaco, editorRef.current);
-      setupWorkerApi(monaco, model);
+      setupWorkerApi(monaco, editorRef.current);
 
       // editor ref
       if (ref) {
@@ -361,7 +371,7 @@ export const MonacoEditor = React.forwardRef<
     // }, [line, editorRef.current]);
 
     React.useEffect(() => {
-      setMonacoTheme(monaco, theme);
+      setTheme(monaco, theme);
     }, [theme]);
 
     React.useEffect(() => {
