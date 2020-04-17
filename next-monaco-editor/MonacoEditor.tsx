@@ -1,5 +1,5 @@
 import React from 'react';
-import { noop, processDimensions, getNextWorkerPath } from './utils';
+import { noop, processDimensions, getNextWorkerPath, fixPath } from './utils';
 import monaco from './api';
 import defaultThemes, { ThemeNames, themeNames } from './themes';
 import './css/monaco.css';
@@ -52,8 +52,6 @@ function setupThemes(
   editor.addSelectAction({
     id: 'editor.action.selectTheme',
     label: 'Preferences: Color Theme',
-    alias: 'Set Color Theme',
-    isSupported: () => true,
     choices: () => Object.keys(themeNames),
     runChoice: (choice, mode, ctx, api) => {
       if (mode === 0) {
@@ -122,23 +120,21 @@ function setupWorkerApi(
   // defaultModel: monaco.editor.IModel
 ) {
   Object.assign(monacoApi.worker, {
-    getDefault: async (model?: monaco.editor.IModel | null) => {
-      if (!model) {
-        model = editor.getModel();
-      }
+    getDefault: async (path?: string) => {
+      const model =
+        (path ? findModel(path) : editor.getModel()) || editor.getModel();
       if (!model) {
         return null;
       }
       const getWorker = await monacoApi.worker.getClient(
         (model as any).getLanguageIdentifier().language
       );
-      const worker = await getWorker(model?.uri);
+      const worker = await getWorker(model?.uri as any);
       return worker;
     },
-    get: async (label: string, model?: monaco.editor.IModel | null) => {
-      if (!model) {
-        model = editor.getModel();
-      }
+    get: async (label: string, path?: string) => {
+      const model =
+        (path ? findModel(path) : editor.getModel()) || editor.getModel();
       if (!model) {
         return null;
       }
@@ -207,8 +203,6 @@ function useEditorRef() {
   return { editorRef, useEditorEffect };
 }
 
-const fixPath = (path: string) => (path.startsWith('/') ? path : `/${path}`);
-
 function findModel(path: string) {
   path = fixPath(path);
   return (
@@ -264,7 +258,7 @@ export const MonacoEditor = React.forwardRef<
       line = 0,
       getWorkerUrl = noop as any,
       getWorker = noop as any,
-      language = 'javascript',
+      language,
       theme = 'vs-dark',
       path = `model${
         // @ts-ignore
@@ -335,7 +329,6 @@ export const MonacoEditor = React.forwardRef<
           (ref as any).current = editorRef.current;
         }
       }
-      console.log(monaco.languages.getLanguages());
 
       if (options.formatOnSave) {
         editorRef.current.addCommand(
@@ -380,7 +373,7 @@ export const MonacoEditor = React.forwardRef<
         // if (oldModel) {
         //   editorStates.set(oldModel.uri.path, editor.saveViewState());
         // }
-        initializeModel(path);
+        initializeModel(path, files[path]);
         const model = findModel(path);
         editor.setModel(model);
         // const editorState = editorStates.get(path);
@@ -430,7 +423,7 @@ export const MonacoEditor = React.forwardRef<
     useEditorEffect(
       (editor) => {
         const model = editor.getModel();
-        if (model) {
+        if (model && language) {
           monaco.editor.setModelLanguage(model, language);
         }
       },

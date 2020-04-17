@@ -16,4 +16,6 @@ export const getNextWorkerPath = (label: string) => {
   return `_next/static/${label}.monaco.worker.js`;
 };
 
+export const fixPath = (path: string) => (path.startsWith('/') ? path : `/${path}`);
+
 export function noop() {}

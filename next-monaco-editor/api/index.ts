@@ -58,8 +58,8 @@ declare module 'monaco-editor' {
     ): Promise<(...uris: monaco.Uri[]) => Promise<T>>;
   
     // provided in MonacoEditor.tsx
-    function getDefault(): Promise<any>;
-    function get(label: string): Promise<any>;
+    function getDefault(path?: string): Promise<any>;
+    function get(label: string, path?: string): Promise<any>;
   }
 
   namespace editor  {

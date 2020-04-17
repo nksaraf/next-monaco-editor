@@ -2,6 +2,7 @@ import React from 'react';
 import themes from './themes';
 import Spectrum from 'react-spectrum';
 import { EditorProps } from './Editor';
+import { fixPath } from './utils';
 
 export function Loading({
   children,
@@ -19,7 +20,16 @@ export function Loading({
   );
 }
 export const SpectrumLoading = (props: EditorProps) => {
-  const { theme: themeName, options = {} } = props;
+  const {
+    theme: themeName,
+    options = {},
+    value,
+    defaultValue = '',
+    path = 'model.js',
+    files = {
+      [fixPath(path)]: value != null ? value : defaultValue,
+    },
+  } = props;
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(
     new Set(
@@ -36,7 +46,7 @@ export const SpectrumLoading = (props: EditorProps) => {
       theme.base
     ];
   const { fontSize = 12, lineHeight = fontSize * 1.5 } = options;
-  const lines = (props.defaultValue || props.value || '').split('\n');
+  const lines = files[fixPath(path)].split('\n');
   const paddingLeft = options.lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(
     Math.max(

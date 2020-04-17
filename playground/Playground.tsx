@@ -12,6 +12,7 @@ import { AnimatePresence } from 'magic-components';
 import { GraphQLogo } from './GraphQLogo';
 import { Modal } from './Modal';
 import YAML from 'yaml';
+import { fixPath } from 'next-monaco-editor/utils';
 // import Split from 'react-split';
 
 const ReactJSON = dynamic(() => import('react-json-view'), { ssr: false });
@@ -81,24 +82,27 @@ function useLocalStorage<T>(
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = (value: T) => {
-    try {
-      setStoredValue((storedValue) => {
-        // Allow value to be a function so we have same API as useState
-        const valueToStore =
-          value instanceof Function ? value(storedValue) : value;
+  const setValue = React.useCallback(
+    (value: T) => {
+      try {
+        setStoredValue((storedValue) => {
+          // Allow value to be a function so we have same API as useState
+          const valueToStore =
+            value instanceof Function ? value(storedValue) : value;
 
-        // Save to local storages
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          // Save to local storages
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
 
-        // Save state
-        return valueToStore;
-      });
-    } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.log(error);
-    }
-  };
+          // Save state
+          return valueToStore;
+        });
+      } catch (error) {
+        // A more advanced implementation would handle the error case
+        console.log(error);
+      }
+    },
+    [setStoredValue]
+  );
 
   return [storedValue, setValue as any];
 }
@@ -108,6 +112,8 @@ export function Playground() {
     'current-project',
     'pokemon'
   );
+  const currentProjectRef = React.useRef(null);
+  currentProjectRef.current = currentProject;
   const [settings, setSettings] = useLocalStorage<{ [key: string]: any }>(
     'settings',
     {
@@ -117,50 +123,35 @@ export function Playground() {
       },
     }
   );
+  const settingsRef = React.useRef(null);
+  const filesRef = React.useRef(null);
+  settingsRef.current = settings;
+
   const schema = useGraphQLSchema(settings[currentProject]);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const [query, setQuery] = useLocalStorage(
-    'query',
-
-    dedent`query MyQuery1 {
-
-      }`
+    'queries',
+    () => {}
   );
   const [result, setResult] = React.useState({});
   const [open, setOpen] = React.useState(false);
+  const [path, setPath] = useLocalStorage('path', '/query.graphql');
+  const onSettingsChange = React.useCallback(
+    (val) => {
+      try {
+        const sett = YAML.parse(val);
+        setSettings(sett);
+      } catch (e) {}
+    },
+    [setSettings]
+  );
 
-  async function executeCurrentOp(opname?: string) {
-    // monaco.
-    try {
-      const operation = editorRef.current.getValue();
-      // const variables = variablesEditor.getValue();
-      const body: {
-        variables?: string;
-        query: string;
-        operationName?: string;
-      } = {
-        query: operation,
-        operationName: opname,
-      };
-      // const parsedVariables = JSON.parse(variables);
-      // if (parsedVariables && Object.keys(parsedVariables).length) {
-      //   body.variables = variables;
-      // }
-      const projSettings = settings[currentProject];
-      const result = await fetch(projSettings.uri, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          ...projSettings.headers,
-        },
-        body: JSON.stringify(body),
-      });
-      const resultText = await result.text();
-      setResult(JSON.parse(resultText));
-    } catch (err) {
-      setResult(err);
-    }
-  }
+  filesRef.current = {
+    '/query.graphql': query,
+    '/settings.yaml': YAML.stringify(settings),
+  };
+
+  const onChange = path === '/settings.yaml' ? onSettingsChange : setQuery;
 
   return (
     <>
@@ -178,7 +169,22 @@ export function Playground() {
         }}
       >
         <div height="100vh" overflow="scroll">
-          <div>
+          <column gap={2} py={2}>
+            <column gap={1} px={3}>
+              <div fontSize={2} fontFamily={MONO_FONTS}>
+                Current Project
+              </div>
+              <select
+                value={currentProject}
+                onChange={(e) => setCurrentProject(e.currentTarget.value)}
+              >
+                {Object.keys(settings).map((proj) => (
+                  <option value={proj} id={proj} key={proj}>
+                    {proj}
+                  </option>
+                ))}
+              </select>
+            </column>
             {schema && (
               <Explorer
                 width="100%"
@@ -190,73 +196,117 @@ export function Playground() {
                 schema={schema}
               />
             )}
-          </div>
+          </column>
         </div>
         <Editor
-          onChange={setQuery}
-          value={query}
+          onChange={onChange}
           height="100vh"
-          // path="query.graphql"
+          files={filesRef.current}
+          path={path}
           style={{ overflow: 'hidden' }}
-          language="graphql"
           editorWillMount={(monaco: any) => {
             registerGraphql(monaco, settings[currentProject]);
           }}
           editorDidMount={(editor, monaco) => {
-            // editorRef.current?.focus();
-            // const model = editor.getModel();
-            // models[model?.uri?.toString() as string] = model;
-            // setModels({ ...models });
-            // currentModelRef.current = model?.uri;
+            const executeCurrentOp = async (opname?: string) => {
+              debugger;
+              // monaco.
+              try {
+                const model = monaco.editor
+                  .getModels()
+                  .find((model) => model.uri.path === '/query.graphql');
+                if (!model) {
+                  return;
+                }
+                const operation = model?.getValue();
+                // const variables = variablesEditor.getValue();
+                const body: {
+                  variables?: string;
+                  query: string;
+                  operationName?: string;
+                } = {
+                  query: operation,
+                  operationName: opname,
+                };
+                // const parsedVariables = JSON.parse(variables);
+                // if (parsedVariables && Object.keys(parsedVariables).length) {
+                //   body.variables = variables;
+                // }
+                // const projSettings = getCurrentSettings();
+                const projSettings =
+                  settingsRef.current[currentProjectRef.current];
+                console.log(projSettings);
+                const result = await fetch(projSettings.uri, {
+                  method: 'POST',
+                  headers: {
+                    'content-type': 'application/json',
+                    ...projSettings.headers,
+                  },
+                  body: JSON.stringify(body),
+                });
+                const resultText = await result.text();
+                setResult(JSON.parse(resultText));
+              } catch (err) {
+                setResult(err);
+              }
+            };
 
             const getOperationNames = async () => {
-              const worker = await monaco.worker.get('graphql');
+              const worker = await monaco.worker.get(
+                'graphql',
+                '/query.graphql'
+              );
               // const typescript = await monaco.worker.get('typescript');
               const ast = await worker.getAST(
-                editor.getModel()?.uri.toString()
+                monaco.Uri.file('/query.graphql').toString()
               );
-              const operations = ast.definitions.map((d: any) => d.name.value);
+              const operations = ast.definitions
+                .map((d: any) => d?.name?.value)
+                .filter((a) => !!a);
               return operations;
             };
 
-            // editor.addAction({
-            //   id: 'graphql.editSettings',
-            //   label: 'Edit GraphQL Settings',
-            //   contextMenuOrder: 1,
-            //   contextMenuGroupId: 'graphql',
-            //   run: async () => {
-            //     console.log(editor.getModel());
-            //     const settingsUri = monaco.Uri.file('settings.yaml');
-            //     if (models[settingsUri.toString()]) {
-            //       editor.setModel(models[settingsUri.toString()]);
-            //     } else {
-            //       const model = monaco.editor.createModel(
-            //         YAML.stringify({ projects: settings }),
-            //         'yaml',
-            //         settingsUri
-            //       );
-            //       models[settingsUri.toString()] = model;
-            //       editor.setModel(model);
-            //     }
-            //     editor;
-            //     // console.log();
-            //     // const operations = await getOperationNames();
-            //     // if (operations.length > 1) {
-            //     //   editor.trigger('graphql.run', 'graphql.selectOperation', {});
-            //     // } else {
-            //     //   executeCurrentOp(operations[0]);
-            //     // }
-            //   },
-            // });
+            editor.addAction({
+              id: 'graphql.editSettings',
+              label: 'Edit GraphQL Settings',
+              contextMenuOrder: 2,
+              contextMenuGroupId: 'graphql',
+              run: async () => {
+                setPath('/settings.yaml');
+              },
+            });
 
             editor.addSelectAction({
               id: 'graphql.selectOperation',
               label: 'Run GrapQL Operation by name',
-              isSupported: () => true,
-              alias: 'run operation',
-              choices: getOperationNames,
+              choices: () => getOperationNames(),
               runChoice: function (value, mode) {
                 if (mode === 1) executeCurrentOp(value);
+              },
+            });
+
+            editor.addSelectAction({
+              id: 'graphql.selectProject',
+              label: 'Select GraphQL Project',
+              choices: () => Object.keys(settingsRef.current),
+              contextMenuOrder: 1,
+              contextMenuGroupId: 'graphql',
+              runChoice: function (value, mode) {
+                if (mode === 1) setCurrentProject(value);
+              },
+            });
+
+            editor.addSelectAction({
+              id: 'editor.action.switchFile',
+              label: 'Switch File',
+              contextMenuOrder: 3,
+              contextMenuGroupId: 'modification',
+              choices: () =>
+                Object.keys(filesRef.current).map((f) =>
+                  fixPath(f).substring(1)
+                ),
+              runChoice: function (value, mode) {
+                if (mode === 1) setPath(fixPath(value));
               },
             });
 
@@ -269,12 +319,18 @@ export function Playground() {
                 // eslint-disable-next-line no-bitwise
                 monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
               ],
+              // run: runGraphQL(monaco, editor),
               run: async () => {
                 const operations = await getOperationNames();
+                console.log(operations);
                 if (operations.length > 1) {
                   editor.trigger('graphql.run', 'graphql.selectOperation', {});
                 } else {
-                  executeCurrentOp(operations[0]);
+                  if (operations.length === 1) {
+                    executeCurrentOp(operations[0]);
+                  } else {
+                    executeCurrentOp();
+                  }
                 }
               },
             });

@@ -10,7 +10,10 @@ import {
 // @ts-ignore
 import { matchesFuzzy } from 'monaco-editor/esm/vs/base/common/filters';
 
-export type IQuickSelectAction = Omit<monaco.editor.IEditorAction, 'run'> & {
+export type IQuickSelectAction = Omit<
+  monaco.editor.IActionDescriptor,
+  'run'
+> & {
   choices?: () => Promise<string[]> | string[];
   runChoice?: (
     choice: string,
@@ -25,34 +28,27 @@ export type IQuickSelectAction = Omit<monaco.editor.IEditorAction, 'run'> & {
 };
 
 export class QuickSelectAction extends BaseEditorQuickOpenAction {
-  choices?: () => string[] | Promise<string[]>;
-  runChoice: (
-    choice: string,
-    mode: number,
-    context: any,
-    api: typeof monaco
-  ) => Promise<boolean | void>;
-  id: string;
-  label: string;
-  runAction?: (
-    editor: monaco.editor.IStandaloneCodeEditor,
-    api: typeof monaco,
-    payload: any
-  ) => Promise<any>;
+  choices?: IQuickSelectAction['choices'];
+  runChoice: IQuickSelectAction['runChoice'];
+  id?: string;
+  label?: string;
+  precondition?: string;
+  keybindings?: number[];
+  keybindingContext?: string;
+  contextMenuGroupId?: string;
+  contextMenuOrder?: number;
+  runAction?: IQuickSelectAction['runAction'];
   api: typeof monaco;
   constructor(descriptor: IQuickSelectAction, api: typeof monaco) {
     super(descriptor.label, descriptor);
-    this.id = descriptor.id;
-    this.label = descriptor.label;
-    this.choices = descriptor.choices as any;
-    this.runChoice = descriptor.runChoice as any;
+    Object.assign(this, descriptor);
     const _this: any = this;
     this.runAction =
       descriptor?.runAction ??
-      async function (editor: any, api: any, payload: any) {
+      (async function (editor: any, api: any, payload: any) {
         await _this.show(editor, payload);
         return;
-      };
+      } as any);
     this.api = api;
   }
   getOptions(
@@ -70,14 +66,14 @@ export class QuickSelectAction extends BaseEditorQuickOpenAction {
         entry.setHighlights(highlights);
         entry.run = function (mode: number, context: any) {
           if (mode === 0) {
-            _this.runChoice(name, mode, context, _this.api);
+            _this.runChoice?.(name, mode, context, _this.api);
             return false;
           } else if (mode === 1 /* OPEN */) {
             // Use a timeout to give the quick open widget a chance to close itself first
             setTimeout(function () {
               // Some actions are enabled only when editor has focus
               editor.focus();
-              _this.runChoice(name, mode, context, _this.api);
+              _this.runChoice?.(name, mode, context, _this.api);
             }, 50);
             return true;
           }
@@ -108,7 +104,7 @@ export class QuickSelectAction extends BaseEditorQuickOpenAction {
   run() {
     const editor = arguments[0];
     const _this = this;
-    return _this.runAction.apply(_this, [editor, monaco]);
+    return _this.runAction?.apply(_this, [editor, monaco]);
   }
 }
 
