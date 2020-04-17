@@ -196,7 +196,7 @@ export function Playground() {
           onChange={setQuery}
           value={query}
           height="100vh"
-          path="query.graphql"
+          // path="query.graphql"
           style={{ overflow: 'hidden' }}
           language="graphql"
           editorWillMount={(monaco: any) => {

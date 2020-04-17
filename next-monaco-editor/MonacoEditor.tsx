@@ -266,7 +266,11 @@ export const MonacoEditor = React.forwardRef<
       getWorker = noop as any,
       language = 'javascript',
       theme = 'vs-dark',
-      path = 'model.js',
+      path = `model${
+        // @ts-ignore
+        (monaco.languages.getLanguages().find((l) => l.id === language)
+          ?.extensions[0] as any) ?? '.js'
+      }`,
       files = {
         [fixPath(path)]: value != null ? value : defaultValue,
       },
@@ -331,6 +335,7 @@ export const MonacoEditor = React.forwardRef<
           (ref as any).current = editorRef.current;
         }
       }
+      console.log(monaco.languages.getLanguages());
 
       if (options.formatOnSave) {
         editorRef.current.addCommand(
@@ -422,14 +427,15 @@ export const MonacoEditor = React.forwardRef<
       [options]
     );
 
-    // React.useEffect(() => {
-    //   if (editorRef.current) {
-    //     const model = editorRef.current.getModel();
-    //     if (model) {
-    //       monaco.editor.setModelLanguage(model, language);
-    //     }
-    //   }
-    // }, [language, editorRef.current]);
+    useEditorEffect(
+      (editor) => {
+        const model = editor.getModel();
+        if (model) {
+          monaco.editor.setModelLanguage(model, language);
+        }
+      },
+      [language]
+    );
 
     useEditorEffect(
       (editor) => {
