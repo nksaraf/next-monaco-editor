@@ -1,4 +1,5 @@
 import * as monaco from 'monaco-editor';
+import { WorkerConfig } from './worker-manager';
 
 export const defaultProviderConfig = {
   reference: true,
@@ -21,6 +22,7 @@ export const defaultProviderConfig = {
   foldingRange: true,
   declaration: true,
   selectionRange: true,
+  diagnostics: true,
   documentSemanticTokens: true,
   documentRangeSemanticTokens: true,
 };
@@ -90,13 +92,133 @@ export const getResolver = (
   };
 };
 
+export class DiagnosticsAdapter {
+  private _disposables: monaco.IDisposable[] = [];
+  private _listener: { [uri: string]: monaco.IDisposable } = Object.create(
+    null
+  );
+  private _editor: monaco.editor.ICodeEditor;
+
+  isCurrentModel(model) {
+    if (this._editor) {
+      const currentModel = this._editor.getModel();
+      if (
+        currentModel &&
+        currentModel.uri.toString() === model.uri.toString()
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+  constructor(
+    private _config: WorkerConfig<any>,
+    private _worker: monaco.worker.IWorkerAccessor<any>
+  ) {
+    this._worker = _worker;
+
+    this._disposables.push(
+      monaco.editor.onDidCreateEditor((editor) => {
+        this._editor = editor;
+      })
+    );
+    const onModelAdd = (model: monaco.editor.IModel): void => {
+      const modeId = model.getModeId();
+      if (modeId !== _config.config.languageId) {
+        return;
+      }
+
+      let handle: number;
+      this._listener[model.uri.toString()] = model.onDidChangeContent(() => {
+        clearTimeout(handle);
+        // @ts-ignore
+        handle = setTimeout(() => {
+          if (this.isCurrentModel(model)) {
+            this._doValidate(model.uri, modeId);
+          }
+        }, 500);
+      });
+
+      // if (this.isCurrentModel(model)) {
+      //   this._doValidate(model.uri, modeId);
+      // }
+    };
+
+    const onModelRemoved = (model: monaco.editor.IModel): void => {
+      monaco.editor.setModelMarkers(model, _config.config.languageId, []);
+      const uriStr = model.uri.toString();
+      const listener = this._listener[uriStr];
+      if (listener) {
+        listener.dispose();
+        delete this._listener[uriStr];
+      }
+    };
+
+    this._disposables.push(monaco.editor.onDidCreateModel(onModelAdd));
+    this._disposables.push(
+      monaco.editor.onWillDisposeModel((model) => {
+        onModelRemoved(model);
+      })
+    );
+    this._disposables.push(
+      monaco.editor.onDidChangeModelLanguage((event) => {
+        onModelRemoved(event.model);
+        onModelAdd(event.model);
+      })
+    );
+
+    this._disposables.push(
+      _config.onDidChange((_: any) => {
+        monaco.editor.getModels().forEach((model) => {
+          if (model.getModeId() === _config.config.languageId) {
+            onModelRemoved(model);
+            onModelAdd(model);
+          }
+        });
+      })
+    );
+
+    this._disposables.push({
+      dispose: () => {
+        for (const key in this._listener) {
+          this._listener[key].dispose();
+        }
+      },
+    });
+
+    // monaco.editor.getModels().forEach(onModelAdd);
+  }
+
+  public dispose(): void {
+    this._disposables.forEach((d) => d && d.dispose());
+    this._disposables = [];
+  }
+
+  private async _doValidate(resource: monaco.Uri, languageId: string) {
+    try {
+      const worker = await this._worker(resource);
+      const diagnostics = await worker.doValidation(resource.toString());
+      monaco.editor.setModelMarkers(
+        monaco.editor.getModel(resource) as monaco.editor.ITextModel,
+        languageId,
+        diagnostics
+      );
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+}
+
 export const setupWorkerProviders = ({
   providers = defaultProviderConfig,
   languageId,
   getWorker,
-}: monaco.worker.IProvidersConfig) => {
+}: monaco.worker.IProvidersConfig): monaco.IDisposable[] => {
+  const disposables: monaco.IDisposable[] = [];
   if (!providers) {
-    return;
+    return [];
   }
 
   providers =
@@ -104,115 +226,170 @@ export const setupWorkerProviders = ({
       ? defaultProviderConfig
       : (providers as monaco.worker.ILangWorkerProviders);
 
+  if (providers.diagnostics) {
+    disposables.push(new DiagnosticsAdapter(getWorker.config, getWorker));
+  }
+
   if (providers.reference) {
-    monaco.languages.registerReferenceProvider(languageId, {
-      provideReferences: getProvider(getWorker, 'references'),
-    });
+    disposables.push(
+      monaco.languages.registerReferenceProvider(languageId, {
+        provideReferences: getProvider(getWorker, 'references'),
+      })
+    );
   }
   if (providers.rename) {
-    monaco.languages.registerRenameProvider(languageId, {
-      provideRenameEdits: getProvider(getWorker, 'renameEdits'),
-      resolveRenameLocation: getResolver(getWorker, 'renameLocation'),
-    });
+    disposables.push(
+      monaco.languages.registerRenameProvider(languageId, {
+        provideRenameEdits: getProvider(getWorker, 'renameEdits'),
+        resolveRenameLocation: getResolver(getWorker, 'renameLocation'),
+      })
+    );
   }
   if (providers.signatureHelp) {
-    monaco.languages.registerSignatureHelpProvider(languageId, {
-      provideSignatureHelp: getSignatureHelpProvider(getWorker),
-    });
+    disposables.push(
+      monaco.languages.registerSignatureHelpProvider(languageId, {
+        provideSignatureHelp: getSignatureHelpProvider(getWorker),
+      })
+    );
   }
   if (providers.hover) {
-    monaco.languages.registerHoverProvider(languageId, {
-      provideHover: getProvider(getWorker, 'hover'),
-    });
+    disposables.push(
+      monaco.languages.registerHoverProvider(languageId, {
+        provideHover: getProvider(getWorker, 'hover'),
+      })
+    );
   }
   if (providers.documentSymbol) {
-    monaco.languages.registerDocumentSymbolProvider(languageId, {
-      provideDocumentSymbols: getProvider(getWorker, 'documentSymbols'),
-    });
+    disposables.push(
+      monaco.languages.registerDocumentSymbolProvider(languageId, {
+        provideDocumentSymbols: getProvider(getWorker, 'documentSymbols'),
+      })
+    );
   }
   if (providers.documentHighlight) {
-    monaco.languages.registerDocumentHighlightProvider(languageId, {
-      provideDocumentHighlights: getProvider(getWorker, 'documentHighlights'),
-    });
+    disposables.push(
+      monaco.languages.registerDocumentHighlightProvider(languageId, {
+        provideDocumentHighlights: getProvider(getWorker, 'documentHighlights'),
+      })
+    );
   }
   if (providers.definition) {
-    monaco.languages.registerDefinitionProvider(languageId, {
-      provideDefinition: getProvider(getWorker, 'definition'),
-    });
+    disposables.push(
+      monaco.languages.registerDefinitionProvider(languageId, {
+        provideDefinition: getProvider(getWorker, 'definition'),
+      })
+    );
   }
   if (providers.implementation) {
-    monaco.languages.registerImplementationProvider(languageId, {
-      provideImplementation: getProvider(getWorker, 'implementation'),
-    });
+    disposables.push(
+      monaco.languages.registerImplementationProvider(languageId, {
+        provideImplementation: getProvider(getWorker, 'implementation'),
+      })
+    );
   }
   if (providers.typeDefinition) {
-    monaco.languages.registerTypeDefinitionProvider(languageId, {
-      provideTypeDefinition: getProvider(getWorker, 'typeDefinition'),
-    });
+    disposables.push(
+      monaco.languages.registerTypeDefinitionProvider(languageId, {
+        provideTypeDefinition: getProvider(getWorker, 'typeDefinition'),
+      })
+    );
   }
   if (providers.codeLens) {
-    monaco.languages.registerCodeLensProvider(languageId, {
-      provideCodeLenses: getProvider(getWorker, 'codeLenses'),
-      resolveCodeLens: getResolver(getWorker, 'codeLens'),
-    });
+    disposables.push(
+      monaco.languages.registerCodeLensProvider(languageId, {
+        provideCodeLenses: getProvider(getWorker, 'codeLenses'),
+        resolveCodeLens: getResolver(getWorker, 'codeLens'),
+      })
+    );
   }
   if (providers.codeAction) {
-    monaco.languages.registerCodeActionProvider(languageId, {
-      provideCodeActions: getProvider(getWorker, 'codeActions'),
-    });
+    disposables.push(
+      monaco.languages.registerCodeActionProvider(languageId, {
+        provideCodeActions: getProvider(getWorker, 'codeActions'),
+      })
+    );
   }
   if (providers.documentFormattingEdit) {
-    monaco.languages.registerDocumentFormattingEditProvider(languageId, {
-      provideDocumentFormattingEdits: getProvider(
-        getWorker,
-        'documentFormattingEdits'
-      ),
-    });
+    disposables.push(
+      monaco.languages.registerDocumentFormattingEditProvider(languageId, {
+        provideDocumentFormattingEdits: getProvider(
+          getWorker,
+          'documentFormattingEdits'
+        ),
+      })
+    );
   }
   if (providers.documentRangeFormattingEdit) {
-    monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, {
-      provideDocumentRangeFormattingEdits: getProvider(
-        getWorker,
-        'documentRangeFormattingEdits'
-      ),
-    });
+    disposables.push(
+      monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, {
+        provideDocumentRangeFormattingEdits: getProvider(
+          getWorker,
+          'documentRangeFormattingEdits'
+        ),
+      })
+    );
   }
+  // if (providers.onTypeFormattingEdit) {
+  //   disposables.push(
+  //     monaco.languages.registerOnTypeFormattingEditProvider(languageId, {
+  //       provideOnTypeFormattingEdits: getProvider(
+  //         getWorker,
+  //         'onTypeFormattingEdits'
+  //       ),
+  //     })
+  //   );
+  // }
+  if (providers.link) {
+    disposables.push(
+      monaco.languages.registerLinkProvider(languageId, {
+        provideLinks: getProvider(getWorker, 'links'),
+      })
+    );
+  }
+  if (providers.completionItem) {
+    disposables.push(
+      monaco.languages.registerCompletionItemProvider(languageId, {
+        triggerCharacters: providers.completionTriggerCharacters || [],
+        provideCompletionItems: getProvider(getWorker, 'completionItems'),
+        resolveCompletionItem: getResolver(getWorker, 'completionItem'),
+      })
+    );
+  }
+  if (providers.color) {
+    disposables.push(
+      monaco.languages.registerColorProvider(languageId, {
+        provideDocumentColors: getProvider(getWorker, 'documentColors'),
+        provideColorPresentations: getProvider(getWorker, 'colorPresentations'),
+      })
+    );
+  }
+  if (providers.foldingRange) {
+    disposables.push(
+      monaco.languages.registerFoldingRangeProvider(languageId, {
+        provideFoldingRanges: getProvider(getWorker, 'foldingRanges'),
+      })
+    );
+  }
+  if (providers.declaration) {
+    disposables.push(
+      monaco.languages.registerDeclarationProvider(languageId, {
+        provideDeclaration: getProvider(getWorker, 'declaration'),
+      })
+    );
+  }
+  if (providers.selectionRange) {
+    disposables.push(
+      monaco.languages.registerSelectionRangeProvider(languageId, {
+        provideSelectionRanges: getProvider(getWorker, 'selectionRanges'),
+      })
+    );
+  }
+
+  return disposables;
+
   // if (providers.onTypeFormattingEdit) {
   //     monaco.languages.registerOnTypeFormattingEditProvider(languageId, {
   // provideOnTypeFormattingEdits: getProvider(getWorker, 'onTypeFormattingEdits')
   // });
   // }
-  if (providers.link) {
-    monaco.languages.registerLinkProvider(languageId, {
-      provideLinks: getProvider(getWorker, 'links'),
-    });
-  }
-  if (providers.completionItem) {
-    monaco.languages.registerCompletionItemProvider(languageId, {
-      provideCompletionItems: getProvider(getWorker, 'completionItems'),
-      resolveCompletionItem: getResolver(getWorker, 'completionItem'),
-      triggerCharacters: providers.completionTriggerCharacters,
-    });
-  }
-  if (providers.color) {
-    monaco.languages.registerColorProvider(languageId, {
-      provideDocumentColors: getProvider(getWorker, 'documentColors'),
-      provideColorPresentations: getProvider(getWorker, 'colorPresentations'),
-    });
-  }
-  if (providers.foldingRange) {
-    monaco.languages.registerFoldingRangeProvider(languageId, {
-      provideFoldingRanges: getProvider(getWorker, 'foldingRanges'),
-    });
-  }
-  if (providers.declaration) {
-    monaco.languages.registerDeclarationProvider(languageId, {
-      provideDeclaration: getProvider(getWorker, 'declaration'),
-    });
-  }
-  if (providers.selectionRange) {
-    monaco.languages.registerSelectionRangeProvider(languageId, {
-      provideSelectionRanges: getProvider(getWorker, 'selectionRanges'),
-    });
-  }
 };

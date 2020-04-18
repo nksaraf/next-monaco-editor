@@ -97,3 +97,5 @@ export function Modal({ isOpen, toggle, children }: any) {
     </div>
   );
 }
+
+

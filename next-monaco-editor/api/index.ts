@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor';
 import { languageDefinitions, LazyLanguageLoader } from './language-loader';
-import { setupWorker, getWorkerClient } from './worker-manager';
+import { setupWorker, getWorkerClient, getWorkerConfig } from './worker-manager';
 import { defaultProviderConfig } from './providers';
 import { IQuickSelectAction } from './QuickSelectAction';
 
@@ -33,6 +33,7 @@ declare module 'monaco-editor' {
       foldingRange?: boolean;
       declaration?: boolean;
       selectionRange?: boolean;
+      diagnostics?: boolean;
       // documentSemanticTokens?: boolean
       // documentRangeSemanticTokens?: boolean
     }
@@ -60,6 +61,7 @@ declare module 'monaco-editor' {
     // provided in MonacoEditor.tsx
     function getDefault(path?: string): Promise<any>;
     function get(label: string, path?: string): Promise<any>;
+    function setConfig<T>(label: string, config?: T): Promise<any>;
   }
 
   namespace editor  {
@@ -81,7 +83,7 @@ declare module 'monaco-editor' {
     }
 
     interface ILangImpl {
-      config: monaco.languages.LanguageConfiguration;
+      conf: monaco.languages.LanguageConfiguration;
       language: monaco.languages.IMonarchLanguage;
     }
   }
@@ -113,8 +115,8 @@ const registerLanguage = (language: monaco.languages.ILang) => {
       lazyLanguageLoader
         .load()
         .then((mod) => {
-          if (mod && mod.config) {
-            monaco.languages.setLanguageConfiguration(languageId, mod.config);
+          if (mod && mod.conf) {
+            monaco.languages.setLanguageConfiguration(languageId, mod.conf);
           }
         })
         .catch((err) => {
@@ -153,7 +155,9 @@ const registerWorker = ({
 };
 
 
-Object.assign(monaco, { worker: { register: registerWorker, getClient: getWorkerClient }, registerLanguage});
+Object.assign(monaco, { worker: { register: registerWorker, getClient: getWorkerClient, setConfig: (label: string, config: any) => {
+  getWorkerConfig(label)?.setConfig(config);
+} }, registerLanguage, });
 
 export { monaco };
 export default monaco;

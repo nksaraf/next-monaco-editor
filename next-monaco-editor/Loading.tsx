@@ -1,5 +1,5 @@
 import React from 'react';
-import themes from './themes';
+import allThemes from './themes';
 import Spectrum from 'react-spectrum';
 import { EditorProps } from './Editor';
 import { fixPath } from './utils';
@@ -22,6 +22,7 @@ export function Loading({
 export const SpectrumLoading = (props: EditorProps) => {
   const {
     theme: themeName,
+    themes: givenThemes,
     options = {},
     value,
     defaultValue = '',
@@ -30,6 +31,10 @@ export const SpectrumLoading = (props: EditorProps) => {
       [fixPath(path)]: value != null ? value : defaultValue,
     },
   } = props;
+  const themes = {
+    ...givenThemes,
+    ...allThemes,
+  };
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(
     new Set(
@@ -45,10 +50,14 @@ export const SpectrumLoading = (props: EditorProps) => {
     ({ 'vs-dark': '#858585', vs: '#237893', 'hc-black': 'white' } as any)[
       theme.base
     ];
-  const { fontSize = 12, lineHeight = fontSize * 1.5 } = options;
+  const {
+    fontSize = 12,
+    lineHeight = fontSize * 1.5,
+    lineNumbers = 'on',
+  } = options;
   console.log(files, path);
   const lines = files[fixPath(path)].split('\n');
-  const paddingLeft = options.lineNumbers === 'off' ? 26 : 62;
+  const paddingLeft = lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(
     Math.max(
       Math.max(...lines.map((l) => l.length).sort((a, b) => b - a)) *
@@ -68,30 +77,33 @@ export const SpectrumLoading = (props: EditorProps) => {
           padding: (lineHeight - fontSize) / 2,
           paddingLeft,
           paddingTop: 12,
+          opacity: 0.7,
           backgroundColor,
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            height: '100%',
-            width: paddingLeft,
-            paddingTop: 12,
-
-            left: 0,
-            top: 0,
-          }}
-        >
+        {lineNumbers === 'on' && (
           <div
             style={{
-              margin: '0 auto',
-              width: fontSize - 2,
-              borderRadius: '8px',
-              backgroundColor: lineNumberColor,
-              height: lines.length * lineHeight,
+              position: 'absolute',
+              height: '100%',
+              width: paddingLeft,
+              paddingTop: 12,
+
+              left: 0,
+              top: 0,
             }}
-          ></div>
-        </div>
+          >
+            <div
+              style={{
+                margin: '0 auto',
+                width: fontSize - 2,
+                borderRadius: '8px',
+                backgroundColor: lineNumberColor,
+                height: lines.length * lineHeight,
+              }}
+            ></div>
+          </div>
+        )}
         <Spectrum
           width={width}
           wordWidths={[

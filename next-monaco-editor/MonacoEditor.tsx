@@ -175,10 +175,16 @@ export interface MonacoEditorProps {
   editorWillMount?: (
     monacoApi: typeof monaco
   ) => monaco.editor.IEditorOptions | void;
+  onPathChange?: (
+    path: string,
+    editor: monaco.editor.IStandaloneCodeEditor,
+    monacoApi: typeof monaco
+  ) => void;
   onChange?: (
     newValue: string,
     editor: monaco.editor.IStandaloneCodeEditor,
-    event: monaco.editor.IModelContentChangedEvent
+    event: monaco.editor.IModelContentChangedEvent,
+    monacoApi: typeof monaco
   ) => void;
   plugins?: ((monacoApi: typeof monaco) => void)[];
 }
@@ -275,6 +281,7 @@ export const MonacoEditor = React.forwardRef<
       editorDidMount = noop,
       editorWillMount = noop,
       onChange = noop,
+      onPathChange = noop,
     }: MonacoEditorProps,
     ref
   ) => {
@@ -375,7 +382,11 @@ export const MonacoEditor = React.forwardRef<
         // }
         initializeModel(path, files[path]);
         const model = findModel(path);
+
         editor.setModel(model);
+        if (onPathChange) {
+          onPathChange(path, editor, monaco);
+        }
         // const editorState = editorStates.get(path);
         // if (editorState) {
         //   editor.restoreViewState(editorState);

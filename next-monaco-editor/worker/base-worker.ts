@@ -167,7 +167,7 @@ export class BaseWorker {
   }
 
   getText(uri: string) {
-    return this.getModel(uri)?.getValue();
+    return this.getModel(uri)?.getValue() || '';
   }
 
   provide<T>(

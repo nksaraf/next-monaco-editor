@@ -4,7 +4,15 @@
     "api": true,
     "next-env.d.ts": true,
     "yarn.lock": true,
-    "LICENSE": true
+    "LICENSE": true,
+    "public/rubik": true,
+    "public": true,
+    "plugins": true,
+    "dist": true,
+    ".vscode": true,
+    ".next": true,
+    "scripts": true,
+    "next-plugin": true
   },
   "search.exclude": {
     "**/node_modules": false

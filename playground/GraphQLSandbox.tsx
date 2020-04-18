@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import MonacoEditor from 'next-monaco-editor';
 import monaco from 'next-monaco-editor/api';
 import registerGraphql from './monaco-graphql';
-import { UrlLoader } from './monaco-graphql/LanguageService';
+import { UrlLoader } from './monaco-graphql/url-schema-loader';
 import { Global, useTheme, get } from 'magic-components';
-import GraphiQLExplorer from 'graphiql-explorer';
+import GraphiQLExplorer from './Explorer';
 import { GraphQLSchema } from 'graphql';
 import { ThemeProvider, Select } from 'react-ui';
 import dynamic from 'next/dynamic';
@@ -12,15 +12,15 @@ import { GraphQLogo } from './GraphQLogo';
 import { Modal } from './Modal';
 import YAML from 'yaml';
 import { fixPath } from 'next-monaco-editor/utils';
-// import Split from 'react-split';
-
-const ReactJSON = dynamic(() => import('react-json-view'), { ssr: false });
-const Split = dynamic(() => import('react-split'), { ssr: false });
+import { useQuery } from 'react-query';
 import Head from 'next/head';
 import { useLocalStorage } from './useLocalStorage';
 import { useFiles } from './useFiles';
 import { Tooltip } from 'react-tippy';
+// import Split from 'react-split';
 
+const ReactJSON = dynamic(() => import('react-json-view'), { ssr: false });
+const Split = dynamic(() => import('react-split'), { ssr: false });
 const RUBIK = 'Rubik, monospace';
 const MONO_FONTS = 'Roboto Mono, monospace';
 
@@ -30,7 +30,7 @@ const monoFontStyles = {
   letterSpacing: 0.2,
 };
 
-const important = (s) => `${s} !important`;
+const important = (s: string) => `${s} !important`;
 // Roboto Mono, SFMono, SF Mono, Inconsolata
 const globalStyles: any = {
   body: { margin: 0 },
@@ -63,7 +63,8 @@ const globalStyles: any = {
   },
   '.object-content span': {
     ...monoFontStyles,
-    letterSpacing: monoFontStyles.letterSpacing + 'px',
+    letterSpacing: important(monoFontStyles.letterSpacing + 'px'),
+    opacity: important('1.0'),
   },
   '.tippy-tooltip': {
     fontFamily: RUBIK,
@@ -72,17 +73,19 @@ const globalStyles: any = {
 };
 
 function useGraphQLSchema(config: any) {
-  const [schema, setSchema] = React.useState<GraphQLSchema | null>(null);
-
   const { schema: schemaURI, headers } = config || {};
-  React.useEffect(() => {
-    if (schemaURI) {
-      new UrlLoader()
-        .load(schemaURI, { headers })
-        .then((r: { schema: GraphQLSchema | null }) => setSchema(r.schema));
+  const { data, error, status } = useQuery(
+    // @ts-ignore
+    ['schema', schemaURI, headers],
+    () => new UrlLoader().load(schemaURI, { headers }),
+    {
+      refetchOnWindowFocus: false,
+      refetchInterval: false,
+      refetchOnMount: false,
+      retry: false,
     }
-  }, [schemaURI]);
-  return schema;
+  );
+  return { schema: data, error, status };
 }
 
 function graphqlPath(project: string) {
@@ -183,8 +186,8 @@ export function Playground() {
   const graphQLBox = useGraphQL();
   return (
     <>
+      <PageHead />
       <ThemeProvider>
-        <PageHead />
         <row
           as={Split}
           width="100vw"
@@ -199,7 +202,7 @@ export function Playground() {
         >
           <column gap={1} px={1}>
             <div height="100vh" overflow="scroll">
-              <column gap={1} py={2}>
+              <column gap={0} pt={2}>
                 <Projects {...graphQLBox} />
                 <Explorer {...graphQLBox} />
               </column>
@@ -218,48 +221,59 @@ export function Playground() {
 }
 
 const PageHead = () => {
+  const Title = 'title';
+  const Link = 'link';
   return (
     <>
       <Global style={globalStyles} />
-      <style jsx>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap');
-        `}
-      </style>
       <Head>
-        <title>Sandbox</title>
-        <link
+        <Title>GraphQL Sandbox</Title>
+        <Link
           rel="shortcut icon"
           href="//cdn.jsdelivr.net/npm/graphql-playground-react@1.7.8/build/favicon.png"
         />
-        <link
+        <Link
           href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"
           rel="stylesheet"
         />
-        {/* <link
+        <Link
           href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap"
           rel="stylesheet"
-        /> */}
+        />
       </Head>
     </>
   );
 };
 
 function Explorer({ projectConfig, projectDoc, setProjectDoc }: any) {
-  const schema = useGraphQLSchema(projectConfig);
+  const { schema, error, status } = useGraphQLSchema(projectConfig);
+
+  if (status === 'loading' && !schema) {
+    return (
+      <div fontFamily={RUBIK} fontSize={3} p={3}>
+        Loading schema
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div fontFamily={RUBIK} fontSize={3} p={3}>
+        Failed to load schema <br />
+        {error.toString()}
+      </div>
+    );
+  }
+
   return schema ? (
     <GraphiQLExplorer
       width="100%"
       query={projectDoc}
       onEdit={setProjectDoc}
       explorerIsOpen={true}
-      schema={schema}
+      schema={schema.schema}
     />
-  ) : (
-    <div fontFamily={RUBIK} fontSize={3} p={3}>
-      Loading schema
-    </div>
-  );
+  ) : null;
 }
 
 function Projects({ activeProjectRef, setActiveProject, projects }: any) {
@@ -274,12 +288,12 @@ function Projects({ activeProjectRef, setActiveProject, projects }: any) {
         alignItems="center"
       >
         <img src="https://graphql.org/img/logo.svg" width={'24px'} />
-        <div>
-          <span fontWeight={300}>GraphQL</span>{' '}
-          <span fontWeight={500} color="#1F61A0">
-            Box
+        <row gap={0}>
+          <span fontWeight={300}>GraphQL</span>
+          <span fontWeight={400} color="#1F61A0">
+            SandBox
           </span>
-        </div>
+        </row>
       </row>
       <Select
         css={{
@@ -336,6 +350,11 @@ const Editor = ({
         editorWillMount={(monaco: any) => {
           registerGraphql(monaco, projectConfig);
         }}
+        onPathChange={(path, editor, monaco) => {
+          monaco.worker.setConfig('graphql', {
+            options: configRef.current[activeProjectRef.current],
+          });
+        }}
         editorDidMount={(editor, monaco) => {
           const executeCurrentOp = async (opname?: string) => {
             // monaco.
@@ -365,7 +384,6 @@ const Editor = ({
               // }
               // const projSettings = getCurrentSettings();
               const projSettings = configRef.current[activeProjectRef.current];
-              console.log(projSettings);
               const result = await fetch(projSettings.schema, {
                 method: 'POST',
                 headers: {
@@ -381,7 +399,7 @@ const Editor = ({
             }
           };
 
-          const getOperationNames = async () => {
+          const getOperations = async () => {
             const worker = await monaco.worker.get(
               'graphql',
               graphqlPath(activeProjectRef.current)
@@ -390,10 +408,29 @@ const Editor = ({
             const ast = await worker.getAST(
               monaco.Uri.file(graphqlPath(activeProjectRef.current)).toString()
             );
-            const operations = ast.definitions
+            return ast.definitions;
+          };
+
+          const getOperationNames = async () => {
+            const definitions = await getOperations();
+            const operations = definitions
               .map((d: any) => d?.name?.value)
               .filter((a) => !!a);
             return operations;
+          };
+
+          const getVariables = async () => {
+            const definitions = await getOperations();
+            const variables = definitions
+              .flatMap((d: any) => {
+                if (d?.variableDefinitions?.length > 0) {
+                  return d.variableDefinitions.map(
+                    (defn) => defn.variable.name.value
+                  );
+                }
+              })
+              .filter((a) => !!a);
+            return variables;
           };
 
           editor.addAction({
@@ -471,6 +508,7 @@ const Editor = ({
             enabled: false,
           },
           ...monoFontStyles,
+          lineNumbers: 'off',
 
           scrollbar: {
             vertical: 'hidden',
@@ -561,6 +599,11 @@ function Button(props: any) {
       width="1.5em"
       p={2}
       boxShadow="large"
+      css={{
+        '&:focus': {
+          outline: 'none',
+        },
+      }}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       placeItems="center"
@@ -586,6 +629,25 @@ function CancelButton(props: any) {
   );
 }
 
+const theme = {
+  base00: 'white',
+  base01: '#ecebec',
+  base02: '#ecebec',
+  base03: '#444',
+  base04: 'purple',
+  base05: 'white',
+  base06: 'white',
+  base07: '#1F61A0', //property
+  base08: 'white',
+  base09: '#D64292', //string
+  base0A: '#555',
+  base0B: '#2882F9', // float
+  base0C: '#8B2BB9', //index
+  base0D: '#555', // arrow
+  base0E: '#D47509', //boolean
+  base0F: '#2882F9', //number, clipboard
+};
+
 function ResultViewer({ result }: { result: object }) {
   return (
     <div p={3}>
@@ -598,12 +660,13 @@ function ResultViewer({ result }: { result: object }) {
           src={result}
           displayDataTypes={false}
           indentWidth={2}
+          theme={theme}
           name={null}
           displayObjectSize={false}
           // collapsed={3}
           style={{
             ...monoFontStyles,
-            letterSpacing: important(monoFontStyles.letterSpacing),
+            letterSpacing: important(monoFontStyles.letterSpacing + 'px'),
           }}
         />
       )}

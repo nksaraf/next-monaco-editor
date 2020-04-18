@@ -43,9 +43,9 @@ providers.forEach(provider => {
   });
 
   content.push(`if (providers.${providerName.charAt(0).toLowerCase() + providerName.slice(1)}) {
-      monaco.languages.${provider.getName()}(languageId, {
+      disposables.push(monaco.languages.${provider.getName()}(languageId, {
   ${decls.join(',\n')}
-});
+}));
 }
 `)
 })
