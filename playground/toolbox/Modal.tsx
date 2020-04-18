@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 
 function useOnClickOutside(
-  ref: React.MutableRefObject<undefined>,
+  ref: React.MutableRefObject<HTMLElement | null>,
   handler: { (): any; (arg0: any): void }
 ) {
   useEffect(() => {
     const listener = (event: { target: any }) => {
       // Do nothing if clicking ref's element or descendent elements
-      if (!ref.current || ref.current.contains(event.target)) {
+      if (!ref.current || ref.current?.contains(event.target)) {
         return;
       }
 
@@ -61,7 +61,7 @@ const ModalBaby = React.forwardRef(({ children }: any, ref: any) => {
 });
 
 export function Modal({ isOpen, toggle, children }: any) {
-  const ref = useRef();
+  const ref = useRef<HTMLElement | null>(null);
 
   useOnClickOutside(ref, () => toggle(false));
 
