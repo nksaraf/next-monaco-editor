@@ -97,9 +97,9 @@ export class DiagnosticsAdapter {
   private _listener: { [uri: string]: monaco.IDisposable } = Object.create(
     null
   );
-  private _editor: monaco.editor.ICodeEditor;
+  private _editor?: monaco.editor.ICodeEditor;
 
-  isCurrentModel(model) {
+  isCurrentModel(model: monaco.editor.ITextModel) {
     if (this._editor) {
       const currentModel = this._editor.getModel();
       if (

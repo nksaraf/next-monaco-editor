@@ -84,6 +84,7 @@ export function toCompletion(
       };
     }
   } else if (entry.kind === CompletionItemKind.Variable) {
+    console.log(entry);
     // console.log(astNode)
     insertText += ': ';
   }

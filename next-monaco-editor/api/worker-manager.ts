@@ -104,8 +104,8 @@ export class WorkerManager<T> {
 }
 
 const workerClients: { [key: string]: monaco.worker.IWorkerAccessor<any> } = {
-  javascript: monaco.languages.typescript.getJavaScriptWorker,
-  typescript: monaco.languages.typescript.getTypeScriptWorker,
+  javascript: monaco.languages.typescript.getJavaScriptWorker as any,
+  typescript: monaco.languages.typescript.getTypeScriptWorker as any,
 };
 
 export async function getWorkerClient<T>(

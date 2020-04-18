@@ -1,4 +1,4 @@
-import monaco from "../src/api";
+import monaco from "next-monaco-editor/api";
 
 export const config: monaco.languages.LanguageConfiguration = {
 	wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,

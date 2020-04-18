@@ -9,7 +9,7 @@ export default (api: typeof monaco, settings: any) => {
     extensions: ['.graphql', '.gql'],
     aliases: ['graphql'],
     mimetypes: ['application/graphql', 'text/graphql'],
-    loader: () => import('./graphql'),
+    loader: () => import('./graphql') as any,
     worker: {
       providers: {
         hover: true,

@@ -1,2 +1,2 @@
-import { Playground } from '../playground/GraphQLSandbox';
-export default Playground;
+import { GraphQLSandbox } from '../playground/GraphQLSandbox';
+export default GraphQLSandbox;

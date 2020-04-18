@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TODO: 1. Add default fields recursively
 // TODO: 2. Add default fields for all selections (not just fragments)
 // TODO: 3. Add stylesheet and remove inline styles
@@ -105,7 +106,7 @@ type Props = {
   ) => Array<string> | null | undefined;
   getDefaultScalarArgValue?: GetDefaultScalarArgValue | null | undefined;
   makeDefaultArg?: MakeDefaultArg | null | undefined;
-  onToggleExplorer: () => void;
+  onToggleExplorer?: () => void;
   explorerIsOpen: boolean;
   onRunOperation?: (name: string | null | undefined) => void;
   colors?: Colors | null | undefined;
@@ -120,7 +121,7 @@ type Props = {
       }
     | null
     | undefined;
-  showAttribution: boolean;
+  showAttribution?: boolean;
 };
 
 type OperationType = 'query' | 'mutation' | 'subscription' | 'fragment';
@@ -659,7 +660,7 @@ type AbstractArgViewProps = {
   argValue: ValueNode | null | undefined;
   arg: GraphQLArgument;
   parentField: Field;
-  setArgValue: (event: React.InputEvent<any>) => void;
+  setArgValue: React.ChangeEventHandler;
   setArgFields: (fields: ReadonlyArray<ObjectFieldNode>) => void;
   addArg: () => void;
   removeArg: () => void;
@@ -672,7 +673,7 @@ type AbstractArgViewProps = {
 type ScalarInputProps = {
   arg: GraphQLArgument;
   argValue: ValueNode;
-  setArgValue: (event: React.InputEvent<any>) => void;
+  setArgValue: React.ChangeEventHandler;
   onRunOperation: (arg0: void) => void;
   styleConfig: StyleConfig;
 };

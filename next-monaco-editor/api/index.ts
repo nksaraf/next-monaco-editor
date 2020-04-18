@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor';
 import { languageDefinitions, LazyLanguageLoader } from './language-loader';
-import { setupWorker, getWorkerClient, getWorkerConfig } from './worker-manager';
+import { setupWorker, getWorkerClient, getWorkerConfig, WorkerConfig } from './worker-manager';
 import { defaultProviderConfig } from './providers';
 import { IQuickSelectAction } from './QuickSelectAction';
 
@@ -38,9 +38,7 @@ declare module 'monaco-editor' {
       // documentRangeSemanticTokens?: boolean
     }
     
-    interface IWorkerAccessor<T> {
-      (...uris: monaco.Uri[]): Promise<T>;
-    }
+    type IWorkerAccessor<T> = ((...uris: monaco.Uri[]) => Promise<T>) & { config: WorkerConfig<any> }
 
     interface ILangWorkerConfig {
       label?: string;

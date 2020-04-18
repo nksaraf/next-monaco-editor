@@ -402,7 +402,7 @@ export const MonacoEditor = React.forwardRef<
         // @ts-ignore
         subscriptionRef.current = editor.onDidChangeModelContent((event) => {
           if (editor) {
-            onChange(editor?.getValue(), editor, event);
+            onChange(editor?.getValue(), editor, event, monaco);
           }
         });
         return () => {

@@ -42,7 +42,7 @@ const ModalBaby = React.forwardRef(({ children }: any, ref: any) => {
           duration: 200,
         } as any
       }
-      css={{
+      {...{
         position: 'fixed',
         background: 'grey.50',
         width: '50%',
@@ -85,7 +85,7 @@ export function Modal({ isOpen, toggle, children }: any) {
           // },
         },
       }}
-      css={{
+      {...{
         position: 'fixed',
         top: '0',
         left: '0',
@@ -98,4 +98,32 @@ export function Modal({ isOpen, toggle, children }: any) {
   );
 }
 
-
+{
+  /* <Modal isOpen={open} toggle={setOpen}>
+        <column
+          width="100%"
+          gap={3}
+          css={{
+            '*': {
+              fontFamily: `${MONO_FONTS} !important`,
+            },
+          }}
+        >
+          <div fontSize={3} fontWeight="bold">
+            Playground Settings
+          </div>
+          <ReactJSON
+            displayDataTypes={false}
+            name="projects"
+            src={configRef.current}
+            onEdit={(a) => setConfig(a.updated_src as any)}
+            onDelete={(a) => setConfig(a.updated_src as any)}
+            onAdd={(a) => setConfig(a.updated_src as any)}
+            style={{
+              fontSize: 12,
+              fontFamily: `${MONO_FONTS} !important`,
+            }}
+          ></ReactJSON>
+        </column>
+      </Modal>*/
+}
