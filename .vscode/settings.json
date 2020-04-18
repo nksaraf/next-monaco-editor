@@ -1,13 +1,10 @@
 {
   "files.exclude": {
     "worker": true,
-    "plugins": true,
     "api": true,
     "next-env.d.ts": true,
     "yarn.lock": true,
-    "tsconfig.tsdx.json": true,
-    "LICENSE": true,
-    "scripts": true
+    "LICENSE": true
   },
   "search.exclude": {
     "**/node_modules": false

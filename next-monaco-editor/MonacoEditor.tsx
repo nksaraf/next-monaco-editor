@@ -2,7 +2,6 @@ import React from 'react';
 import { noop, processDimensions, getNextWorkerPath, fixPath } from './utils';
 import monaco from './api';
 import defaultThemes, { ThemeNames, themeNames } from './themes';
-import './css/monaco.css';
 import { QuickSelectAction } from './api/QuickSelectAction';
 
 function setupCommandPaletteShortcuts(
@@ -58,6 +57,7 @@ function setupThemes(
         api.editor.setTheme(themeNames[choice]);
       } else if (mode === 1) {
         api.editor.setTheme(themeNames[choice]);
+        console.log('here');
         localStorage.setItem('theme', themeNames[choice]);
       }
     },
@@ -68,6 +68,7 @@ function setupThemes(
       const controller = _this.getController(editor);
       const oldDestroy = controller.widget.quickOpenWidget.callbacks.onCancel;
       controller.widget.quickOpenWidget.callbacks.onCancel = function () {
+        console.log('here');
         monaco.editor.setTheme(currentTheme);
         oldDestroy();
       };

@@ -8,7 +8,6 @@ export default {
     { token: 'invalid', foreground: 'ff3333' },
     { token: 'emphasis', fontStyle: 'italic' },
     { token: 'strong', fontStyle: 'bold' },
-    { token: 'argument', foreground: '397D13'},
 
     { token: 'variable', foreground: '5c6773' },
     { token: 'variable.predefined', foreground: '5c6773' },
@@ -18,7 +17,7 @@ export default {
     { token: 'number.hex', foreground: 'f08c36' },
     { token: 'regexp', foreground: '4dbf99' },
     { token: 'annotation', foreground: '41a6d9' },
-    { token: 'type', foreground: 'D2054E' },
+    { token: 'type', foreground: '41a6d9' },
 
     { token: 'delimiter', foreground: '5c6773' },
     { token: 'delimiter.html', foreground: '5c6773' },
@@ -34,7 +33,7 @@ export default {
     { token: 'metatag.xml', foreground: 'e7c547' },
     { token: 'metatag.php', fontStyle: 'bold' },
 
-    { token: 'key', foreground: '1F61A0' },
+    { token: 'key', foreground: '41a6d9' },
     { token: 'string.key.json', foreground: '41a6d9' },
     { token: 'string.value.json', foreground: '86b300' },
 
@@ -50,7 +49,7 @@ export default {
     { token: 'string.sql', foreground: '86b300' },
     { token: 'string.yaml', foreground: '86b300' },
 
-    { token: 'keyword', foreground: 'B11A04' },
+    { token: 'keyword', foreground: 'f2590c' },
     { token: 'keyword.json', foreground: 'f2590c' },
     { token: 'keyword.flow', foreground: 'f2590c' },
     { token: 'keyword.flow.scss', foreground: 'f2590c' },

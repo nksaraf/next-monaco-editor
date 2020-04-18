@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["next-monaco-editor"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -7,14 +7,10 @@
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
-    "rootDir": "./src",
+    "rootDir": "./next-monaco-editor",
     "strict": false,
     "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "*": ["src/*", "node_modules/*"],
-      "next-monaco-editor/*": ["src/*"]
-    },
+    "baseUrl": "./next-monaco-editor",
     "jsx": "react",
     "esModuleInterop": true,
     "allowJs": true,

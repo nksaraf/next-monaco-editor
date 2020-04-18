@@ -46,6 +46,7 @@ export const SpectrumLoading = (props: EditorProps) => {
       theme.base
     ];
   const { fontSize = 12, lineHeight = fontSize * 1.5 } = options;
+  console.log(files, path);
   const lines = files[fixPath(path)].split('\n');
   const paddingLeft = options.lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(
