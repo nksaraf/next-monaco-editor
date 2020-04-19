@@ -75,6 +75,7 @@
     "codesandbox-import-utils": "^2.1.14",
     "create-hook-context": "^0.0.3",
     "faunadb": "^2.13.1",
+    "graphql-ast-types": "^1.0.2",
     "idb-keyval": "^3.2.0",
     "json-to-pretty-yaml": "^1.2.2",
     "lodash.debounce": "^4.0.8",

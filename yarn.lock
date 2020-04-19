@@ -4741,6 +4741,11 @@ graphiql-explorer@^0.5.1:
   resolved "https://registry.yarnpkg.com/graphiql-explorer/-/graphiql-explorer-0.5.1.tgz#b0cdb82f720294fc83c1f28a93caa75ce8ddde2b"
   integrity sha512-kp0mcnqi8lsy5O5rXM22oAee8SF2atmXM5FvkJSR3y9g0Va4BMrbJSzTY25RM7YMs8bl7CWIpWYM5yCYg8gz8g==
 
+graphql-ast-types@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/graphql-ast-types/-/graphql-ast-types-1.0.2.tgz#49f2ae8f52be9ae426263f95320888f0cb772711"
+  integrity sha512-X/fPOuVsW1jor3/FIceloKZB4YGx5nsZ8/7z7mceIU6tw7AQTt+OZ0Xk+RWk9DZ0DLdmZ3kuh67fkzGR+U7j6Q==
+
 graphql-config@^3.0.0-rc.2:
   version "3.0.0-rc.2"
   resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-3.0.0-rc.2.tgz#760a1d7bcf8b114b7c1675c5a6ac624976d62e09"

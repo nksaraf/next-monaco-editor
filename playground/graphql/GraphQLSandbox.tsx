@@ -323,6 +323,9 @@ const Editor = ({
             '.monaco-editor': {
               paddingTop: '12px',
             },
+            '.monaco-editor *': {
+              boxSizing: 'content-box',
+            },
           }}
         />
         <MonacoEditor

@@ -49,7 +49,7 @@ import {
   SelectionSetNode,
   ValueNode,
 } from 'graphql';
-
+import * as gql from 'graphql-ast-types';
 type Field = GraphQLField<any, any>;
 
 type GetDefaultScalarArgValue = (
@@ -530,7 +530,7 @@ class ArgView extends React.PureComponent<ArgViewProps, ArgViewState> {
       (selection.arguments || []).filter((arg) => arg !== argSelection)
     );
   };
-  _addArg = () => {
+  _addArg = (event) => {
     const {
       selection,
       getDefaultScalarArgValue,
@@ -541,7 +541,13 @@ class ArgView extends React.PureComponent<ArgViewProps, ArgViewState> {
     const argType = unwrapInputType(arg.type);
 
     let argSelection = null;
-    if (this._previousArgSelection) {
+    if (event.altKey && event.shiftKey) {
+      argSelection = {
+        kind: 'Argument',
+        name: { kind: 'Name', value: arg.name },
+        value: gql.variable(gql.name(arg.name)),
+      };
+    } else if (this._previousArgSelection) {
       argSelection = this._previousArgSelection;
     } else if (isInputObjectType(argType)) {
       const fields = argType.getFields();
@@ -738,13 +744,14 @@ class AbstractArgView extends React.PureComponent<AbstractArgViewProps, {}> {
 
     let input = null;
     if (argValue) {
-      if (argValue.kind === 'Variable') {
-        input = (
-          <span style={{ color: styleConfig.colors.variable }}>
-            ${argValue.name.value}
-          </span>
-        );
-      } else if (isScalarType(argType)) {
+      // if (argValue.kind === 'Variable') {
+      //   input = (
+      //     <span style={{ color: styleConfig.colors.variable }}>
+      //       ${argValue.name.value}
+      //     </span>
+      //   );
+      // } else
+      if (isScalarType(argType)) {
         if (argType.name === 'Boolean') {
           input = (
             <select
@@ -865,6 +872,7 @@ class AbstractArgView extends React.PureComponent<AbstractArgViewProps, {}> {
             style={{ color: styleConfig.colors.attribute }}
             title={arg.description}
           >
+            {argValue && argValue.kind === 'Variable' ? '$' : ''}
             {arg.name}
             {isRequiredArgument(arg) ? '*' : ''}:
           </span>
