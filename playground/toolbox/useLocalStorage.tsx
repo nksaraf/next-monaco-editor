@@ -9,6 +9,10 @@ export function useLocalStorage<T>(
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
+      if (typeof window === 'undefined') {
+        return initialValue;
+      }
+
       if (overrideInitial) {
         window.localStorage.setItem(key, JSON.stringify(initialValue));
         return initialValue;
@@ -23,6 +27,7 @@ export function useLocalStorage<T>(
       return initialValue;
     }
   });
+
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
   const setValue = React.useCallback(

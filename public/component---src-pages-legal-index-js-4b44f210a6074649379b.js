@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[16],{180:function(e,n,t){"use strict";t.r(n);var o=t(0),r=t.n(o),a=t(20);n.default=function(){return r.a.createElement(a.Redirect,{to:"/legal/terms/",noThrow:!0})}}}]);
+//# sourceMappingURL=component---src-pages-legal-index-js-4b44f210a6074649379b.js.map

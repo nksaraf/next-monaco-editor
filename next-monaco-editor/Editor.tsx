@@ -15,9 +15,20 @@ if (typeof window !== 'undefined') {
   const MonacoEditor: any = React.lazy(() => import('./MonacoEditor'));
   MonacoEditor.displayName = 'MonacoEditor';
   Editor = React.forwardRef<monaco.editor.IStandaloneCodeEditor, EditorProps>(
-    ({ width = 800, height = 600, loading, ...props }: EditorProps, ref) => {
+    (
+      {
+        width = 800,
+        height = 600,
+        id = 'monaco',
+        loading,
+        ...props
+      }: EditorProps,
+      ref
+    ) => {
       props.theme =
-        (localStorage.getItem('theme') as any) || props.theme || 'vs-dark';
+        (localStorage.getItem(`${id}-theme`) as any) ||
+        props.theme ||
+        'vs-dark';
       return (
         <div style={processDimensions(width, height)}>
           <Suspense
@@ -25,11 +36,16 @@ if (typeof window !== 'undefined') {
               loading ? (
                 <Loading>{loading}</Loading>
               ) : (
-                <SpectrumLoading {...props} width={width} height={height} />
+                <SpectrumLoading
+                  {...props}
+                  id={id}
+                  width={width}
+                  height={height}
+                />
               )
             }
           >
-            <MonacoEditor {...props} ref={ref} />
+            <MonacoEditor {...props} id={id} ref={ref} />
           </Suspense>
         </div>
       );

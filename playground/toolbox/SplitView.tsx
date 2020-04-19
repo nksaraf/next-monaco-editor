@@ -22,6 +22,7 @@ export function SplitView({ direction, children, css = {}, ...props }: any) {
           gap={0}
           noMotion
           width="100%"
+          height="100%"
           maxHeight="100vh"
           css={css}
           props={{ direction, ...props }}
@@ -47,6 +48,7 @@ export function SplitView({ direction, children, css = {}, ...props }: any) {
           gap={0}
           noMotion
           height="100%"
+          width="100%"
           maxWidth="100vw"
           css={css}
           props={{ direction, ...props }}

@@ -6,13 +6,18 @@
     "yarn.lock": true,
     "LICENSE": true,
     "public/rubik": true,
-    "public": true,
-    "plugins": true,
-    "dist": true,
-    ".vscode": true,
     ".next": true,
     "scripts": true,
-    "next-plugin": true
+    "next-plugin": true,
+    "reference/monaco-editor-boilerplate": true,
+    "reference": true,
+    "packages": true,
+    "plugins/_package.json": true,
+    ".babelrc": true,
+    ".gitignore": true,
+    "README.md": true,
+    "tsdx.config.js": true,
+    "tsconfig.tsdx.json": true
   },
   "search.exclude": {
     "**/node_modules": false

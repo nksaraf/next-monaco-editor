@@ -35,6 +35,7 @@ export const SpectrumLoading = (props: EditorProps) => {
     ...givenThemes,
     ...allThemes,
   };
+  console.log(files, path);
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(
     new Set(
@@ -55,7 +56,6 @@ export const SpectrumLoading = (props: EditorProps) => {
     lineHeight = fontSize * 1.5,
     lineNumbers = 'on',
   } = options;
-  console.log(files, path);
   const lines = files[fixPath(path)].split('\n');
   const paddingLeft = lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(
@@ -77,7 +77,6 @@ export const SpectrumLoading = (props: EditorProps) => {
           padding: (lineHeight - fontSize) / 2,
           paddingLeft,
           paddingTop: 12,
-          opacity: 0.7,
           backgroundColor,
         }}
       >
@@ -88,7 +87,6 @@ export const SpectrumLoading = (props: EditorProps) => {
               height: '100%',
               width: paddingLeft,
               paddingTop: 12,
-
               left: 0,
               top: 0,
             }}
@@ -104,21 +102,23 @@ export const SpectrumLoading = (props: EditorProps) => {
             ></div>
           </div>
         )}
-        <Spectrum
-          width={width}
-          wordWidths={[
-            fontSize * 2,
-            fontSize * 3,
-            fontSize * 5,
-            fontSize * 7.5,
-          ]}
-          wordDistances={[10, 15, 12]}
-          wordRadius={20}
-          linesPerParagraph={lines.length}
-          wordHeight={fontSize}
-          lineDistance={lineHeight - fontSize}
-          colors={colors}
-        />
+        <div style={{ opacity: 0.7 }}>
+          <Spectrum
+            width={width}
+            wordWidths={[
+              fontSize * 2,
+              fontSize * 3,
+              fontSize * 5,
+              fontSize * 7.5,
+            ]}
+            wordDistances={[10, 15, 12]}
+            wordRadius={20}
+            linesPerParagraph={lines.length}
+            wordHeight={fontSize}
+            lineDistance={lineHeight - fontSize}
+            colors={colors}
+          />
+        </div>
       </div>
     </Loading>
   );

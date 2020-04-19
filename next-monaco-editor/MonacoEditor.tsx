@@ -34,7 +34,8 @@ function setupCommandPaletteShortcuts(
 function setupThemes(
   monacoApi: typeof monaco,
   editor: monaco.editor.IStandaloneCodeEditor,
-  themes: MonacoEditorProps['themes']
+  themes: MonacoEditorProps['themes'],
+  onThemeChange: MonacoEditorProps['onThemeChange']
 ) {
   const allThemes = {
     ...defaultThemes,
@@ -57,21 +58,26 @@ function setupThemes(
         api.editor.setTheme(themeNames[choice]);
       } else if (mode === 1) {
         api.editor.setTheme(themeNames[choice]);
-        console.log('here');
-        localStorage.setItem('theme', themeNames[choice]);
+        onThemeChange?.(themeNames[choice], monaco);
       }
     },
     runAction: function (editor: any, api: any) {
       const _this: any = this;
       const currentTheme = editor._themeService._theme.themeName;
-      _this.show(editor);
+      console.log(currentTheme);
       const controller = _this.getController(editor);
       const oldDestroy = controller.widget.quickOpenWidget.callbacks.onCancel;
       controller.widget.quickOpenWidget.callbacks.onCancel = function () {
-        console.log('here');
+        debugger;
         monaco.editor.setTheme(currentTheme);
         oldDestroy();
       };
+      console.log(
+        controller,
+        controller.widget.quickOpenWidget.callbacks.onCancel,
+        this
+      );
+      _this.show(editor);
       return Promise.resolve();
     },
   });
@@ -79,15 +85,16 @@ function setupThemes(
 
 function setTheme(
   monacoApi: typeof monaco,
-  theme: string | monaco.editor.IStandaloneThemeData | undefined
+  theme: string | monaco.editor.IStandaloneThemeData | undefined,
+  onThemeChange: MonacoEditorProps['onThemeChange']
 ) {
   if (typeof theme === 'string') {
     monacoApi.editor.setTheme(theme);
-    localStorage.setItem('theme', theme);
+    onThemeChange?.(theme, monacoApi);
   } else if (typeof theme === 'object') {
     monacoApi.editor.defineTheme('custom', theme);
     monacoApi.editor.setTheme('custom');
-    localStorage.setItem('theme', 'custom');
+    onThemeChange?.('custom', monacoApi);
   }
 }
 
@@ -150,6 +157,7 @@ export interface MonacoEditorProps {
   width?: string | number;
   height?: string | number;
   value?: string;
+  id?: string;
   defaultValue?: string;
   line?: number;
   style?: React.CSSProperties;
@@ -180,6 +188,7 @@ export interface MonacoEditorProps {
     editor: monaco.editor.IStandaloneCodeEditor,
     monacoApi: typeof monaco
   ) => void;
+  onThemeChange?: (theme: string, monacoApi: typeof monaco) => void;
   onChange?: (
     newValue: string,
     editor: monaco.editor.IStandaloneCodeEditor,
@@ -206,6 +215,7 @@ function useEditorRef() {
       }
     }, [...deps]);
   };
+
   return { editorRef, useEditorEffect };
 }
 
@@ -258,6 +268,7 @@ export const MonacoEditor = React.forwardRef<
       width = '100%',
       height = '100%',
       value,
+      id = 'monaco',
       defaultValue = '',
       style = {},
       className = 'next-editor',
@@ -281,6 +292,7 @@ export const MonacoEditor = React.forwardRef<
       editorDidMount = noop,
       editorWillMount = noop,
       onChange = noop,
+      onThemeChange = (theme) => localStorage.setItem(`${id}-theme`, theme),
       onPathChange = noop,
     }: MonacoEditorProps,
     ref
@@ -358,7 +370,7 @@ export const MonacoEditor = React.forwardRef<
 
       // CMD + Shift + P (like vscode), CMD + Shift + C
       setupCommandPaletteShortcuts(monaco, editorRef.current);
-      setupThemes(monaco, editorRef.current, themes);
+      setupThemes(monaco, editorRef.current, themes, onThemeChange);
       setupWorkerApi(monaco, editorRef.current);
 
       // After initializing monaco editor
@@ -421,7 +433,7 @@ export const MonacoEditor = React.forwardRef<
     // }, [line, editorRef.current]);
 
     React.useEffect(() => {
-      setTheme(monaco, theme);
+      setTheme(monaco, theme, onThemeChange);
     }, [theme]);
 
     useEditorEffect(
@@ -470,7 +482,11 @@ export const MonacoEditor = React.forwardRef<
         ref={containerRef}
         data-editor="next-monaco-editor"
         className={`${className} ${theme}`}
-        style={{ ...processDimensions(width, height), ...style }}
+        style={{
+          overflow: 'hidden',
+          ...processDimensions(width, height),
+          ...style,
+        }}
       />
     );
   }

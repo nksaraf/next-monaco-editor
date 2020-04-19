@@ -77,6 +77,7 @@ export class QuickSelectAction extends BaseEditorQuickOpenAction {
             }, 50);
             return true;
           }
+          return false;
         };
         entries.push(entry);
       }
@@ -112,47 +113,47 @@ export class QuickSelectAction extends BaseEditorQuickOpenAction {
 //   constructor() {
 //     super();
 //   }
-//   // _getThemeEntries(editor, searchValue) {
-//   //   const _this = this;
-//   //   const entries = [];
-//   //   Object.keys(themeNames).forEach((name) => {
-//   //     var highlights = matchesFuzzy(searchValue, name);
-//   //     if (highlights) {
-//   //       const entry = new QuickOpenEntry();
-//   //       entry.getLabel = () => name;
-//   //       entry.setHighlights(highlights);
-//   //       entry.run = function (mode, context) {
-//   //         if (mode === 0) {
-//   //           _this.api.editor.setTheme(themeNames[name]);
-//   //           return false;
-//   //         } else if (mode === 1 /* OPEN */) {
-//   //           // Use a timeout to give the quick open widget a chance to close itself first
-//   //           setTimeout(function () {
-//   //             // Some actions are enabled only when editor has focus
-//   //             editor.focus();
-//   //             _this.api.editor.setTheme(themeNames[name]);
-//   //             localStorage.setItem('theme', themeNames[name]);
-//   //           }, 50);
-//   //           return true;
-//   //         }
-//   //       };
-//   //       entries.push(entry);
-//   //     }
-//   //   });
-//   //   return entries;
-//   // }
+// _getThemeEntries(editor, searchValue) {
+//   const _this = this;
+//   const entries = [];
+//   Object.keys(themeNames).forEach((name) => {
+//     var highlights = matchesFuzzy(searchValue, name);
+//     if (highlights) {
+//       const entry = new QuickOpenEntry();
+//       entry.getLabel = () => name;
+//       entry.setHighlights(highlights);
+//       entry.run = function (mode, context) {
+//         if (mode === 0) {
+//           _this.api.editor.setTheme(themeNames[name]);
+//           return false;
+//         } else if (mode === 1 /* OPEN */) {
+//           // Use a timeout to give the quick open widget a chance to close itself first
+//           setTimeout(function () {
+//             // Some actions are enabled only when editor has focus
+//             editor.focus();
+//             _this.api.editor.setTheme(themeNames[name]);
+//             localStorage.setItem('theme', themeNames[name]);
+//           }, 50);
+//           return true;
+//         }
+//       };
+//       entries.push(entry);
+//     }
+//   });
+//   return entries;
+// }
 
-//   // run() {
-//   //   const editor: monaco.editor.IStandaloneCodeEditor = arguments[0];
-//   //   const currentTheme = editor._themeService._theme.themeName;
-//   //   this.show(editor);
-//   //   const _this = this;
-//   //   const controller = _this.getController(editor);
-//   //   const oldDestroy = controller.widget.quickOpenWidget.callbacks.onCancel;
-//   //   controller.widget.quickOpenWidget.callbacks.onCancel = function () {
-//   //     monaco.editor.setTheme(currentTheme);
-//   //     oldDestroy();
-//   //   };
-//   //   return Promise.resolve();
-//   // }
+// run() {
+//   const editor: monaco.editor.IStandaloneCodeEditor = arguments[0];
+//   const currentTheme = editor._themeService._theme.themeName;
+//   this.show(editor);
+//   const _this = this;
+//   const controller = _this.getController(editor);
+//   const oldDestroy = controller.widget.quickOpenWidget.callbacks.onCancel;
+//   controller.widget.quickOpenWidget.callbacks.onCancel = function () {
+//     monaco.editor.setTheme(currentTheme);
+//     oldDestroy();
+//   };
+//   return Promise.resolve();
+// }
 // }
