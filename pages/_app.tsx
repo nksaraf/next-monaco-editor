@@ -5,6 +5,7 @@ import NextApp from 'next/app';
 import Link from 'next/link';
 import { GraphQLogo, FaunaDBLogo } from 'playground/Logos';
 import { Tooltip } from 'react-tippy';
+import { AnimateSharedLayout } from 'magic-components';
 
 export default class QwertyApp extends NextApp {
   render() {
@@ -22,22 +23,24 @@ export default class QwertyApp extends NextApp {
           }}
         />
         <row height="100vh" width="100vw">
-          <Nav>
-            <NavItem
-              title="GraphQL Sandbox"
-              href="/graphql"
-              active={router.pathname === '/graphql'}
-              accent="#D64292"
-              icon={GraphQLogo}
-            />
-            <NavItem
-              title="FaunaDB Sandbox"
-              href="/faunadb"
-              active={router.pathname === '/faunadb'}
-              accent="#3642ce"
-              icon={FaunaDBLogo}
-            />
-          </Nav>
+          <AnimateSharedLayout>
+            <Nav>
+              <NavItem
+                title="GraphQL Sandbox"
+                href="/graphql"
+                active={router.pathname === '/graphql'}
+                accent="#D64292"
+                icon={GraphQLogo}
+              />
+              <NavItem
+                title="FaunaDB Sandbox"
+                href="/faunadb"
+                active={router.pathname === '/faunadb'}
+                accent="#3642ce"
+                icon={FaunaDBLogo}
+              />
+            </Nav>
+          </AnimateSharedLayout>
           <div height="full" flex={1} maxWidth="calc(100vw - 64px)">
             <Component {...pageProps} />
           </div>
@@ -72,20 +75,33 @@ function NavItem({ title, icon: Icon, active, href, accent }: any) {
       // style={{ fontFamily: RUBIK }}
       trigger="mouseenter"
     >
-      <Link href={href}>
+      <Link href={href} prefetch={true}>
         <button
+          animate
           outline="none"
           cursor="pointer"
+          position="relative"
           border="none"
-          borderLeftStyle="solid"
-          borderLeftWidth="3px"
-          borderLeftColor={active ? accent : 'transparent'}
+          // borderLeftStyle="solid"
+          // borderLeftWidth="3px"
+          // borderLeftColor={active ? accent : 'transparent'}
           bg={active ? `${accent}30` : 'transparent'}
           width="full"
           px={3}
           py={3}
         >
-          <div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
+          {active && (
+            <div
+              top={0}
+              layoutId="indicator"
+              width="3px"
+              height="100%"
+              position="absolute"
+              left={0}
+              backgroundColor={accent}
+            ></div>
+          )}
+          <div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Icon color="white" />
           </div>
         </button>

@@ -15,7 +15,9 @@
     ".gitignore": true,
     "README.md": true,
     "tsdx.config.js": true,
-    "tsconfig.tsdx.json": true
+    "tsconfig.tsdx.json": true,
+    "public": true,
+    "packages": true
   },
   "search.exclude": {
     "**/node_modules": false
