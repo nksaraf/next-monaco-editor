@@ -115,8 +115,8 @@ export default () => {
                 letterSpacing: 0.2,
 
                 scrollbar: {
-                  vertical: 'hidden',
-                  verticalScrollbarSize: 0,
+                  vertical: 'auto',
+                  verticalScrollbarSize: 8,
                   useShadows: false,
                 },
               }}
