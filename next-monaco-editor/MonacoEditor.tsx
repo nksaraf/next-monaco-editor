@@ -6,8 +6,7 @@ import defaultThemes, { ThemeNames, themeNames } from './themes';
 function setupThemes(
   monacoApi: typeof monaco,
   editor: monaco.editor.IStandaloneCodeEditor,
-  themes: MonacoEditorProps['themes'],
-  onThemeChange: MonacoEditorProps['onThemeChange']
+  themes: MonacoEditorProps['themes']
 ) {
   const allThemes = {
     ...defaultThemes,
@@ -30,7 +29,6 @@ function setupThemes(
         api.editor.setTheme(themeNames[choice]);
       } else if (mode === 1) {
         api.editor.setTheme(themeNames[choice]);
-        onThemeChange?.(themeNames[choice], monaco);
       }
     },
     runAction: function (editor: any, api: any) {
@@ -55,44 +53,17 @@ function setupThemes(
   });
 }
 
-function setTheme(
-  monacoApi: typeof monaco,
-  theme: string | monaco.editor.IStandaloneThemeData | undefined,
-  onThemeChange: MonacoEditorProps['onThemeChange']
-) {
-  if (typeof theme === 'string') {
-    monacoApi.editor.setTheme(theme);
-    onThemeChange?.(theme, monacoApi);
-  } else if (typeof theme === 'object') {
-    monacoApi.editor.defineTheme('custom', theme);
-    monacoApi.editor.setTheme('custom');
-    onThemeChange?.('custom', monacoApi);
+const getNextWorkerUrl = (label: string) => {
+  if (label === 'editorWorkerService') {
+    return getNextWorkerPath('editor');
   }
-}
 
-function setupMonacoEnvironment(
-  getWorkerUrl: (label: string) => string | undefined,
-  getWorker: (label: string) => Worker | undefined
-) {
-  const getWorkerPath = (_moduleId: string, label: string) => {
-    const url = getWorkerUrl(label);
-    if (url) return url;
-    if (label === 'editorWorkerService') {
-      return getNextWorkerPath('editor');
-    } else {
-      if (label === 'typescript' || label === 'javascript') {
-        return getNextWorkerPath('ts');
-      }
-      return getNextWorkerPath(label);
-    }
-  };
-  // @ts-ignore
-  window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
-    const worker = getWorker(label);
-    if (worker) return worker;
-    return new Worker(getWorkerPath(_moduleId, label));
-  };
-}
+  if (label === 'typescript' || label === 'javascript') {
+    return getNextWorkerPath('ts');
+  }
+
+  return getNextWorkerPath(label);
+};
 
 export interface MonacoEditorProps {
   width?: string | number;
@@ -136,7 +107,7 @@ export interface MonacoEditorProps {
     event: monaco.editor.IModelContentChangedEvent,
     monacoApi: typeof monaco
   ) => void;
-  plugins?: ((monacoApi: typeof monaco) => void)[];
+  plugins?: monaco.plugin.IPlugin[];
 }
 
 // const editorStates = new Map();
@@ -211,7 +182,7 @@ export const MonacoEditor = React.forwardRef<
       style = {},
       className = 'next-editor',
       line = 0,
-      getWorkerUrl = noop as any,
+      getWorkerUrl = getNextWorkerUrl,
       getWorker = noop as any,
       language,
       theme = 'vs-dark',
@@ -247,7 +218,7 @@ export const MonacoEditor = React.forwardRef<
         return;
       }
 
-      setupMonacoEnvironment(getWorkerUrl, getWorker);
+      monaco.worker.setEnvironment(getWorkerUrl, getWorker);
 
       options = Object.assign(
         {
@@ -258,9 +229,7 @@ export const MonacoEditor = React.forwardRef<
         editorWillMount(monaco) || {}
       );
 
-      plugins.forEach((plugin) => {
-        plugin(monaco);
-      });
+      const pluginDisposables = monaco.plugin.install(...plugins);
 
       Object.keys(files).forEach((path) =>
         initializeModel(
@@ -288,15 +257,22 @@ export const MonacoEditor = React.forwardRef<
       }
 
       // CMD + Shift + P (like vscode), CMD + Shift + C
-      setupThemes(monaco, editorRef.current, themes, onThemeChange);
+      const disposable = monaco.editor.onDidChangeTheme((theme) =>
+        onThemeChange(theme, monaco)
+      );
+
+      setupThemes(monaco, editorRef.current, themes);
 
       // After initializing monaco editor
       editorDidMount(editorRef.current, monaco);
 
       return () => {
+        disposable.dispose();
+
         if (editorRef.current) {
           editorRef.current.dispose();
         }
+        // pluginDisposables.dispose();
         monaco.editor.getModels().forEach((model) => {
           model.dispose();
         });
@@ -350,7 +326,7 @@ export const MonacoEditor = React.forwardRef<
     // }, [line, editorRef.current]);
 
     React.useEffect(() => {
-      setTheme(monaco, theme, onThemeChange);
+      monaco.editor.setTheme(theme);
     }, [theme]);
 
     useEditorEffect(

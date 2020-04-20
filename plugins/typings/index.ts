@@ -13,7 +13,7 @@ declare module "monaco-editor" {
 export const typings = (
   compilerOptions: monaco.languages.typescript.CompilerOptions = {}
 ) => (api: typeof monaco) => {
-  api.worker.register({
+  let disposable = api.worker.register({
     label: 'typings',
     providers: false,
   });
@@ -76,4 +76,6 @@ export const typings = (
 
     }
   });
+
+  return disposable;
 };

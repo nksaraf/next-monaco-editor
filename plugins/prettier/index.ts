@@ -1,4 +1,5 @@
 import monaco from 'next-monaco-editor/api';
+import { asDisposable } from 'next-monaco-editor/api/utils';
 
 const parsers: { [key: string]: keyof typeof plugins } = {
   javascript: 'babel',
@@ -30,9 +31,10 @@ export const prettier = (
     | { [key: string]: keyof typeof plugins }
   )[] = [], options: any = {}
 ) => (api: typeof monaco) => {
+  let disposables: monaco.IDisposable[] = [];
   languages.forEach((langauge) => {
     if (typeof langauge === 'string') {
-      api.worker.register({
+      disposables.push(api.worker.register({
         languageId: langauge,
         label: 'prettier',
         providers: {
@@ -43,10 +45,10 @@ export const prettier = (
           plugins: plugins[parsers[langauge]],
           ...options
         },
-      });
+      }));
     } else if (typeof langauge === 'object') {
       Object.keys(langauge).forEach((languageId) => {
-        api.worker.register({
+        disposables.push(api.worker.register({
           languageId: languageId,
           label: 'prettier',
           providers: {
@@ -57,10 +59,11 @@ export const prettier = (
             plugins: plugins[langauge[languageId]],
             ...options
           },
-        });
+        }));
       });
     }
   });
+  return asDisposable(disposables);
 };
 
 

@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor';
 import './worker';
 import './languages';
 import './editor';
+import './plugin';
 
 export { monaco };
 export default monaco;

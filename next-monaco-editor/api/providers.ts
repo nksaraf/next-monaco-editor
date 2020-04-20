@@ -98,7 +98,7 @@ export class DiagnosticsProvider {
     null
   );
   private _editor?: monaco.editor.ICodeEditor;
-
+    private _client? : WorkerClient<any, any>;
   isActiveModel(model: monaco.editor.ITextModel) {
     if (this._editor) {
       const currentModel = this._editor.getModel();
@@ -112,11 +112,12 @@ export class DiagnosticsProvider {
 
     return false;
   }
+
   constructor(
     private client: WorkerClient<any, any>,
-    private _worker: monaco.worker.IWorkerAccessor<any>
   ) {
-    this._worker = _worker;
+
+    this._client = client;
 
     this._disposables.push(
       monaco.editor.onDidCreateEditor((editor) => {
@@ -140,9 +141,9 @@ export class DiagnosticsProvider {
         }, 500);
       });
 
-      if (this.isActiveModel(model)) {
-        this._doValidate(model.uri, modeId);
-      }
+      // if (this.isActiveModel(model)) {
+      //   this._doValidate(model.uri, modeId);
+      // }
     };
 
     const onModelRemoved = (model: monaco.editor.IModel): void => {
@@ -197,7 +198,7 @@ export class DiagnosticsProvider {
 
   private async _doValidate(resource: monaco.Uri, languageId: string) {
     try {
-      const worker = await this._worker(resource);
+      const worker = await this.client.getSyncedWorker(resource);
       const diagnostics = await worker.doValidation(resource.toString());
       monaco.editor.setModelMarkers(
         monaco.editor.getModel(resource) as monaco.editor.ITextModel,
@@ -221,7 +222,9 @@ export const setupWorkerProviders = (
     return [];
   }
 
-  const getWorker = client.getSyncedWorker;
+  const getWorker = async (...resources: monaco.Uri[]) => {
+    return await client.getSyncedWorker(...resources);
+  }
 
   providers =
     typeof providers === 'boolean' && providers
@@ -229,7 +232,7 @@ export const setupWorkerProviders = (
       : (providers as monaco.worker.ILangProvidersOptions);
 
   if (providers.diagnostics) {
-    disposables.push(new DiagnosticsProvider(client, getWorker));
+    disposables.push(new DiagnosticsProvider(client));
   }
 
   if (providers.reference) {

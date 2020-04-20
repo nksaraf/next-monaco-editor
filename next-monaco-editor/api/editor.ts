@@ -10,6 +10,9 @@ declare module 'monaco-editor' {
     interface IStandaloneCodeEditor {
       addSelectAction: (action: IQuickSelectAction) => monaco.IDisposable
     }
+
+    export function setTheme(themeName: string | IStandaloneThemeData): void;
+    export function onDidChangeTheme(listener: (theme: string) => void): monaco.IDisposable
   }
 }
 
@@ -68,3 +71,18 @@ monaco.editor.create = (domElement: HTMLElement, options?: monaco.editor.IStanda
   monaco.worker.setEditor(editor);
   return editor;
 }
+
+const setTheme = monaco.editor.setTheme;
+const _onDidChangeTheme = new monaco.Emitter<string>();
+monaco.editor.onDidChangeTheme = _onDidChangeTheme.event;
+monaco.editor.setTheme = (theme: string | monaco.editor.IStandaloneThemeData) => {
+  if (typeof theme === 'string') {
+    setTheme(theme);
+    _onDidChangeTheme.fire(theme);
+  } else if (typeof theme === 'object') {
+    monaco.editor.defineTheme('custom', theme);
+    setTheme('custom');
+    _onDidChangeTheme.fire('custom');
+  }
+};
+

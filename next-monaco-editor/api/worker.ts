@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import * as monaco from 'monaco-editor';
 import { defaultProviderConfig, setupWorkerProviders } from './providers';
+import { disposeAll, asDisposable } from './utils';
 
 declare module 'monaco-editor' {
   namespace worker {
@@ -66,7 +67,12 @@ declare module 'monaco-editor' {
     function setEditor(editor: monaco.editor.ICodeEditor): void;
     function getLanguage<TWorker extends any>(...uri: monaco.Uri[]): Promise<TWorker>;
     function get<TWorker extends any>(label: string, ...uri: monaco.Uri[]): Promise<TWorker>;
-
+    
+    function setEnvironment(
+      getWorkerUrl?: (label: string) => string | undefined,
+      getWorker?: (label: string) => Worker | undefined
+    ) : void
+    
     function updateConfig<TOptions>(
       label: string,
       config?: Omit<
@@ -232,16 +238,6 @@ export class WorkerClient<TOptions, TWorker> implements monaco.IDisposable {
   }
 }
 
-function asDisposable(disposables: monaco.IDisposable[]): monaco.IDisposable {
-  return { dispose: () => disposeAll(disposables) };
-}
-
-function disposeAll(disposables: monaco.IDisposable[]) {
-  while (disposables.length) {
-    disposables.pop()?.dispose();
-  }
-}
-
 const javascriptClient: WorkerClient<
   monaco.languages.typescript.LanguageServiceDefaults,
   monaco.languages.typescript.TypeScriptWorker
@@ -269,6 +265,9 @@ const typescriptClient: WorkerClient<
   // @ts-ignore
   config: monaco.languages.typescript.typescriptDefaults,
 };
+
+export function noop() {}
+
 
 class MonacoWorkerApi {
   workerClients: { [key: string]: WorkerClient<any, any> } = {
@@ -355,6 +354,26 @@ class MonacoWorkerApi {
 
   updateOptions<TOptions>(label: string, options: TOptions) {
     this.getClient<TOptions, any>(label).config.setOptions(options);
+  }
+
+  setEnvironment(
+    getWorkerUrl: (label: string) => string | undefined = noop as any,
+    getWorker: (label: string) => Worker | undefined = noop as any
+  ) {
+    const getWorkerPath = (_moduleId: string, label: string) => {
+      const url = getWorkerUrl(label);
+      if (url) return url;
+    };
+    // @ts-ignore
+    window.MonacoEnvironment.getWorker = (_moduleId: string, label: string) => {
+      const worker = getWorker(label);
+      if (worker) return worker;
+
+      const url = getWorkerPath(_moduleId, label);
+      if (url) {
+        return new Worker(url);
+      }
+    };
   }
 }
 

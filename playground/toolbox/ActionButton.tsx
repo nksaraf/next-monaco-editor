@@ -3,7 +3,16 @@ import { important } from 'magic-components';
 import { Tooltip } from 'react-tippy';
 import { RUBIK } from './SandboxHead';
 
-export function Button({ tooltipTitle, ...props }: any) {
+export function ActionBar({ children }: React.PropsWithChildren<{}>) {
+  return (
+    <row gap={3} position="absolute" top={'12px'} right={3}>
+      {children}
+    </row>
+  );
+}
+
+
+export function ActionButton({ tooltipTitle, ...props }: any) {
   return (
     <>
       <style

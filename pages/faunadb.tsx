@@ -8,9 +8,9 @@ import 'plugins/prettier/prettier.monaco.worker';
 import 'plugins/faunadb/faunadb.monaco.worker';
 import { prettier, typings, faunadb } from 'plugins';
 import { useFiles } from 'playground/toolbox/useFiles';
-import { Button } from 'playground/toolbox/ActionButton';
-import { JSONViewer } from 'playground/toolbox/JSONViewer';
+import { ActionButton } from 'playground/toolbox/ActionButton';
 import { PlaySVG, CogSVG, CancelSVG } from 'playground/toolbox/Icons';
+import { JSONResult } from 'playground/toolbox/JSONViewer';
 
 export default () => {
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor | null>(
@@ -103,7 +103,6 @@ export default () => {
                           monaco.Uri.file('/index.ts').toString()
                         )
                       );
-                      editor.layout();
                     } catch (e) {
                       console.error(e);
                     }
@@ -124,7 +123,7 @@ export default () => {
               }}
             />
             <row gap={3} position="absolute" top={'12px'} right={3}>
-              <Button
+              <ActionButton
                 tooltipTitle="Run Query"
                 backgroundColor="#3642ce"
                 onClick={() => {
@@ -132,9 +131,9 @@ export default () => {
                 }}
               >
                 <PlaySVG />
-              </Button>
+              </ActionButton>
               {path !== 'fauna.config.yml' ? (
-                <Button
+                <ActionButton
                   p="12px"
                   tooltipTitle="Edit Config"
                   // onClick={() => setOpen((open) => !open)}
@@ -148,9 +147,9 @@ export default () => {
                   backgroundColor="blueGrey.900"
                 >
                   <CogSVG color="white" />
-                </Button>
+                </ActionButton>
               ) : (
-                <Button
+                <ActionButton
                   tooltipTitle="Go Back"
                   onClick={() => {
                     // setPath(graphqlPath(activeProjectRef.current));
@@ -159,14 +158,12 @@ export default () => {
                   padding={2}
                 >
                   <CancelSVG color="white" />
-                </Button>
+                </ActionButton>
               )}
             </row>
           </div>
           <div height="100vh" overflow="scroll">
-            <div p={3} height="full">
-              <JSONViewer src={result} />
-            </div>
+            <JSONResult result={result} />
           </div>
         </SplitView>
       </div>
