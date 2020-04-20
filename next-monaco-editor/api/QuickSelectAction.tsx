@@ -105,7 +105,8 @@ export class QuickSelectAction extends BaseEditorQuickOpenAction {
   run() {
     const editor = arguments[0];
     const _this = this;
-    return _this.runAction?.apply(_this, [editor, monaco]);
+    _this.runAction?.apply(_this, [editor, monaco]);
+    return Promise.resolve();
   }
 }
 

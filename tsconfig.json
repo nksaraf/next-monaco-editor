@@ -24,19 +24,16 @@
       "monaco-plugins": ["./plugins/index.ts"],
       "next-monaco-editor": ["./next-monaco-editor/index.tsx"],
       "graphql-language-service-parser": [
-        "./packages/graphql-language-service-parser/src/index.ts"
+        "./playground/graphql/graphql-language-service-parser/src/index.ts"
       ],
       "graphql-language-service-interface": [
-        "./packages/graphql-language-service-interface/src/index.ts"
+        "./playground/graphql/graphql-language-service-interface/src/index.ts"
       ],
       "graphql-language-service-types": [
-        "./packages/graphql-language-service-types/src/index.ts"
+        "./playground/graphql/graphql-language-service-types/src/index.ts"
       ],
       "graphql-language-service-utils": [
-        "./packages/graphql-language-service-utils/src/index.ts"
-      ],
-      "graphql-languageservice": [
-        "./packages/graphql-languageservice/src/index.ts"
+        "./playground/graphql/graphql-language-service-utils/src/index.ts"
       ]
     },
     "jsx": "preserve",

@@ -1,1 +1,39 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sandbox - CodeSandbox</title><link rel="manifest" href="/manifest.json"><link rel="shortcut icon" href="/favicon.ico"><script src="/static/browserfs7/browserfs.min.js" type="text/javascript"></script><script>window.process=BrowserFS.BFSRequire("process"),window.Buffer=BrowserFS.BFSRequire("buffer").Buffer</script></head><body><div id="csb-loading-screen"></div><script src="/static/js/vendors~sandbox.d06fb78b.chunk.js"></script><script src="/static/js/sandbox.74673b7a.js"></script><script src="/static/js/sandbox-startup.79d2c8ab.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sandbox - CodeSandbox</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script
+      src="/static/browserfs7/browserfs.min.js"
+      type="text/javascript"
+    ></script>
+    <script>
+      (window.process = BrowserFS.BFSRequire('process')),
+        (window.Buffer = BrowserFS.BFSRequire('buffer').Buffer);
+    </script>
+  </head>
+  <body>
+    <script>
+      function inIframe() {
+        try {
+          return window.self !== window.top;
+        } catch (e) {
+          return true;
+        }
+      }
+
+      console.log('here');
+
+      if (!inIframe()) {
+        window.location.pathname = '/graphql';
+      }
+    </script>
+    <div id="csb-loading-screen"></div>
+    <script src="/static/js/vendors~sandbox.d06fb78b.chunk.js"></script>
+    <script src="/static/js/sandbox.74673b7a.js"></script>
+    <script src="/static/js/sandbox-startup.79d2c8ab.js"></script>
+  </body>
+</html>

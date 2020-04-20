@@ -3,9 +3,7 @@ import { SandboxHead, monoFontStyles } from '../playground/toolbox/SandboxHead';
 import MonacoEditor from 'next-monaco-editor';
 import monaco from 'next-monaco-editor/api';
 
-import 'plugins/typings/typings.monaco.worker';
-import 'plugins/prettier/prettier.monaco.worker';
-import 'plugins/faunadb/faunadb.monaco.worker';
+import 'plugins/workers';
 import { prettier, typings, faunadb } from 'plugins';
 import { useFiles } from 'playground/toolbox/useFiles';
 import { ActionButton } from 'playground/toolbox/ActionButton';

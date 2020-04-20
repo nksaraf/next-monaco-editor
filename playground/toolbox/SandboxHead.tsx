@@ -13,15 +13,6 @@ export const monoFontStyles = {
 export const SandboxHead = ({ children, title }: any) => {
   return (
     <>
-      <style
-        id="base"
-        css={{
-          body: { margin: 0 },
-          '*': {
-            boxSizing: 'border-box',
-          },
-        }}
-      />
       <Head>
         <title>{title}</title>
         <link

@@ -11,7 +11,6 @@
     "next-plugin": true,
     "reference/monaco-editor-boilerplate": true,
     "reference": true,
-    "packages": true,
     "plugins/_package.json": true,
     ".babelrc": true,
     ".gitignore": true,

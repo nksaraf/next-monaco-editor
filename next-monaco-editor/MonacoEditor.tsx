@@ -88,6 +88,7 @@ export interface MonacoEditorProps {
   className?: string;
   getWorker?: (label: string) => Worker | undefined;
   getWorkerUrl?: (label: string) => string | undefined;
+  syncAllFiles?: boolean;
   editorDidMount?: (
     editor: monaco.editor.IStandaloneCodeEditor,
     monacoApi: typeof monaco
@@ -113,22 +114,20 @@ export interface MonacoEditorProps {
 // const editorStates = new Map();
 // const useFS = ({ files }) => {};
 
-function useEditorRef() {
-  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  const useEditorEffect = (
-    effect: (
-      editor: monaco.editor.IStandaloneCodeEditor
-    ) => void | (() => void),
-    deps: any[]
-  ) => {
+function useRefWithEffects<T>(): [
+  React.MutableRefObject<T | undefined>,
+  (effect: (obj: T) => void, deps: any[]) => void
+] {
+  const ref = React.useRef<T>();
+  const useRefEffect = (effect: (obj: T) => void, deps: any[]) => {
     React.useEffect(() => {
-      if (editorRef.current) {
-        return effect(editorRef.current);
+      if (ref.current) {
+        return effect(ref.current);
       }
     }, [...deps]);
   };
 
-  return { editorRef, useEditorEffect };
+  return [ref, useRefEffect];
 }
 
 function findModel(path: string) {
@@ -185,6 +184,7 @@ export const MonacoEditor = React.forwardRef<
       getWorkerUrl = getNextWorkerUrl,
       getWorker = noop as any,
       language,
+      syncAllFiles = false,
       theme = 'vs-dark',
       path = `model${
         // @ts-ignore
@@ -207,7 +207,9 @@ export const MonacoEditor = React.forwardRef<
     ref
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
-    const { editorRef, useEditorEffect } = useEditorRef();
+    const [editorRef, useEditorEffect] = useRefWithEffects<
+      monaco.editor.IStandaloneCodeEditor
+    >();
     const subscriptionRef = React.useRef<monaco.IDisposable>(null);
 
     path = fixPath(path);
@@ -231,13 +233,11 @@ export const MonacoEditor = React.forwardRef<
 
       const pluginDisposables = monaco.plugin.install(...plugins);
 
-      Object.keys(files).forEach((path) =>
-        initializeModel(
-          path,
-          files[path]
-          // language
-        )
-      );
+      if (syncAllFiles) {
+        Object.keys(files).forEach((path) =>
+          initializeModel(path, files[path])
+        );
+      }
 
       editorRef.current = monaco.editor.create(
         containerRef.current,
@@ -319,11 +319,12 @@ export const MonacoEditor = React.forwardRef<
       [onChange]
     );
 
-    // React.useEffect(() => {
-    //   if (editorRef.current) {
-    //     editorRef.current.setScrollPosition({ scrollTop: line });
-    //   }
-    // }, [line, editorRef.current]);
+    useEditorEffect(
+      (editor) => {
+        editor.setScrollPosition({ scrollTop: line });
+      },
+      [line]
+    );
 
     React.useEffect(() => {
       monaco.editor.setTheme(theme);

@@ -4,26 +4,28 @@ import { important, useTheme } from 'magic-components';
 import MonacoEditor from 'next-monaco-editor';
 import monaco from 'next-monaco-editor/api';
 import { fixPath } from 'next-monaco-editor/utils';
+
 import { useLocalStorage } from 'playground/toolbox/useLocalStorage';
 import { useFiles } from 'playground/toolbox/useFiles';
 import { SplitView } from 'playground/toolbox/SplitView';
 import { JSONViewer } from 'playground/toolbox/JSONViewer';
+import { ActionButton, ActionBar } from 'playground/toolbox/ActionButton';
+import { PlaySVG, CancelSVG, CogSVG } from 'playground/toolbox/Icons';
+import { JSONResult } from 'playground/toolbox/JSONViewer';
+import GraphiQLExplorer from 'playground/graphql/Explorer';
 import {
   SandboxHead,
   monoFontStyles,
   RUBIK,
 } from 'playground/toolbox/SandboxHead';
+
 import { graphql, prettier } from 'plugins';
-import 'plugins/graphql/graphql.monaco.worker';
-import 'plugins/prettier/prettier.monaco.worker';
+import 'plugins/workers';
 import { UrlLoader } from 'plugins/graphql/url-schema-loader';
-import GraphiQLExplorer from 'playground/graphql/Explorer';
+
 import { ThemeProvider, Select } from 'react-ui';
 import YAML from 'yaml';
 import { useQuery } from 'react-query';
-import { ActionButton, ActionBar } from 'playground/toolbox/ActionButton';
-import { PlaySVG, CancelSVG, CogSVG } from 'playground/toolbox/Icons';
-import { JSONResult } from 'playground/toolbox/JSONViewer';
 
 export const jsonViewerTheme = {
   base00: 'white', //background color
@@ -64,6 +66,8 @@ function graphqlPath(project: string) {
   return `/${project}.graphql`;
 }
 
+// const reducer = (state, event, exec) => {};
+
 const GRAPHQL_CONFIG_PATH = '/graphql-config.yml';
 
 function useGraphQL() {
@@ -71,7 +75,7 @@ function useGraphQL() {
     'current-project',
     'pokemon'
   );
-  const activeProjectRef = React.useRef<string>('');
+  const activeProjectRef = React.useRef<string>(activeProject);
   activeProjectRef.current = activeProject;
 
   const [config, setConfigState] = useLocalStorage<{ [key: string]: any }>(
@@ -288,7 +292,7 @@ function Projects({ activeProjectRef, setActiveProject, projects }: any) {
   );
 }
 
-const Editor = ({
+function Editor({
   setFile,
   activeProjectRef,
   projectConfig,
@@ -297,7 +301,7 @@ const Editor = ({
   configRef,
   setResult,
   editorRef,
-}: any) => {
+}: any) {
   const [path, setPath] = useLocalStorage('open-file', GRAPHQL_CONFIG_PATH);
   const [variables, setVariables] = React.useState({});
   const variablesRef = React.useRef<any>(variables);
@@ -557,7 +561,7 @@ const Editor = ({
       </div>
     </SplitView>
   );
-};
+}
 
 function GraphQLActionBar({ editorRef, path, setPath, activeProjectRef }: any) {
   return (

@@ -94,6 +94,7 @@
     "smooshpack": "^0.0.62",
     "uniroll": "^1.0.9",
     "use-debounce": "^3.4.1",
+    "use-effect-reducer": "^0.4.1",
     "worker-loader": "^2.0.0",
     "workerize-loader": "^1.1.0",
     "yaml": "^1.8.3"

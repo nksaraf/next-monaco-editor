@@ -6,7 +6,48 @@ import Link from 'next/link';
 import { GraphQLogo, FaunaDBLogo } from 'playground/Logos';
 import { Tooltip } from 'react-tippy';
 
-const Nav = ({ children }) => {
+export default class QwertyApp extends NextApp {
+  render() {
+    const { Component, pageProps, router } = this.props;
+
+    return (
+      <>
+        <style
+          id="base"
+          css={{
+            body: { margin: 0 },
+            '*': {
+              boxSizing: 'border-box',
+            },
+          }}
+        />
+        <row height="100vh" width="100vw">
+          <Nav>
+            <NavItem
+              title="GraphQL Sandbox"
+              href="/graphql"
+              active={router.pathname === '/graphql'}
+              accent="#D64292"
+              icon={GraphQLogo}
+            />
+            <NavItem
+              title="FaunaDB Sandbox"
+              href="/faunadb"
+              active={router.pathname === '/faunadb'}
+              accent="#3642ce"
+              icon={FaunaDBLogo}
+            />
+          </Nav>
+          <div height="full" flex={1} maxWidth="calc(100vw - 64px)">
+            <Component {...pageProps} />
+          </div>
+        </row>
+      </>
+    );
+  }
+}
+
+const Nav = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <column
       width="64px"
@@ -19,35 +60,6 @@ const Nav = ({ children }) => {
     </column>
   );
 };
-
-export default class QwertyApp extends NextApp {
-  render() {
-    const { Component, pageProps, router } = this.props as any;
-    return (
-      <row height="100vh" width="100vw">
-        <Nav>
-          <NavItem
-            title="GraphQL Sandbox"
-            href="/graphql"
-            active={router.pathname === '/graphql'}
-            accent="#D64292"
-            icon={GraphQLogo}
-          />
-          <NavItem
-            title="FaunaDB Sandbox"
-            href="/faunadb"
-            active={router.pathname === '/faunadb'}
-            accent="#3642ce"
-            icon={FaunaDBLogo}
-          />
-        </Nav>
-        <div height="full" flex={1} maxWidth="calc(100vw - 64px)">
-          <Component {...pageProps} />
-        </div>
-      </row>
-    );
-  }
-}
 
 function NavItem({ title, icon: Icon, active, href, accent }: any) {
   return (
