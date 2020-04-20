@@ -72,20 +72,16 @@ function NavItem({ title, icon: Icon, active, href, accent }: any) {
       title={title}
       position="right"
       duration={100}
-      // style={{ fontFamily: RUBIK }}
       trigger="mouseenter"
     >
-      <Link href={href} prefetch={true}>
+      <Link href={href}>
         <button
           animate
           outline="none"
           cursor="pointer"
           position="relative"
           border="none"
-          // borderLeftStyle="solid"
-          // borderLeftWidth="3px"
-          // borderLeftColor={active ? accent : 'transparent'}
-          bg={active ? `${accent}30` : 'transparent'}
+          bg="transparent"
           width="full"
           px={3}
           py={3}
@@ -94,14 +90,16 @@ function NavItem({ title, icon: Icon, active, href, accent }: any) {
             <div
               top={0}
               layoutId="indicator"
-              width="3px"
+              borderLeft={`solid 3px ${accent}`}
               height="100%"
+              zIndex={1}
+              width="100%"
               position="absolute"
               left={0}
-              backgroundColor={accent}
+              backgroundColor={`${accent}30`}
             ></div>
           )}
-          <div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <div zIndex={2} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Icon color="white" />
           </div>
         </button>
