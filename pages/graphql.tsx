@@ -1,23 +1,23 @@
 import React from 'react';
 
 import { important, useTheme } from 'magic-components';
-import MonacoEditor from 'next-monaco-editor';
-import monaco from 'next-monaco-editor/api';
-import { fixPath } from 'next-monaco-editor/utils';
+import MonacoEditor from 'toolbox/Editor';
+import monaco from 'monaco';
+import { fixPath } from 'toolbox/Editor/utils';
 
-import { useLocalStorage } from 'playground/toolbox/useLocalStorage';
-import { useFiles } from 'playground/toolbox/useFiles';
-import { SplitView } from 'playground/toolbox/SplitView';
-import { JSONViewer } from 'playground/toolbox/JSONViewer';
-import { ActionButton, ActionBar } from 'playground/toolbox/ActionButton';
-import { PlaySVG, CancelSVG, CogSVG } from 'playground/toolbox/Icons';
-import { JSONResult } from 'playground/toolbox/JSONViewer';
-import GraphiQLExplorer from 'playground/graphql/Explorer';
+import { useLocalStorage } from 'toolbox/useLocalStorage';
+import { useFiles } from 'toolbox/useFiles';
+import { SplitView } from 'toolbox/SplitView';
+import { JSONViewer, jsonViewerTheme } from 'toolbox/JSONViewer';
+import { ActionButton, ActionBar } from 'toolbox/ActionButton';
+import { PlaySVG, CancelSVG, CogSVG } from 'toolbox/Icons';
+import { JSONResult } from 'toolbox/JSONViewer';
+import GraphiQLExplorer from 'sandboxes/graphql/Explorer';
 import {
   SandboxHead,
   monoFontStyles,
   RUBIK,
-} from 'playground/toolbox/SandboxHead';
+} from 'toolbox/SandboxHead';
 
 import { graphql, prettier } from 'plugins';
 import 'plugins/workers';
@@ -27,24 +27,6 @@ import { ThemeProvider, Select } from 'react-ui';
 import YAML from 'yaml';
 import { useQuery } from 'react-query';
 
-export const jsonViewerTheme = {
-  base00: 'white', //background color
-  base01: 'white', // edit background
-  base02: '#ecebec',
-  base03: '#444',
-  base04: 'purple',
-  base05: '#555555',
-  base06: 'red',
-  base07: '#1F61A0', //property
-  base08: '#555555',
-  base09: '#D64292', //string
-  base0A: '#555555',
-  base0B: '#2882F9', // float
-  base0C: '#8B2BB9', //index
-  base0D: '#555', // arrow
-  base0E: '#397D13', //boolean, collapsed arrow, add icon
-  base0F: '#2882F9', //number, clipboard
-};
 
 function useGraphQLSchema(config: any) {
   const { schema: schemaURI, headers } = config || {};
@@ -330,9 +312,6 @@ function Editor({
           css={{
             '.monaco-editor': {
               paddingTop: '12px',
-            },
-            '.monaco-editor *': {
-              boxSizing: 'content-box',
             },
           }}
         />

@@ -1,14 +1,14 @@
-import { SplitView } from '../playground/toolbox/SplitView';
-import { SandboxHead, monoFontStyles } from '../playground/toolbox/SandboxHead';
-import MonacoEditor from 'next-monaco-editor';
-import monaco from 'next-monaco-editor/api';
+import { SplitView } from 'toolbox/SplitView';
+import { SandboxHead, monoFontStyles } from 'toolbox/SandboxHead';
+import MonacoEditor from 'toolbox/Editor';
+import monaco from 'monaco';
 
 import 'plugins/workers';
 import { prettier, typings, faunadb } from 'plugins';
-import { useFiles } from 'playground/toolbox/useFiles';
-import { ActionButton } from 'playground/toolbox/ActionButton';
-import { PlaySVG, CogSVG, CancelSVG } from 'playground/toolbox/Icons';
-import { JSONResult } from 'playground/toolbox/JSONViewer';
+import { useFiles } from 'toolbox/useFiles';
+import { ActionButton } from 'toolbox/ActionButton';
+import { PlaySVG, CogSVG, CancelSVG } from 'toolbox/Icons';
+import { JSONResult } from 'toolbox/JSONViewer';
 
 export default () => {
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor | null>(

@@ -1,5 +1,5 @@
-import monaco from 'next-monaco-editor/api';
-import { asDisposable } from 'next-monaco-editor/api/utils';
+import monaco from 'monaco';
+import { asDisposable } from 'monaco/utils';
 
 const parsers: { [key: string]: keyof typeof plugins } = {
   javascript: 'babel',

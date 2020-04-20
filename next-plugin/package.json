@@ -1,4 +1,0 @@
-{
-  "name": "next-monaco-editor/plugin",
-  "main": "./with-monaco.js"
-}

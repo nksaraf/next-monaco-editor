@@ -3,7 +3,7 @@ import {
   BaseWorker,
   initialize,
   IWorkerContext,
-} from 'next-monaco-editor/worker';
+} from 'monaco/worker';
 
 // declare global {
 //   // const prettier: any
@@ -36,7 +36,7 @@ class FaunaDBWorker extends BaseWorker {
         q: query,
       });
 
-      const clean = (object: any) => {
+      const clean = (object: any) : any => {
         if (object instanceof Expr) {
           return object.toString();
         }
@@ -48,7 +48,7 @@ class FaunaDBWorker extends BaseWorker {
           return object.map((val) => clean(val));
         }
 
-        let other = {};
+        let other : any = {};
         Object.keys(object).forEach((key) => {
           other[key] = clean(object[key]);
         });

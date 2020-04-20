@@ -9,7 +9,7 @@
 
 import path from 'path';
 import { Store, set as setItem, get as getItem } from 'idb-keyval';
-import { BaseWorker, initialize } from 'next-monaco-editor/worker';
+import { BaseWorker, initialize } from 'monaco/worker';
 
 self.importScripts(
   'https://cdnjs.cloudflare.com/ajax/libs/typescript/3.8.3/typescript.min.js'

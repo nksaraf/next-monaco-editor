@@ -2,8 +2,8 @@ import {
   BaseWorker,
   initialize,
   IWorkerContext,
-} from 'next-monaco-editor/worker';
-import monaco from 'next-monaco-editor/api';
+} from 'monaco/worker';
+import monaco from 'monaco';
 
 import {
   Range as GraphQLRange,
@@ -63,7 +63,7 @@ export function toCompletion(
     const hasNonNullArg =
       astNode &&
       astNode.args.length > 0 &&
-      astNode.args.some((arg) => arg.type instanceof GraphQLNonNull);
+      astNode.args.some((arg: any) => arg.type instanceof GraphQLNonNull);
     if (isObject && hasNonNullArg) {
       insertText += '(${1:}) {${2:}}';
     } else if (isObject) {

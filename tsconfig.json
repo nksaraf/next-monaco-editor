@@ -1,11 +1,5 @@
 {
-  "include": [
-    "packages",
-    "next-monaco-editor",
-    "pages",
-    "playground",
-    "plugins"
-  ],
+  "include": ["pages", "monaco", "toolbox", "plugins", "sandboxes"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -19,21 +13,23 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "next-monaco-editor/*": ["./next-monaco-editor/*"],
-      "monaco-plugins/*": ["./plugins/*"],
-      "monaco-plugins": ["./plugins/index.ts"],
-      "next-monaco-editor": ["./next-monaco-editor/index.tsx"],
+      "plugins": ["./plugins/index.ts"],
+      "plugins/*": ["./plugins/*"],
+      "toolbox": ["./toolbox/index.ts"],
+      "toolbox/*": ["./toolbox/*"],
+      "monaco": ["./monaco/index.ts"],
+      "monaco/worker": ["./monaco/worker/index.ts"],
       "graphql-language-service-parser": [
-        "./playground/graphql/graphql-language-service-parser/src/index.ts"
+        "./plugins/graphql/language-service/graphql-language-service-parser/src/index.ts"
       ],
       "graphql-language-service-interface": [
-        "./playground/graphql/graphql-language-service-interface/src/index.ts"
+        "./plugins/graphql/language-service/graphql-language-service-interface/src/index.ts"
       ],
       "graphql-language-service-types": [
-        "./playground/graphql/graphql-language-service-types/src/index.ts"
+        "./plugins/graphql/language-service/graphql-language-service-types/src/index.ts"
       ],
       "graphql-language-service-utils": [
-        "./playground/graphql/graphql-language-service-utils/src/index.ts"
+        "./plugins/graphql/language-service/graphql-language-service-utils/src/index.ts"
       ]
     },
     "jsx": "preserve",

@@ -1,6 +1,6 @@
 // @ts-ignore
-import  prettier from 'prettier/standalone';
-import{ BaseWorker, initialize, IWorkerContext } from 'next-monaco-editor/worker';
+import prettier from 'prettier/standalone';
+import{ BaseWorker, initialize, IWorkerContext } from 'monaco/worker';
 
 declare global {
   // const prettier: any
@@ -17,7 +17,7 @@ class PrettierWorker extends BaseWorker {
   }
 
   async importPrettier() {
-    await importScripts("https://unpkg.com/prettier@2.0.4/standalone.js");
+    // await importScripts("https://unpkg.com/prettier@2.0.4/standalone.js");
     for (var plugin of this.options.plugins) {
       await importScripts(`https://unpkg.com/prettier@2.0.4/${plugin}.js`);
     }

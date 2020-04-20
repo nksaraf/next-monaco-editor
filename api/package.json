@@ -1,6 +1,0 @@
-{
-  "name": "next-monaco-editor/api",
-  "main": "../dist/api/index.js",
-  "typings": "../dist/api/esm/api/index.d.ts",
-  "module": "../dist/api/esm/index.js"
-}

@@ -1,4 +1,4 @@
-import monaco from 'next-monaco-editor/api';
+import monaco from 'monaco';
 
 export const uniroll = () => (api: typeof monaco) => {
   api.worker.register({

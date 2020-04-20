@@ -1,4 +1,4 @@
-import monaco from 'next-monaco-editor/api';
+import monaco from 'monaco';
 
 import {
   getTemplate,
@@ -8,7 +8,7 @@ import {
 // import createSandbox from 'codesandbox-import-utils/lib/create-sandbox/index';
 
 import { useDebouncedCallback } from 'use-debounce';
-import { useFiles } from 'playground/toolbox/useFiles';
+import { useFiles } from 'toolbox/useFiles';
 
 import { dispatch, listen, registerFrame } from 'codesandbox-api';
 

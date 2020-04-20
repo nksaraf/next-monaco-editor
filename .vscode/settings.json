@@ -1,21 +1,11 @@
 {
   "files.exclude": {
-    "worker": true,
-    "api": true,
-    "next-env.d.ts": true,
-    "yarn.lock": true,
-    "LICENSE": true,
-    "public/rubik": true,
     "scripts": true,
-    "reference/monaco-editor-boilerplate": true,
     "reference": true,
-    "plugins/_package.json": true,
-    ".babelrc": true,
-    ".gitignore": true,
-    "README.md": true,
-    "tsdx.config.js": true,
-    "tsconfig.tsdx.json": true,
-    "public": true
+    "public": true,
+    "next-monaco": true,
+    ".next": true,
+    ".vscode": true
   },
   "search.exclude": {
     "**/node_modules": false

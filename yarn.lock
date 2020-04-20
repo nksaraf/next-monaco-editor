@@ -3400,13 +3400,6 @@ css-in-js-utils@^2.0.0:
     hyphenate-style-name "^1.0.2"
     isobject "^3.0.1"
 
-css-in-js-utils@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/css-in-js-utils/-/css-in-js-utils-3.0.4.tgz#9173c31b1fcb31401f0baf84fb3b680971b49eab"
-  integrity sha512-4RKm4RXq+TnX3rVRl85cabEc+VtR0yuU8zT9QpZqa9lLlJzw7Ma6Yyg2N9Gm6l9W+TP0IsWF0wvh3Is4Oifr7g==
-  dependencies:
-    hyphenate-style-name "^1.0.3"
-
 css-loader@3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-3.3.0.tgz#65f889807baec3197313965d6cda9899f936734d"
@@ -4544,10 +4537,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-framer-motion@^2.0.0-beta.42:
-  version "2.0.0-beta.42"
-  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-2.0.0-beta.42.tgz#7861caf5a067f3b950377e4057b7cc3ca6efc1f6"
-  integrity sha512-qTMac1WV0mTpqBLbuXLwz/ETQAX+U84DQD3TgLT6x2td5xr3CxK51dhzndQBPqyoWeV7qP1FcuBZWVPV6aSrbQ==
+framer-motion@^2.0.0-beta.52:
+  version "2.0.0-beta.52"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-2.0.0-beta.52.tgz#f7a6512f6205accb46cf94459aa7b36464b72193"
+  integrity sha512-6bHcrHkm2OiWYYF3EXre3xPl6/Z8RS6tqD6tW3GVDJK/JBG3XMjXNnXA9wN4k/6phDRfjpcooPUMtm2yztrmmA==
   dependencies:
     "@popmotion/easing" "^1.0.2"
     "@popmotion/popcorn" "^0.4.2"
@@ -4974,7 +4967,7 @@ husky@^4.2.3:
     slash "^3.0.0"
     which-pm-runs "^1.0.0"
 
-hyphenate-style-name@^1.0.2, hyphenate-style-name@^1.0.3:
+hyphenate-style-name@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.3.tgz#097bb7fa0b8f1a9cf0bd5c734cf95899981a9b48"
   integrity sha512-EcuixamT82oplpoJ2XU4pDtKGWQ7b00CD9f1ug9IaQ3p1bkHMiKCZ9ut9QDI6qsa6cpUuB+A/I+zLtdNK4n2DQ==
@@ -6234,18 +6227,16 @@ lz-string@^1.4.4:
   resolved "https://registry.yarnpkg.com/lz-string/-/lz-string-1.4.4.tgz#c0d8eaf36059f705796e1e344811cf4c498d3a26"
   integrity sha1-wNjq82BZ9wV5bh40SBHPTEmNOiY=
 
-magic-components@^0.0.2-beta.21:
-  version "0.0.2-beta.21"
-  resolved "https://registry.yarnpkg.com/magic-components/-/magic-components-0.0.2-beta.21.tgz#8eb6eb818e8c600d8afddfc76353142cbdf5f2fc"
-  integrity sha512-X7A8tybQ7cmvnzu2bEHI5KPcd5gvPea3aHKW4EURhybnHXBDUE/pKXfFSYBnvGlz07H5cxKpptft64E2KKntzQ==
+magic-components@^0.0.2-beta.22:
+  version "0.0.2-beta.22"
+  resolved "https://registry.yarnpkg.com/magic-components/-/magic-components-0.0.2-beta.22.tgz#caacb598b9e15946c671f03d2ed92ee814dc4097"
+  integrity sha512-7Z9a2b1kArTg4rgIuJEL2+L3J0Djd20PT5SNkkBh7vTY7WxGSX9Y176gx4Rj+k0jFpvsrtP4s6aldY7reIpQvA==
   dependencies:
     "@nksaraf/colors" "^0.0.2"
     color "^3.1.2"
-    css-in-js-utils "^3.0.4"
     deepmerge "^4.2.2"
-    framer-motion "^2.0.0-beta.42"
+    framer-motion "^2.0.0-beta.52"
     inline-style-prefixer "^6.0.0"
-    tiny-css-prefixer "^1.1.4"
 
 magic-string@^0.25.2, magic-string@^0.25.5:
   version "0.25.7"
@@ -8965,11 +8956,6 @@ timers-browserify@^2.0.4:
   integrity sha512-60aV6sgJ5YEbzUdn9c8kYGIqOubPoUdqQCul3SBAsRCZ40s6Y5cMcrW4dt3/k/EsbLVJNl9n6Vz3fTc+k2GeKQ==
   dependencies:
     setimmediate "^1.0.4"
-
-tiny-css-prefixer@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/tiny-css-prefixer/-/tiny-css-prefixer-1.1.4.tgz#b96a0aa6b312227d996e9c303645e3ae2f194086"
-  integrity sha512-QLnDGLUmMkNlSuWogBaSu92uQnvWhcQwUc+MG8L4YgBkjSmBkAz29pTq+8Rh3YWR1TwPrjuZDKWzO7v4PXkipQ==
 
 tiny-glob@^0.2.6:
   version "0.2.6"

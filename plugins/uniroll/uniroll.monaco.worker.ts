@@ -4,7 +4,7 @@ import {
   BaseWorker,
   initialize,
   IWorkerContext,
-} from 'next-monaco-editor/worker';
+} from 'monaco/worker';
 
 // declare global {
 //   // const prettier: any
