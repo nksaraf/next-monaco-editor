@@ -128,6 +128,7 @@ export default () => {
                 onClick={() => {
                   editorRef.current?.trigger('play', 'faunadb.run', {});
                 }}
+                layoutId="run-button"
               >
                 <PlaySVG />
               </ActionButton>
@@ -143,6 +144,7 @@ export default () => {
                       {}
                     )
                   }
+                  layoutId="settings-button"
                   backgroundColor="blueGrey.900"
                 >
                   <CogSVG color="white" />

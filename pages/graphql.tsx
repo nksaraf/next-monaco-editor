@@ -565,6 +565,7 @@ function GraphQLActionBar({ editorRef, path, setPath, activeProjectRef }: any) {
           editorRef.current?.trigger('play button', 'graphql.run', {})
         }
         backgroundColor="#D64292"
+        layoutId="run-button"
       >
         <PlaySVG />
       </ActionButton>
@@ -580,6 +581,7 @@ function GraphQLActionBar({ editorRef, path, setPath, activeProjectRef }: any) {
               {}
             )
           }
+          layoutId="settings-button"
           backgroundColor="blueGrey.900"
         >
           <CogSVG color="white" />

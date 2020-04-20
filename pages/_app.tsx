@@ -40,9 +40,11 @@ export default class QwertyApp extends NextApp {
               />
             </Nav>
           </AnimateSharedLayout>
-          <div height="full" flex={1} maxWidth="calc(100vw - 64px)">
-            <Component {...pageProps} />
-          </div>
+          <AnimateSharedLayout>
+            <div height="full" flex={1} maxWidth="calc(100vw - 64px)">
+              <Component {...pageProps} />
+            </div>
+          </AnimateSharedLayout>
         </row>
       </>
     );
