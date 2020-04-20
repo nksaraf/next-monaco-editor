@@ -8,7 +8,6 @@
     "public/rubik": true,
     ".next": true,
     "scripts": true,
-    "next-plugin": true,
     "reference/monaco-editor-boilerplate": true,
     "reference": true,
     "plugins/_package.json": true,

@@ -16,8 +16,9 @@
   "scripts": {
     "//bundler": "npx http-server node_modules/smooshpack/sandpack -a localhost -p 6969 ",
     "//dev:bundler": "npm-run-all --parallel bundler dev",
-    "start": "tsdx watch",
-    "build": "npm-run-all --parallel build:*",
+    "start": "next start",
+    "package": "npm-run-all --parallel build:*",
+    "build": "next build",
     "prepublishOnly": "yarn build",
     "dev": "next -p 6969",
     "build:main": "tsdx build -i ./next-monaco-editor/index.tsx --name next-monaco-editor --tsconfig ./tsconfig.tsdx.json && yarn create:entry next-monaco-editor",
