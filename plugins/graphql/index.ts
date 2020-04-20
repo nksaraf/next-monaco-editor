@@ -1,7 +1,7 @@
 import monaco from 'monaco';
 
 export const graphql = (settings: any) => (api: typeof monaco) => {
-  api.languages.register({
+  return api.languages.register({
     id: 'graphql',
     extensions: ['.graphql', '.gql'],
     aliases: ['graphql'],

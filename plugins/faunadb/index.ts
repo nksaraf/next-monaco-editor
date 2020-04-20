@@ -3,7 +3,7 @@ import monaco from 'monaco';
 export const faunadb = (
   // compilerOptions: monaco.languages.typescript.CompilerOptions = {}
 ) => (api: typeof monaco) => {
-  api.worker.register({
+  return api.worker.register({
     label: 'faunadb',
     providers: false,
   });

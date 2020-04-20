@@ -1,5 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
+import { monacoStyles } from './Editor';
 
 const MONO_FONTS = 'Roboto Mono, monospace';
 export const RUBIK = 'Rubik, monospace';
@@ -25,6 +26,7 @@ export const SandboxHead = ({ children, title }: any) => {
         />
         {children}
       </Head>
+      <style id="monaco-base" css={monacoStyles} />
     </>
   );
 };

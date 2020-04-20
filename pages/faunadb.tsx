@@ -49,9 +49,6 @@ export default () => {
                 '.monaco-editor': {
                   paddingTop: '12px',
                 },
-                '.monaco-editor *': {
-                  boxSizing: 'content-box',
-                },
               }}
             />
             <MonacoEditor
@@ -67,12 +64,8 @@ export default () => {
                 typings(),
                 faunadb(),
               ]}
-              editorDidMount={async (editor, monaco) => {
-                await monaco.languages.typescript.loadTypes(
-                  'faunadb',
-                  '2.13.0'
-                );
-
+              editorDidMount={(editor, monaco) => {
+                monaco.languages.typescript.loadTypes('faunadb', '2.13.0');
                 monaco.languages.typescript.addGlobal(
                   `
                 import * as faunadb from "./node_modules/faunadb";
@@ -83,29 +76,35 @@ export default () => {
                 `
                 );
 
-                editor.addAction({
-                  id: 'faunadb.run',
-                  label: 'Run FaunaDB Query',
-                  contextMenuOrder: 0,
-                  contextMenuGroupId: 'faunadb',
-                  keybindings: [
-                    // eslint-disable-next-line no-bitwise
-                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-                  ],
-                  // run: runGraphQL(monaco, editor),
-                  run: async () => {
-                    try {
-                      const worker = await monaco.worker.get('faunadb');
-                      setResult(
-                        await worker.fetch(
-                          monaco.Uri.file('/index.ts').toString()
-                        )
-                      );
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  },
-                });
+                let disposables = [];
+
+                disposables.push(
+                  editor.addAction({
+                    id: 'faunadb.run',
+                    label: 'Run FaunaDB Query',
+                    contextMenuOrder: 0,
+                    contextMenuGroupId: 'faunadb',
+                    keybindings: [
+                      // eslint-disable-next-line no-bitwise
+                      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+                    ],
+                    // run: runGraphQL(monaco, editor),
+                    run: async () => {
+                      try {
+                        const worker = await monaco.worker.get('faunadb');
+                        setResult(
+                          await worker.fetch(
+                            monaco.Uri.file('/index.ts').toString()
+                          )
+                        );
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    },
+                  })
+                );
+
+                return disposables;
               }}
               options={{
                 minimap: {
@@ -114,9 +113,11 @@ export default () => {
                 fontFamily: monoFontStyles.fontFamily,
                 fontSize: 12,
                 letterSpacing: 0.2,
+
                 scrollbar: {
                   vertical: 'hidden',
                   verticalScrollbarSize: 0,
+                  useShadows: false,
                 },
               }}
             />

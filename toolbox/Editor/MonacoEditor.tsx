@@ -2,6 +2,7 @@ import React from 'react';
 import { noop, processDimensions, getNextWorkerPath, fixPath } from './utils';
 import monaco from 'monaco';
 import defaultThemes, { ThemeNames, themeNames } from './themes';
+import { asDisposable } from 'monaco/utils';
 
 function setupThemes(
   monacoApi: typeof monaco,
@@ -92,7 +93,7 @@ export interface MonacoEditorProps {
   editorDidMount?: (
     editor: monaco.editor.IStandaloneCodeEditor,
     monacoApi: typeof monaco
-  ) => void;
+  ) => monaco.IDisposable[] | Promise<void> | void;
   editorWillMount?: (
     monacoApi: typeof monaco
   ) => monaco.editor.IEditorOptions | void;
@@ -264,15 +265,21 @@ export const MonacoEditor = React.forwardRef<
       setupThemes(monaco, editorRef.current, themes);
 
       // After initializing monaco editor
-      editorDidMount(editorRef.current, monaco);
+      let didMount = editorDidMount(editorRef.current, monaco);
+      let userDisposables: monaco.IDisposable;
+      if (didMount && Array.isArray(didMount)) {
+        userDisposables = asDisposable(didMount);
+      }
 
       return () => {
         themeListener.dispose();
         pluginDisposables.dispose();
+        if (userDisposables) {
+          (userDisposables as monaco.IDisposable).dispose();
+        }
         if (editorRef.current) {
           editorRef.current.dispose();
         }
-        // pluginDisposables.dispose();
         monaco.editor.getModels().forEach((model) => {
           model.dispose();
         });

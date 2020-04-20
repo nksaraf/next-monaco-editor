@@ -13,11 +13,7 @@ import { ActionButton, ActionBar } from 'toolbox/ActionButton';
 import { PlaySVG, CancelSVG, CogSVG } from 'toolbox/Icons';
 import { JSONResult } from 'toolbox/JSONViewer';
 import GraphiQLExplorer from 'sandboxes/graphql/Explorer';
-import {
-  SandboxHead,
-  monoFontStyles,
-  RUBIK,
-} from 'toolbox/SandboxHead';
+import { SandboxHead, monoFontStyles, RUBIK } from 'toolbox/SandboxHead';
 
 import { graphql, prettier } from 'plugins';
 import 'plugins/workers';
@@ -26,7 +22,6 @@ import { UrlLoader } from 'plugins/graphql/url-schema-loader';
 import { ThemeProvider, Select } from 'react-ui';
 import YAML from 'yaml';
 import { useQuery } from 'react-query';
-
 
 function useGraphQLSchema(config: any) {
   const { schema: schemaURI, headers } = config || {};
@@ -414,37 +409,45 @@ function Editor({
               return variables;
             };
 
-            editor.addAction({
-              id: 'graphql.editConfig',
-              label: 'Preferences: GraphQL Config',
-              contextMenuOrder: 2,
-              contextMenuGroupId: 'graphql',
-              run: async () => {
-                setPath(GRAPHQL_CONFIG_PATH);
-              },
-            });
+            let disposables: monaco.IDisposable[] = [];
 
-            editor.addSelectAction({
-              id: 'graphql.selectOperation',
-              label: 'Run GraphQL Operation by Name',
-              choices: () => getOperationNames(),
-              runChoice: function (value, mode) {
-                if (mode === 1) executeCurrentOp(value);
-              },
-            });
+            disposables.push(
+              editor.addAction({
+                id: 'graphql.editConfig',
+                label: 'Preferences: GraphQL Config',
+                contextMenuOrder: 2,
+                contextMenuGroupId: 'graphql',
+                run: async () => {
+                  setPath(GRAPHQL_CONFIG_PATH);
+                },
+              })
+            );
 
-            editor.addSelectAction({
-              id: 'graphql.selectProject',
-              label: 'Select GraphQL Project',
-              choices: () => Object.keys(configRef.current),
-              contextMenuOrder: 1,
-              contextMenuGroupId: 'graphql',
-              runChoice: function (value, mode) {
-                if (mode === 1) {
-                  setActiveProject(value);
-                }
-              },
-            });
+            disposables.push(
+              editor.addSelectAction({
+                id: 'graphql.selectOperation',
+                label: 'Run GraphQL Operation by Name',
+                choices: () => getOperationNames(),
+                runChoice: function (value, mode) {
+                  if (mode === 1) executeCurrentOp(value);
+                },
+              })
+            );
+
+            disposables.push(
+              editor.addSelectAction({
+                id: 'graphql.selectProject',
+                label: 'Select GraphQL Project',
+                choices: () => Object.keys(configRef.current),
+                contextMenuOrder: 1,
+                contextMenuGroupId: 'graphql',
+                runChoice: function (value, mode) {
+                  if (mode === 1) {
+                    setActiveProject(value);
+                  }
+                },
+              })
+            );
 
             const updateVariables = async () => {
               try {
@@ -457,47 +460,57 @@ function Editor({
               } catch (e) {}
             };
 
-            editor.onDidChangeModelContent(updateVariables);
-            editor.onDidChangeModel(updateVariables);
+            disposables.push(editor.onDidChangeModelContent(updateVariables));
+            disposables.push(editor.onDidChangeModel(updateVariables));
             // updateVariables();
-            editor.addSelectAction({
-              id: 'editor.action.openFile',
-              label: 'Open File',
-              contextMenuOrder: 3,
-              contextMenuGroupId: 'navigation',
-              keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-              choices: () =>
-                Object.keys(filesRef.current).map((f) =>
-                  fixPath(f).substring(1)
-                ),
-              runChoice: function (value, mode) {
-                if (mode === 1) setPath(fixPath(value));
-              },
-            });
+            disposables.push(
+              editor.addSelectAction({
+                id: 'editor.action.openFile',
+                label: 'Open File',
+                contextMenuOrder: 3,
+                contextMenuGroupId: 'navigation',
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+                choices: () =>
+                  Object.keys(filesRef.current).map((f) =>
+                    fixPath(f).substring(1)
+                  ),
+                runChoice: function (value, mode) {
+                  if (mode === 1) setPath(fixPath(value));
+                },
+              })
+            );
 
-            editor.addAction({
-              id: 'graphql.run',
-              label: 'Run GraphQL Operation',
-              contextMenuOrder: 0,
-              contextMenuGroupId: 'graphql',
-              keybindings: [
-                // eslint-disable-next-line no-bitwise
-                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-              ],
-              // run: runGraphQL(monaco, editor),
-              run: async () => {
-                const operations = await getOperationNames();
-                if (operations.length > 1) {
-                  editor.trigger('graphql.run', 'graphql.selectOperation', {});
-                } else {
-                  if (operations.length === 1) {
-                    executeCurrentOp(operations[0]);
+            disposables.push(
+              editor.addAction({
+                id: 'graphql.run',
+                label: 'Run GraphQL Operation',
+                contextMenuOrder: 0,
+                contextMenuGroupId: 'graphql',
+                keybindings: [
+                  // eslint-disable-next-line no-bitwise
+                  monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+                ],
+                // run: runGraphQL(monaco, editor),
+                run: async () => {
+                  const operations = await getOperationNames();
+                  if (operations.length > 1) {
+                    editor.trigger(
+                      'graphql.run',
+                      'graphql.selectOperation',
+                      {}
+                    );
                   } else {
-                    executeCurrentOp();
+                    if (operations.length === 1) {
+                      executeCurrentOp(operations[0]);
+                    } else {
+                      executeCurrentOp();
+                    }
                   }
-                }
-              },
-            });
+                },
+              })
+            );
+
+            return disposables;
           }}
           ref={editorRef}
           options={{
@@ -511,8 +524,9 @@ function Editor({
             renderLineHighlight: 'none',
 
             scrollbar: {
-              vertical: 'hidden',
-              verticalScrollbarSize: 0,
+              vertical: 'auto',
+              verticalScrollbarSize: 8,
+              useShadows: false,
             },
           }}
         />
