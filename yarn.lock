@@ -4743,10 +4743,10 @@ graphql-ast-types@^1.0.2:
   resolved "https://registry.yarnpkg.com/graphql-ast-types/-/graphql-ast-types-1.0.2.tgz#49f2ae8f52be9ae426263f95320888f0cb772711"
   integrity sha512-X/fPOuVsW1jor3/FIceloKZB4YGx5nsZ8/7z7mceIU6tw7AQTt+OZ0Xk+RWk9DZ0DLdmZ3kuh67fkzGR+U7j6Q==
 
-graphql-config@^3.0.0-rc.2:
-  version "3.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-3.0.0-rc.2.tgz#760a1d7bcf8b114b7c1675c5a6ac624976d62e09"
-  integrity sha512-fb14mSDRatKsz2XXWgQjupbRsur/5vfQqHFFKo+N7hZNzRdT4hm+52HG8gn57mHQNZsN18q4aROwRQQRICMqZA==
+graphql-config@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-3.0.0.tgz#e73ce334fd765f985d6b25691e2770b871bb06b8"
+  integrity sha512-lBdun77NMZIuo8KLZDeZ1jb9DbWg977KXuzpJPJIk+/jqX96ZPxsdRZl9GgK+qgDEliumDTJqRoHtHp+CVilLg==
   dependencies:
     "@graphql-toolkit/common" "~0.10.2"
     "@graphql-toolkit/core" "~0.10.2"
@@ -4755,7 +4755,6 @@ graphql-config@^3.0.0-rc.2:
     "@graphql-toolkit/schema-merging" "~0.10.2"
     "@graphql-toolkit/url-loader" "~0.10.2"
     cosmiconfig "6.0.0"
-    globby "11.0.0"
     minimatch "3.0.4"
     tslib "^1.11.1"
 
