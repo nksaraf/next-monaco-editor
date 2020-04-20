@@ -33,6 +33,7 @@ export function JSONViewer(props) {
         // collapsed={3}
         style={{
           ...important(monoFontStyles),
+          height: '100%',
         }}
         {...props}
       />

@@ -13,8 +13,7 @@ MirrorTextModel.prototype.getFullModelRange = function () {
 // @ts-ignore
 import * as workerApi from 'monaco-editor/esm/vs/editor/editor.worker';
 
-import { BaseWorker } from './base-worker';
-import { IWorkerContext } from './types';
+import { BaseWorker, IWorkerContext } from './base-worker';
 
 interface IWorkerInitializer {
   initialize: (
@@ -23,7 +22,6 @@ interface IWorkerInitializer {
 }
 
 export * from './base-worker';
-export * from './types';
 
 declare global {
   const importScripts: any

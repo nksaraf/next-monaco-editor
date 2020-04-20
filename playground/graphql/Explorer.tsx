@@ -50,6 +50,8 @@ import {
   ValueNode,
 } from 'graphql';
 import * as gql from 'graphql-ast-types';
+import { createContext } from 'create-hook-context';
+
 type Field = GraphQLField<any, any>;
 
 type GetDefaultScalarArgValue = (
@@ -93,35 +95,6 @@ type StyleConfig = {
   checkboxChecked: React.ReactNode;
   checkboxUnchecked: React.ReactNode;
   styles: Styles;
-};
-
-type Props = {
-  query: string;
-  width?: number;
-  title?: string;
-  schema?: GraphQLSchema | null | undefined;
-  onEdit: (arg0: string) => void;
-  getDefaultFieldNames?: (
-    type: GraphQLObjectType
-  ) => Array<string> | null | undefined;
-  getDefaultScalarArgValue?: GetDefaultScalarArgValue | null | undefined;
-  makeDefaultArg?: MakeDefaultArg | null | undefined;
-  onToggleExplorer?: () => void;
-  explorerIsOpen: boolean;
-  onRunOperation?: (name: string | null | undefined) => void;
-  colors?: Colors | null | undefined;
-  arrowOpen?: React.ReactNode | null | undefined;
-  arrowClosed?: React.ReactNode | null | undefined;
-  checkboxChecked?: React.ReactNode | null | undefined;
-  checkboxUnchecked?: React.ReactNode | null | undefined;
-  styles?:
-    | {
-        explorerActionsStyle?: StyleMap;
-        buttonStyle?: StyleMap;
-      }
-    | null
-    | undefined;
-  showAttribution?: boolean;
 };
 
 type OperationType = 'query' | 'mutation' | 'subscription' | 'fragment';
@@ -1682,6 +1655,94 @@ function Attribution() {
   );
 }
 
+type Props = {
+  query: string;
+  width?: number;
+  title?: string;
+  schema?: GraphQLSchema | null | undefined;
+  onEdit: (arg0: string) => void;
+  getDefaultFieldNames?: (
+    type: GraphQLObjectType
+  ) => Array<string> | null | undefined;
+  getDefaultScalarArgValue?: GetDefaultScalarArgValue | null | undefined;
+  makeDefaultArg?: MakeDefaultArg | null | undefined;
+  onToggleExplorer?: () => void;
+  explorerIsOpen: boolean;
+  onRunOperation?: (name: string | null | undefined) => void;
+  colors?: Colors | null | undefined;
+  arrowOpen?: React.ReactNode | null | undefined;
+  arrowClosed?: React.ReactNode | null | undefined;
+  checkboxChecked?: React.ReactNode | null | undefined;
+  checkboxUnchecked?: React.ReactNode | null | undefined;
+  styles?:
+    | {
+        explorerActionsStyle?: StyleMap;
+        buttonStyle?: StyleMap;
+      }
+    | null
+    | undefined;
+  showAttribution?: boolean;
+};
+
+createContext(
+  ({
+    getDefaultFieldNames = defaultGetDefaultFieldNames,
+    getDefaultScalarArgValue = defaultGetDefaultScalarArgValue,
+    colors = defaultColors,
+    checkboxChecked = defaultCheckboxChecked,
+    checkboxUnchecked = defaultCheckboxUnchecked,
+    arrowClosed = defaultArrowClosed,
+    arrowOpen = defaultArrowOpen,
+    styles = {},
+    schema,
+    query,
+    makeDefaultArg,
+  }) => {
+    const styleConfig = {
+      colors,
+      checkboxChecked,
+      checkboxUnchecked,
+      arrowClosed,
+      arrowOpen,
+      styles: {
+        ...defaultStyles,
+        ...styles,
+      },
+    };
+
+    const queryType = schema.getQueryType();
+    const mutationType = schema.getMutationType();
+    const subscriptionType = schema.getSubscriptionType();
+    if (!queryType && !mutationType && !subscriptionType) {
+      // return <div>Missing query type</div>;
+    }
+    const queryFields = queryType && queryType.getFields();
+    const mutationFields = mutationType && mutationType.getFields();
+    const subscriptionFields = subscriptionType && subscriptionType.getFields();
+
+    const parsedQuery: DocumentNode = memoizeParseQuery(query);
+    const definitions = parsedQuery.definitions;
+
+    const _relevantOperations = definitions
+      .map((definition) => {
+        if (definition.kind === 'FragmentDefinition') {
+          return definition;
+        } else if (definition.kind === 'OperationDefinition') {
+          return definition;
+        } else {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    const relevantOperations = // If we don't have any relevant definitions from the parsed document,
+      // then at least show an expanded Query selection
+      _relevantOperations.length === 0
+        ? DEFAULT_DOCUMENT.definitions
+        : _relevantOperations;
+  }
+);
+
 class Explorer extends React.PureComponent<Props, State> {
   static defaultProps = {
     getDefaultFieldNames: defaultGetDefaultFieldNames,
@@ -1784,21 +1845,16 @@ class Explorer extends React.PureComponent<Props, State> {
         : _relevantOperations;
 
     const renameOperation = (targetOperation, name) => {
-      const newName =
-        name == null || name === ''
-          ? null
-          : { kind: 'Name', value: name, loc: undefined };
-      const newOperation = { ...targetOperation, name: newName };
-
-      const existingDefs = parsedQuery.definitions;
-
-      const newDefinitions = existingDefs.map((existingOperation) => {
-        if (targetOperation === existingOperation) {
-          return newOperation;
-        } else {
-          return existingOperation;
+      const newDefinitions = parsedQuery.definitions.map(
+        (existingOperation) => {
+          if (targetOperation === existingOperation) {
+            const newName = name == null || name === '' ? null : gql.name(name);
+            return { ...targetOperation, name: newName };
+          } else {
+            return existingOperation;
+          }
         }
-      });
+      );
 
       return {
         ...parsedQuery,
@@ -1807,62 +1863,30 @@ class Explorer extends React.PureComponent<Props, State> {
     };
 
     const addOperation = (kind: NewOperationType) => {
-      const existingDefs = parsedQuery.definitions;
-
-      const viewingDefaultOperation =
+      const isDefaultOperation =
         parsedQuery.definitions.length === 1 &&
         parsedQuery.definitions[0] === DEFAULT_DOCUMENT.definitions[0];
 
-      const MySiblingDefs = viewingDefaultOperation
+      const siblingDefinitions = isDefaultOperation
         ? []
-        : existingDefs.filter((def) => {
-            if (def.kind === 'OperationDefinition') {
-              return def.operation === kind;
-            } else {
-              // Don't support adding fragments from explorer
-              return false;
-            }
-          });
+        : parsedQuery.definitions.filter(
+            (def) =>
+              def.kind === 'OperationDefinition' && def.operation === kind
+          );
 
       const newOperationName = `My${capitalize(kind)}${
-        MySiblingDefs.length === 0 ? '' : MySiblingDefs.length + 1
+        siblingDefinitions.length === 0 ? '' : siblingDefinitions.length + 1
       }`;
 
-      // Add this as the default field as it guarantees a valid selectionSet
-      const firstFieldName = '__typename # Placeholder value';
-
-      const selectionSet = {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: {
-              kind: 'Name',
-              value: firstFieldName,
-              loc: null,
-            },
-            arguments: [],
-            directives: [],
-            selectionSet: null,
-            loc: null,
-          },
-        ],
-        loc: null,
-      };
-
-      const newDefinition = {
-        kind: 'OperationDefinition',
-        operation: kind,
-        name: { kind: 'Name', value: newOperationName },
-        variableDefinitions: [],
-        directives: [],
-        selectionSet: selectionSet,
-        loc: null,
-      };
+      const newDefinition = gql.operationDefinition(
+        kind,
+        gql.selectionSet([gql.field(gql.name('__typename'))]),
+        gql.name(newOperationName)
+      );
 
       const newDefinitions = // If we only have our default operation in the document right now, then
         // just replace it with our new definition
-        viewingDefaultOperation
+        isDefaultOperation
           ? [newDefinition]
           : [...parsedQuery.definitions, newDefinition];
 
@@ -2118,55 +2142,58 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-class ExplorerWrapper extends React.PureComponent<Props, {}> {
-  static defaultValue = defaultValue;
-  static defaultProps = {
-    width: 320,
-    title: 'Explorer',
-  };
-
-  render() {
-    return (
-      <div
-        className="docExplorerWrap"
-        style={{
-          height: '100%',
-          width: this.props.width,
-          minWidth: this.props.width,
-          zIndex: 7,
-          display: this.props.explorerIsOpen ? 'flex' : 'none',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        <div className="doc-explorer-title-bar">
-          <div className="doc-explorer-title">{this.props.title}</div>
-          <div className="doc-explorer-rhs">
-            <div
-              className="docExplorerHide"
-              onClick={this.props.onToggleExplorer}
-            >
-              {'\u2715'}
-            </div>
+export const ExplorerWrapper = React.memo((props: Props) => {
+  const { width, explorerIsOpen, title, onToggleExplorer } = props;
+  return (
+    <div
+      className="docExplorerWrap"
+      style={{
+        height: '100%',
+        width: width,
+        minWidth: width,
+        zIndex: 7,
+        display: explorerIsOpen ? 'flex' : 'none',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <div className="doc-explorer-title-bar">
+        <div className="doc-explorer-title">{title}</div>
+        <div className="doc-explorer-rhs">
+          <div className="docExplorerHide" onClick={onToggleExplorer}>
+            {'\u2715'}
           </div>
         </div>
-        <div
-          className="doc-explorer-contents"
-          style={{
-            padding: '0px',
-
-            /* Unset overflowY since docExplorerWrap sets it and it'll
-        cause two scrollbars (one for the container and one for the schema tree) */
-            overflowY: 'unset',
-          }}
-        >
-          <ErrorBoundary>
-            <Explorer {...this.props} />
-          </ErrorBoundary>
-        </div>
       </div>
-    );
-  }
-}
+      <div
+        className="doc-explorer-contents"
+        style={{
+          padding: '0px',
+          /* Unset overflowY since docExplorerWrap sets it and it'll
+  cause two scrollbars (one for the container and one for the schema tree) */
+          overflowY: 'unset',
+        }}
+      >
+        <ErrorBoundary>
+          <Explorer {...props} />
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
+});
+
+// class ExplorerWrapper extends React.PureComponent<Props, {}> {
+//   static defaultValue = defaultValue;
+//   static defaultProps = {
+//     width: 320,
+//     title: 'Explorer',
+//   };
+
+//   render() {
+//     return (
+
+//     );
+//   }
+// }
 
 export default ExplorerWrapper;

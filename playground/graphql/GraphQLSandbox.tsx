@@ -166,8 +166,8 @@ export function GraphQLSandbox() {
               graphQLBox.editorRef.current?.layout();
             }}
           >
-            <column gap={1} px={1}>
-              <div height="100vh" overflow="scroll">
+            <column gap={1}>
+              <div height="100vh" overflow="scroll" px={1}>
                 <column gap={0} pt={2}>
                   <Projects {...graphQLBox} />
                   <Explorer {...graphQLBox} />
@@ -177,7 +177,7 @@ export function GraphQLSandbox() {
             <div height="100vh" position="relative">
               <Editor {...graphQLBox} />
             </div>
-            <div minWidth="25vw" height="100vh" overflow="scroll">
+            <div height="100vh" overflow="scroll">
               <ResultViewer result={graphQLBox.result} />
             </div>
           </SplitView>
@@ -338,9 +338,10 @@ const Editor = ({
           style={{ overflow: 'hidden' }}
           plugins={[prettier(['graphql', 'yaml']), graphql(projectConfig)]}
           onPathChange={(path, editor, monaco) => {
-            monaco.worker.setConfig('graphql', {
-              options: configRef.current[activeProjectRef.current],
-            });
+            monaco.worker.updateOptions(
+              'graphql',
+              configRef.current[activeProjectRef.current]
+            );
           }}
           editorDidMount={(editor, monaco) => {
             const executeCurrentOp = async (opname?: string) => {
@@ -389,11 +390,14 @@ const Editor = ({
             };
 
             const getOperations = async () => {
-              const worker = await monaco.worker.get(
+              const worker = await monaco.worker.get<{
+                getAST: (path: string) => any;
+              }>(
                 'graphql',
-                graphqlPath(activeProjectRef.current)
+                monaco.Uri.file(graphqlPath(activeProjectRef.current))
               );
-              // const typescript = await monaco.worker.get('typescript');
+              const typescript = await monaco.worker.get('typescript');
+              console.log(typescript);
               const ast = await worker.getAST(
                 monaco.Uri.file(
                   graphqlPath(activeProjectRef.current)
@@ -601,7 +605,7 @@ function ActionBar({ editorRef, path, setPath, activeProjectRef }: any) {
 
 function ResultViewer({ result }: { result: object }) {
   return (
-    <div p={3}>
+    <div p={3} overflow="scroll">
       {Object.keys(result).length === 0 ? (
         <div
           fontFamily={monoFontStyles.fontFamily}
@@ -611,7 +615,9 @@ function ResultViewer({ result }: { result: object }) {
           Run a query to see results
         </div>
       ) : (
-        <JSONViewer src={result} theme={jsonViewerTheme} />
+        <div>
+          <JSONViewer src={result} theme={jsonViewerTheme} />
+        </div>
       )}
     </div>
   );

@@ -1696,6 +1696,10 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
+"@types/graphql-ast-types@https://gist.github.com/3f16ca3dc7fef555e05982aa31a4b9f0.git":
+  version "1.0.0"
+  resolved "https://gist.github.com/3f16ca3dc7fef555e05982aa31a4b9f0.git#e466ae0806b056a9f9c5e5ac60cbb1ba5d14aef6"
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"

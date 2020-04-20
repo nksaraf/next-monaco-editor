@@ -1,7 +1,7 @@
 import monaco from 'next-monaco-editor/api';
 
 export const graphql = (settings: any) => (api: typeof monaco) => {
-  api.registerLanguage({
+  api.languages.register({
     id: 'graphql',
     extensions: ['.graphql', '.gql'],
     aliases: ['graphql'],

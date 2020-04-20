@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { WorkerConfig } from './worker-manager';
+import { WorkerClient } from './worker';
 
 export const defaultProviderConfig = {
   reference: true,
@@ -92,14 +92,14 @@ export const getResolver = (
   };
 };
 
-export class DiagnosticsAdapter {
+export class DiagnosticsProvider {
   private _disposables: monaco.IDisposable[] = [];
   private _listener: { [uri: string]: monaco.IDisposable } = Object.create(
     null
   );
   private _editor?: monaco.editor.ICodeEditor;
 
-  isCurrentModel(model: monaco.editor.ITextModel) {
+  isActiveModel(model: monaco.editor.ITextModel) {
     if (this._editor) {
       const currentModel = this._editor.getModel();
       if (
@@ -113,7 +113,7 @@ export class DiagnosticsAdapter {
     return false;
   }
   constructor(
-    private _config: WorkerConfig<any>,
+    private client: WorkerClient<any, any>,
     private _worker: monaco.worker.IWorkerAccessor<any>
   ) {
     this._worker = _worker;
@@ -125,7 +125,7 @@ export class DiagnosticsAdapter {
     );
     const onModelAdd = (model: monaco.editor.IModel): void => {
       const modeId = model.getModeId();
-      if (modeId !== _config.config.languageId) {
+      if (modeId !== client.config.languageId) {
         return;
       }
 
@@ -134,19 +134,19 @@ export class DiagnosticsAdapter {
         clearTimeout(handle);
         // @ts-ignore
         handle = setTimeout(() => {
-          if (this.isCurrentModel(model)) {
+          if (this.isActiveModel(model)) {
             this._doValidate(model.uri, modeId);
           }
         }, 500);
       });
 
-      // if (this.isCurrentModel(model)) {
-      //   this._doValidate(model.uri, modeId);
-      // }
+      if (this.isActiveModel(model)) {
+        this._doValidate(model.uri, modeId);
+      }
     };
 
     const onModelRemoved = (model: monaco.editor.IModel): void => {
-      monaco.editor.setModelMarkers(model, _config.config.languageId, []);
+      monaco.editor.setModelMarkers(model, client.config.languageId ?? '', []);
       const uriStr = model.uri.toString();
       const listener = this._listener[uriStr];
       if (listener) {
@@ -169,9 +169,9 @@ export class DiagnosticsAdapter {
     );
 
     this._disposables.push(
-      _config.onDidChange((_: any) => {
+      client.onConfigDidChange((_: any) => {
         monaco.editor.getModels().forEach((model) => {
-          if (model.getModeId() === _config.config.languageId) {
+          if (model.getModeId() === client.config.languageId) {
             onModelRemoved(model);
             onModelAdd(model);
           }
@@ -211,23 +211,25 @@ export class DiagnosticsAdapter {
   }
 }
 
-export const setupWorkerProviders = ({
-  providers = defaultProviderConfig,
-  languageId,
-  getWorker,
-}: monaco.worker.IProvidersConfig): monaco.IDisposable[] => {
+export const setupWorkerProviders = (
+  languageId: string,
+  providers: monaco.worker.ILangProvidersOptions | boolean = defaultProviderConfig,
+  client: WorkerClient<any, any>,
+): monaco.IDisposable[] => {
   const disposables: monaco.IDisposable[] = [];
   if (!providers) {
     return [];
   }
 
+  const getWorker = client.getSyncedWorker;
+
   providers =
     typeof providers === 'boolean' && providers
       ? defaultProviderConfig
-      : (providers as monaco.worker.ILangWorkerProviders);
+      : (providers as monaco.worker.ILangProvidersOptions);
 
   if (providers.diagnostics) {
-    disposables.push(new DiagnosticsAdapter(getWorker.config, getWorker));
+    disposables.push(new DiagnosticsProvider(client, getWorker));
   }
 
   if (providers.reference) {

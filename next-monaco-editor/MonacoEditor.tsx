@@ -2,34 +2,6 @@ import React from 'react';
 import { noop, processDimensions, getNextWorkerPath, fixPath } from './utils';
 import monaco from './api';
 import defaultThemes, { ThemeNames, themeNames } from './themes';
-import { QuickSelectAction } from './api/QuickSelectAction';
-
-function setupCommandPaletteShortcuts(
-  monacoApi: typeof monaco,
-  editor: monaco.editor.IStandaloneCodeEditor
-) {
-  // for firefox support (wasn't able to intercept key)
-  editor.addCommand(
-    monacoApi.KeyMod.CtrlCmd | monacoApi.KeyMod.Shift | monacoApi.KeyCode.KEY_C,
-    () => {
-      editor.trigger('ctrl-shift-c', 'editor.action.quickCommand', null);
-    }
-  );
-
-  editor.addCommand(
-    monacoApi.KeyMod.CtrlCmd | monacoApi.KeyMod.Shift | monacoApi.KeyCode.KEY_P,
-    () => {
-      editor.trigger('ctrl-shift-p', 'editor.action.quickCommand', null);
-    }
-  );
-
-  window.addEventListener('keydown', (event: any) => {
-    if (event.metaKey && event.shiftKey && event.code === 'KeyP') {
-      editor.trigger('ctrl-shift-p', 'editor.action.quickCommand', null);
-      event.stopPropagation();
-    }
-  });
-}
 
 function setupThemes(
   monacoApi: typeof monaco,
@@ -122,37 +94,6 @@ function setupMonacoEnvironment(
   };
 }
 
-function setupWorkerApi(
-  monacoApi: typeof monaco,
-  editor: monaco.editor.IStandaloneCodeEditor
-  // defaultModel: monaco.editor.IModel
-) {
-  Object.assign(monacoApi.worker, {
-    getDefault: async (path?: string) => {
-      const model =
-        (path ? findModel(path) : editor.getModel()) || editor.getModel();
-      if (!model) {
-        return null;
-      }
-      const getWorker = await monacoApi.worker.getClient(
-        (model as any).getLanguageIdentifier().language
-      );
-      const worker = await getWorker(model?.uri as any);
-      return worker;
-    },
-    get: async (label: string, path?: string) => {
-      const model =
-        (path ? findModel(path) : editor.getModel()) || editor.getModel();
-      if (!model) {
-        return null;
-      }
-      const getWorker = await monacoApi.worker.getClient(label);
-      const worker = await getWorker(model?.uri);
-      return worker;
-    },
-  });
-}
-
 export interface MonacoEditorProps {
   width?: string | number;
   height?: string | number;
@@ -220,10 +161,7 @@ function useEditorRef() {
 }
 
 function findModel(path: string) {
-  path = fixPath(path);
-  return (
-    monaco.editor.getModels().find((model) => model.uri.path === path) || null
-  );
+  return monaco.editor.getModel(monaco.Uri.file(fixPath(path)));
 }
 
 function initializeModel(path: string, value?: string, language?: string) {
@@ -349,29 +287,8 @@ export const MonacoEditor = React.forwardRef<
         }
       }
 
-      if (options.formatOnSave) {
-        editorRef.current.addCommand(
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
-          () => {
-            editorRef.current?.trigger(
-              'ctrl-s',
-              'editor.action.formatDocument',
-              null
-            );
-          }
-        );
-      }
-
-      editorRef.current.addSelectAction = function (descriptor) {
-        return (editorRef.current as any).addAction(
-          new QuickSelectAction(descriptor, monaco)
-        );
-      };
-
       // CMD + Shift + P (like vscode), CMD + Shift + C
-      setupCommandPaletteShortcuts(monaco, editorRef.current);
       setupThemes(monaco, editorRef.current, themes, onThemeChange);
-      setupWorkerApi(monaco, editorRef.current);
 
       // After initializing monaco editor
       editorDidMount(editorRef.current, monaco);

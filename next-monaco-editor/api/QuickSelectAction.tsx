@@ -1,4 +1,4 @@
-import monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor';
 // @ts-ignore
 import { BaseEditorQuickOpenAction } from 'monaco-editor/esm/vs/editor/standalone/browser/quickOpen/editorQuickOpen';
 // @ts-ignore

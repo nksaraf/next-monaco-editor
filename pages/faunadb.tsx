@@ -163,7 +163,7 @@ export default () => {
               )}
             </row>
           </div>
-          <div minWidth="25vw" height="100vh" overflow="scroll">
+          <div height="100vh" overflow="scroll">
             <div p={3} height="full">
               <JSONViewer src={result} />
             </div>
