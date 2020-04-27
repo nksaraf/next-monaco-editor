@@ -1750,11 +1750,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.11.1.tgz#49a2a83df9d26daacead30d0ccc8762b128d53c7"
   integrity sha512-eWQGP3qtxwL8FGneRrC5DwrJLGN4/dH1clNTuLfN81HCrxVtxRjygDTUoZJ5ASlDEeo0ppYFQjQIlXhtXpOn6g==
 
-"@types/node@^13.13.0":
-  version "13.13.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.0.tgz#30d2d09f623fe32cde9cb582c7a6eda2788ce4a8"
-  integrity sha512-WE4IOAC6r/yBZss1oQGM5zs2D7RuKR6Q+w+X2SouPofnWn+LbCqClRyhO3ZE7Ix8nmFgo/oVuuE01cJT2XB13A==
-
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
@@ -3340,12 +3335,10 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-create-hook-context@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/create-hook-context/-/create-hook-context-0.0.3.tgz#a95cd92fac3f7e5cacdd1f4cd888446463a54805"
-  integrity sha512-GZTvSSRB+n/hMCvjl13dkXxMlWBNYnEDgOa4yRyz/yI6JIWOJCQBCN1FaDs/X9RdItsetAnz/ynEowj3nHA6mQ==
-  dependencies:
-    "@types/node" "^13.13.0"
+create-hook-context@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/create-hook-context/-/create-hook-context-0.0.6.tgz#9c213848f2d9a2ed3d08b9a5d38969ebeb5d34f3"
+  integrity sha512-PX7ABZgEn5BCso1qwqKpxB2yA4umEHqJz2PZ+dLkKOypw7ddgIAnGVk6SYToVDtoAW7XnYgg80QBk1i40PgNvQ==
 
 cross-fetch@3.0.4, cross-fetch@^3.0.4:
   version "3.0.4"
