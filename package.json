@@ -75,7 +75,7 @@
     "babel-loader": "^8.1.0",
     "codesandbox-api": "^0.0.24",
     "codesandbox-import-utils": "^2.1.14",
-    "create-hook-context": "^0.0.3",
+    "create-hook-context": "^1.0.0",
     "faunadb": "^2.13.1",
     "graphql-ast-types": "^1.0.2",
     "idb-keyval": "^3.2.0",
