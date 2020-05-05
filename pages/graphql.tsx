@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { important, useTheme } from 'magic-components';
+import { important, useTheme, AnimatePresence } from 'magic-components';
 import MonacoEditor from 'toolbox/Editor';
 import monaco from 'monaco';
 import { fixPath } from 'toolbox/Editor/utils';
@@ -162,7 +162,7 @@ export default function GraphQLSandbox() {
             <div height="100vh" position="relative">
               <Editor {...graphQLBox} />
             </div>
-            <div height="100vh" overflow="scroll">
+            <div height="100vh" overflow="scroll" layoutId="result-viewer">
               <JSONResult result={graphQLBox.result} />
             </div>
           </SplitView>
@@ -314,6 +314,7 @@ function Editor({
           onChange={onChange}
           files={filesRef.current}
           path={path}
+          // layoutId="monaco-editor"
           height="100%"
           width="100%"
           id="graphql-sandbox"

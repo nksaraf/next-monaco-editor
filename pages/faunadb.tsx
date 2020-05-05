@@ -37,11 +37,12 @@ export default () => {
       <div height="full" width="full">
         <SplitView
           direction="horizontal"
-          sizes={[50, 50]}
+          sizes={[20, 45, 35]}
           onDrag={() => {
             editorRef.current?.layout();
           }}
         >
+          <div></div>
           <div position="relative">
             <style
               id="monaco"
@@ -54,6 +55,7 @@ export default () => {
             <MonacoEditor
               path={path}
               height="100%"
+              // layoutId="monaco-editor"
               width="100%"
               onChange={onChange}
               id="faunadb"
@@ -163,7 +165,7 @@ export default () => {
               )}
             </row>
           </div>
-          <div height="100vh" overflow="scroll">
+          <div layoutId="result-viewer" height="100vh" overflow="scroll">
             <JSONResult result={result} />
           </div>
         </SplitView>

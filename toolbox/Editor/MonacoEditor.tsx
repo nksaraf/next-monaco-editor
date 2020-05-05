@@ -71,6 +71,7 @@ export interface MonacoEditorProps {
   height?: string | number;
   value?: string;
   id?: string;
+  containerProps?: any;
   defaultValue?: string;
   line?: number;
   style?: React.CSSProperties;
@@ -95,7 +96,8 @@ export interface MonacoEditorProps {
     monacoApi: typeof monaco
   ) => monaco.IDisposable[] | Promise<void> | void;
   editorWillMount?: (
-    monacoApi: typeof monaco
+    monacoApi: typeof monaco,
+    containerRef: React.RefObject<HTMLDivElement>
   ) => monaco.editor.IEditorOptions | void;
   onPathChange?: (
     path: string,
@@ -204,6 +206,7 @@ export const MonacoEditor = React.forwardRef<
       onChange = noop,
       onThemeChange = noop,
       onPathChange = noop,
+      containerProps = {},
     }: MonacoEditorProps,
     ref
   ) => {
@@ -229,7 +232,7 @@ export const MonacoEditor = React.forwardRef<
           formatOnSave: true,
         },
         options,
-        editorWillMount(monaco) || {}
+        editorWillMount(monaco, containerRef) || {}
       );
 
       const pluginDisposables = monaco.plugin.install(...plugins);
@@ -380,6 +383,7 @@ export const MonacoEditor = React.forwardRef<
 
     return (
       <div
+        {...containerProps}
         ref={containerRef}
         id={id}
         data-editor="monaco"

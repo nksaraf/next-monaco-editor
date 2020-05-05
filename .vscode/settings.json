@@ -1,9 +1,7 @@
 {
   "files.exclude": {
-    "scripts": true,
     "reference": true,
     "public": true,
-    "next-monaco": true,
     ".next": true,
     ".vscode": true
   },

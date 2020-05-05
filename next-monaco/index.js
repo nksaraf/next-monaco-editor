@@ -5,16 +5,14 @@ const withTM = require('next-transpile-modules')([
   'monaco-editor',
 ]);
 
-module.exports = (monacoOptions = {}) => (
-  nextConfig = {}
-) => {
+module.exports = (monacoOptions = {}) => (nextConfig = {}) => {
   return withTM(
     Object.assign({}, nextConfig, {
       webpack(config, options) {
         const rule = config.module.rules
-          .find(rule => rule.oneOf)
+          .find((rule) => rule.oneOf)
           .oneOf.find(
-            r =>
+            (r) =>
               // Find the global CSS loader
               r.issuer && r.issuer.include && r.issuer.include.includes('_app')
           );
@@ -52,17 +50,17 @@ module.exports = (monacoOptions = {}) => (
           loader: 'workerize-loader',
           options: {
             name: 'static/[name].js',
-            publicPath: '/_next/'
-          }
-        })
+            publicPath: '/_next/',
+          },
+        });
 
         config.output.globalObject = 'self';
 
         config.plugins.push(
           new MonacoWebpackPlugin({
-            filename: 'static/[name].monaco.worker.js',
+            filename: 'static/workers/[name].monaco.worker.js',
             publicPath: '/_next/',
-            ...monacoOptions
+            ...monacoOptions,
           })
         );
 
