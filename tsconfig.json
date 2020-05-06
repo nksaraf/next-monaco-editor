@@ -24,16 +24,16 @@
       "@split-panes": ["./lib/components/SplitPanes.tsx"],
       "@json-viewer": ["./lib/components/JSONViewer.tsx"],
       "graphql-language-service-parser": [
-        "lib/plugins/graphql/language-service/graphql-language-service-parser/src/index.ts"
+        "./lib/plugins/graphql/graphql-language-service/graphql-language-service-parser/src/index.ts"
       ],
       "graphql-language-service-interface": [
-        "lib/plugins/graphql/language-service/graphql-language-service-interface/src/index.ts"
+        "./lib/plugins/graphql/graphql-language-service/graphql-language-service-interface/src/index.ts"
       ],
       "graphql-language-service-types": [
-        "lib/plugins/graphql/language-service/graphql-language-service-types/src/index.ts"
+        "./lib/plugins/graphql/graphql-language-service/graphql-language-service-types/src/index.ts"
       ],
       "graphql-language-service-utils": [
-        "lib/plugins/graphql/language-service/graphql-language-service-utils/src/index.ts"
+        "./lib/plugins/graphql/graphql-language-service/graphql-language-service-utils/src/index.ts"
       ]
     },
     "jsx": "preserve",

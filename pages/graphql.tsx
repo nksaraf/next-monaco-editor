@@ -1,12 +1,11 @@
 import React from 'react';
 
 import { important, useTheme, AnimatePresence } from 'magic-components';
-import MonacoEditor from 'toolbox/Editor';
-import monaco from 'monaco';
-import { fixPath } from 'toolbox/Editor/utils';
+import MonacoEditor from '@editor';
+import monaco from '@monaco';
+import { fixPath } from '../lib/utils';
 
-import { useLocalStorage } from 'lib/hooks/useLocalStorage';
-import { useFiles } from 'lib/hooks/useFiles';
+import { useFiles, useLocalStorage } from '@hooks';
 import { SplitView } from 'toolbox/SplitView';
 import { JSONViewer, jsonViewerTheme } from 'toolbox/JSONViewer';
 import { ActionButton, ActionBar } from 'toolbox/ActionButton';

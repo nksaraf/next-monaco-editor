@@ -1,4 +1,4 @@
-import { SplitView } from 'toolbox/SplitView';
+import { SplitView } from '@SplitView';
 import { SandboxHead, monoFontStyles } from 'toolbox/SandboxHead';
 import MonacoEditor from 'toolbox/Editor';
 import monaco from 'monaco';
