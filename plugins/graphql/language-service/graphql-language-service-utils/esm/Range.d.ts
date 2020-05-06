@@ -1,5 +1,5 @@
-import { Location } from 'plugins/graphql/language-service/graphql-language-service-utils/src/node_modules/graphql/language';
-import { Range as RangeInterface, Position as PositionInterface } from 'plugins/graphql/language-service/graphql-language-service-utils/src/node_modules/graphql-language-service-types';
+import { Location } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src/node_modules/graphql/language';
+import { Range as RangeInterface, Position as PositionInterface } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src/node_modules/graphql-language-service-types';
 export declare class Range implements RangeInterface {
     start: PositionInterface;
     end: PositionInterface;

@@ -1,0 +1,7 @@
+{
+  "name": "sandkit/editor",
+  "private": true,
+  "main": "../dist/cjs/editor.js",
+  "module": "../dist/esm/editor.js",
+  "types": "../dist/types"
+}

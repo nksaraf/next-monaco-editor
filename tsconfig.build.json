@@ -1,0 +1,36 @@
+{
+  "include": ["lib"],
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "lib": ["dom", "esnext"],
+    "importHelpers": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "./lib",
+    "outDir": "dist/types",
+    "strict": false,
+    "moduleResolution": "node",
+    "baseUrl": "./lib",
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "paths": {
+      "@monaco": ["./monaco/index.ts"],
+      "@hooks": ["./hooks/index.ts"],
+      "@worker": ["./worker/index.ts"],
+      "@themes": ["./themes/index.ts"],
+      "@monaco-editor": ["./components/MonacoEditor.tsx"],
+      "@editor": ["./components/Editor.tsx"],
+      "@split-panes": ["./components/SplitPanes.tsx"],
+      "@json-viewer": ["./components/JSONViewer.tsx"]
+    },
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "exclude": ["node_modules"]
+}

@@ -1,4 +1,4 @@
-import { Position, Range } from 'graphql-language-service-utils';
+import { Position, Range } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 import { parse } from '@babel/parser';
 const PARSER_OPTIONS = {
     allowImportExportEverywhere: true,

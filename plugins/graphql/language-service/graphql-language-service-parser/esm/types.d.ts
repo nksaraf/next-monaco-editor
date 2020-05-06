@@ -1,5 +1,5 @@
-import { _Kind } from 'plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql/language/kinds';
-import { Maybe } from 'plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types';
+import { _Kind } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql/language/kinds';
+import { Maybe } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types';
 import CharacterStream from '../src/CharacterStream';
 export declare type ContextToken = {
     start: number;

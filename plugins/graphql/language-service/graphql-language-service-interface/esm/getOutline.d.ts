@@ -1,4 +1,4 @@
-import { Outline } from 'graphql-language-service-types';
+import { Outline } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 declare const OUTLINEABLE_KINDS: {
     Field: boolean;
     OperationDefinition: boolean;

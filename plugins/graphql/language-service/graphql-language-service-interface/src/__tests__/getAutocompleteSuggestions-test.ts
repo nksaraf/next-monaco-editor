@@ -7,11 +7,11 @@
  *
  */
 
-import { CompletionItem } from 'graphql-language-service-types';
+import { CompletionItem } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
 import fs from 'fs';
 import { buildSchema, GraphQLSchema } from 'graphql';
-import { Position } from 'graphql-language-service-utils';
+import { Position } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 import path from 'path';
 
 import { getAutocompleteSuggestions } from '../getAutocompleteSuggestions';

@@ -1,8 +1,23 @@
-import React from 'react';
-import dynamic from 'next/dynamic';
+import React, { Suspense } from 'react';
 
-// @ts-ignore
-export const Split = dynamic(() => import('react-split'), { ssr: false });
+let SplitPanes: any;
+if (typeof window !== 'undefined') {
+  const ReactSplit: any = React.lazy(() => import('react-split'));
+  ReactSplit.displayName = 'ReactSplit';
+  SplitPanes = React.forwardRef((props, ref) => {
+    return (
+      <div>
+        <Suspense fallback={<div>Loaing...</div>}>
+          <ReactSplit {...props} ref={ref} />
+        </Suspense>
+      </div>
+    );
+  });
+} else {
+  SplitPanes = React.forwardRef((props, ref) => {
+    return <div ref={ref as any} />;
+  });
+}
 
 export function SplitView({ direction, children, css = {}, ...props }: any) {
   if (direction === 'horizontal') {
@@ -18,14 +33,14 @@ export function SplitView({ direction, children, css = {}, ...props }: any) {
           id="split-horizontal"
         />
         <row
-          as={Split}
+          as={SplitPanes}
           gap={0}
           noMotion
           width="100%"
           height="100%"
           maxHeight="100vh"
           css={css}
-          props={{ direction, ...props }}
+          asProps={{ direction, ...props }}
         >
           {children}
         </row>
@@ -44,14 +59,14 @@ export function SplitView({ direction, children, css = {}, ...props }: any) {
           id="split-vertical"
         />
         <column
-          as={Split}
+          as={SplitPanes}
           gap={0}
           noMotion
           height="100%"
           width="100%"
           maxWidth="100vw"
           css={css}
-          props={{ direction, ...props }}
+          asProps={{ direction, ...props }}
         >
           {children}
         </column>

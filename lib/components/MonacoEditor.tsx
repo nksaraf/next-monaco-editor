@@ -1,8 +1,13 @@
 import React from 'react';
-import { noop, processDimensions, getNextWorkerPath, fixPath } from './utils';
-import monaco from 'monaco';
-import defaultThemes, { ThemeNames, themeNames } from './themes';
-import { asDisposable } from 'monaco/utils';
+import {
+  asDisposable,
+  noop,
+  processDimensions,
+  getNextWorkerPath,
+  fixPath,
+} from '../utils';
+import monaco from '@monaco';
+import defaultThemes, { ThemeNames, themeNames } from '@themes';
 
 function setupThemes(
   monacoApi: typeof monaco,

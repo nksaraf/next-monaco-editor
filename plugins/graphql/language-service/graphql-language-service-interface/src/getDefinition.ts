@@ -25,9 +25,9 @@ import {
   Range,
   Uri,
   ObjectTypeInfo,
-} from 'graphql-language-service-types';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
-import { locToRange, offsetToPosition } from 'graphql-language-service-utils';
+import { locToRange, offsetToPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 import assert from 'assert';
 
 export const LANGUAGE = 'GraphQL';

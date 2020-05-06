@@ -1,5 +1,5 @@
 import { extname } from 'path';
-import { Range, Position } from 'graphql-language-service-utils';
+import { Range, Position } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 import { findGraphQLTags, DEFAULT_TAGS } from './findGraphQLTags';
 const DEFAULT_SUPPORTED_EXTENSIONS = ['js', 'ts', 'jsx', 'tsx'];
 const DEFAULT_SUPPORTED_EXTENSIONS_FORMATTED = DEFAULT_SUPPORTED_EXTENSIONS.map(i => `.${i}`);

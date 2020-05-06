@@ -5,7 +5,7 @@ import { getHoverInformation } from './getHoverInformation';
 import { validateQuery, getRange, DIAGNOSTIC_SEVERITY } from './getDiagnostics';
 import { getDefinitionQueryResultForFragmentSpread, getDefinitionQueryResultForDefinitionNode, getDefinitionQueryResultForNamedType, } from './getDefinition';
 import { getOutline } from './getOutline';
-import { getASTNodeAtPosition } from 'graphql-language-service-utils';
+import { getASTNodeAtPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 const { FRAGMENT_DEFINITION, OBJECT_TYPE_DEFINITION, INTERFACE_TYPE_DEFINITION, ENUM_TYPE_DEFINITION, UNION_TYPE_DEFINITION, SCALAR_TYPE_DEFINITION, INPUT_OBJECT_TYPE_DEFINITION, SCALAR_TYPE_EXTENSION, OBJECT_TYPE_EXTENSION, INTERFACE_TYPE_EXTENSION, UNION_TYPE_EXTENSION, ENUM_TYPE_EXTENSION, INPUT_OBJECT_TYPE_EXTENSION, DIRECTIVE_DEFINITION, FRAGMENT_SPREAD, OPERATION_DEFINITION, NAMED_TYPE, } = Kind;
 const KIND_TO_SYMBOL_KIND = {
     [Kind.FIELD]: SymbolKind.Field,

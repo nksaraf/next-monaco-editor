@@ -1,10 +1,10 @@
-import monaco from 'monaco';
+import monaco from '@monaco';
 
-export const faunadb = (
+export const faunadb = () =>
   // compilerOptions: monaco.languages.typescript.CompilerOptions = {}
-) => (api: typeof monaco) => {
-  return api.worker.register({
-    label: 'faunadb',
-    providers: false,
-  });
-};
+  (api: typeof monaco) => {
+    return api.worker.register({
+      label: 'faunadb',
+      providers: false,
+    });
+  };

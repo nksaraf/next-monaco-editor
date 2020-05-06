@@ -1,5 +1,5 @@
 import { Kind, parse, visit, } from 'graphql';
-import { offsetToPosition } from 'graphql-language-service-utils';
+import { offsetToPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 const { INLINE_FRAGMENT } = Kind;
 const OUTLINEABLE_KINDS = {
     Field: true,

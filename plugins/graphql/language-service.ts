@@ -9,8 +9,8 @@
 // import { UrlLoader } from '@graphql-toolkit/url-loader';
 
 import { parse, GraphQLSchema, ParseOptions } from 'graphql';
-import { Position } from 'graphql-language-service-types';
-import * as graphqlLS from 'graphql-language-service-interface';
+import { Position } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import * as graphqlLS from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src';
 import { UrlLoader } from './url-schema-loader';
 
 export class LanguageService {

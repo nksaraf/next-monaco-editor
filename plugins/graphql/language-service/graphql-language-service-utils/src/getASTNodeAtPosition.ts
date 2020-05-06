@@ -9,7 +9,7 @@
 
 import { ASTNode } from 'graphql/language';
 
-import { Position as TPosition } from 'graphql-language-service-types';
+import { Position as TPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 import { visit } from 'graphql';
 
 export function getASTNodeAtPosition(

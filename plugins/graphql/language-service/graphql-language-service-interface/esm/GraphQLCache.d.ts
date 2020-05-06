@@ -1,8 +1,8 @@
-import { ASTNode } from 'graphql/language';
-import { CachedContent, GraphQLFileMetadata, GraphQLFileInfo, FragmentInfo, ObjectTypeInfo, Uri } from 'graphql-language-service-types';
-import { GraphQLSchema } from 'graphql';
-import { GraphQLConfig, GraphQLProjectConfig } from 'graphql-config';
-import { parseDocument } from './parseDocument';
+import { ASTNode } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql/language';
+import { CachedContent, GraphQLFileMetadata, GraphQLFileInfo, FragmentInfo, ObjectTypeInfo, Uri } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import { GraphQLSchema } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql';
+import { GraphQLConfig, GraphQLProjectConfig } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql-config';
+import { parseDocument } from '../src/parseDocument';
 export declare function getGraphQLCache(configDir: Uri, parser: typeof parseDocument, extensions?: Array<(config: GraphQLConfig) => GraphQLConfig>, config?: GraphQLConfig): Promise<GraphQLCache>;
 export declare class GraphQLCache {
     _configDir: Uri;
@@ -35,7 +35,7 @@ export declare class GraphQLCache {
     _invalidateSchemaCacheForProject(projectConfig: GraphQLProjectConfig): void;
     _getSchemaCacheKeyForProject(projectConfig: GraphQLProjectConfig): string | {
         [key: string]: any;
-    } | import("@graphql-toolkit/core").UnnormalizedTypeDefPointer[];
+    } | import("lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/@graphql-toolkit/core").UnnormalizedTypeDefPointer[];
     _getProjectName(projectConfig: GraphQLProjectConfig): GraphQLProjectConfig;
     readAllGraphQLFiles: (list: GraphQLFileMetadata[]) => Promise<{
         objectTypeDefinitions: Map<string, ObjectTypeInfo>;

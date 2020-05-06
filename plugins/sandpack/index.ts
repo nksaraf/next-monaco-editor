@@ -8,7 +8,7 @@ import {
 // import createSandbox from 'codesandbox-import-utils/lib/create-sandbox/index';
 
 import { useDebouncedCallback } from 'use-debounce';
-import { useFiles } from 'toolbox/useFiles';
+import { useFiles } from 'lib/hooks/useFiles';
 
 import { dispatch, listen, registerFrame } from 'codesandbox-api';
 

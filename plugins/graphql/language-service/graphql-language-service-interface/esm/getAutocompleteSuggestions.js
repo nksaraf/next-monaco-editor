@@ -1,6 +1,6 @@
 import { CompletionItemKind } from 'vscode-languageserver-types';
 import { GraphQLBoolean, GraphQLEnumType, GraphQLInputObjectType, GraphQLList, SchemaMetaFieldDef, TypeMetaFieldDef, TypeNameMetaFieldDef, assertAbstractType, doTypesOverlap, getNamedType, getNullableType, isAbstractType, isCompositeType, isInputType, } from 'graphql';
-import { CharacterStream, onlineParser, RuleKinds, } from 'graphql-language-service-parser';
+import { CharacterStream, onlineParser, RuleKinds, } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 import { forEachState, getDefinitionState, getFieldDef, hintList, objectValues, } from './autocompleteUtils';
 export function getAutocompleteSuggestions(schema, queryText, cursor, contextToken) {
     const token = contextToken || getTokenAtPosition(queryText, cursor);

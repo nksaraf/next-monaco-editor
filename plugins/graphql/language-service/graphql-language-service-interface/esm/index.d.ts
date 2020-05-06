@@ -1,8 +1,8 @@
-export * from './autocompleteUtils';
-export * from './getAutocompleteSuggestions';
-export * from './getDefinition';
-export * from './getDiagnostics';
-export * from './getOutline';
-export * from './getHoverInformation';
-export * from './GraphQLLanguageService';
+export * from '../src/autocompleteUtils';
+export * from '../src/getAutocompleteSuggestions';
+export * from '../src/getDefinition';
+export * from '../src/getDiagnostics';
+export * from '../src/getOutline';
+export * from '../src/getHoverInformation';
+export * from '../src/GraphQLLanguageService';
 //# sourceMappingURL=index.d.ts.map

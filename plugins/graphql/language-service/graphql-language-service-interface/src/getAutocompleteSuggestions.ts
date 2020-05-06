@@ -26,7 +26,7 @@ import {
   State,
   AllTypeInfo,
   Position,
-} from 'graphql-language-service-types';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
 import {
   GraphQLBoolean,
@@ -50,7 +50,7 @@ import {
   onlineParser,
   RuleKind,
   RuleKinds,
-} from 'graphql-language-service-parser';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 
 import {
   forEachState,

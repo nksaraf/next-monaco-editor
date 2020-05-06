@@ -1,7 +1,7 @@
 import invariant from 'assert';
 import { findDeprecatedUsages, parse } from 'graphql';
-import { CharacterStream, onlineParser } from 'graphql-language-service-parser';
-import { Range, validateWithCustomRules, Position, } from 'graphql-language-service-utils';
+import { CharacterStream, onlineParser } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+import { Range, validateWithCustomRules, Position, } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 export const DIAGNOSTIC_SEVERITY = {
     Error: 1,
     Warning: 2,

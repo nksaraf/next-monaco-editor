@@ -7,7 +7,7 @@
  *
  */
 
-import { Outline, TextToken, TokenKind } from 'graphql-language-service-types';
+import { Outline, TextToken, TokenKind } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
 import {
   Kind,
@@ -30,7 +30,7 @@ import {
   FieldDefinitionNode,
   EnumValueDefinitionNode,
 } from 'graphql';
-import { offsetToPosition, Position } from 'graphql-language-service-utils';
+import { offsetToPosition, Position } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 
 const { INLINE_FRAGMENT } = Kind;
 

@@ -20,13 +20,13 @@ import {
 import invariant from 'assert';
 import { findDeprecatedUsages, parse } from 'graphql';
 
-import { CharacterStream, onlineParser } from 'graphql-language-service-parser';
+import { CharacterStream, onlineParser } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 
 import {
   Range,
   validateWithCustomRules,
   Position,
-} from 'graphql-language-service-utils';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 
 import { DiagnosticSeverity, Diagnostic } from 'vscode-languageserver-types';
 

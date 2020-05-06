@@ -1,10 +1,10 @@
-import { Diagnostic as DiagnosticType, CompletionItem as CompletionItemType } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/vscode-languageserver-types';
-import { ASTNode, GraphQLSchema } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql';
-import { DocumentNode, FragmentDefinitionNode, NamedTypeNode, TypeDefinitionNode, NameNode } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/language';
-import { GraphQLArgument, GraphQLEnumValue, GraphQLField, GraphQLInputFieldMap, GraphQLType } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/type/definition';
-import { GraphQLDirective } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/type/directives';
+import { Diagnostic as DiagnosticType, CompletionItem as CompletionItemType } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/vscode-languageserver-types';
+import { ASTNode, GraphQLSchema } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql';
+import { DocumentNode, FragmentDefinitionNode, NamedTypeNode, TypeDefinitionNode, NameNode } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/language';
+import { GraphQLArgument, GraphQLEnumValue, GraphQLField, GraphQLInputFieldMap, GraphQLType } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/type/definition';
+import { GraphQLDirective } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql/type/directives';
 export declare type Maybe<T> = T | null | undefined;
-import { GraphQLConfig, GraphQLProjectConfig, GraphQLExtensionDeclaration } from 'plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql-config';
+import { GraphQLConfig, GraphQLProjectConfig, GraphQLExtensionDeclaration } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src/node_modules/graphql-config';
 export { GraphQLConfig, GraphQLProjectConfig, GraphQLExtensionDeclaration };
 export interface GraphQLCacheInterface {
     getGraphQLConfig: () => GraphQLConfig;

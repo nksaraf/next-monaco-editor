@@ -1,6 +1,21 @@
 import React from 'react';
 import Head from 'next/head';
-import { monacoStyles } from './Editor';
+
+export const styles = {
+  '.monaco-menu .monaco-action-bar.vertical .action-menu-item': {
+    height: '1em !important',
+  },
+  '.monaco-menu .monaco-action-bar.vertical': {
+    paddingTop: '8px',
+    paddingBottom: '8px',
+  },
+  '.monaco-menu .monaco-action-bar.vertical .submenu-indicator.codicon::before': {
+    marginRight: '-8px !important',
+  },
+  '.monaco-editor *': {
+    boxSizing: 'content-box',
+  },
+};
 
 const MONO_FONTS = 'Roboto Mono, monospace';
 export const RUBIK = 'Rubik, monospace';
@@ -26,7 +41,7 @@ export const SandboxHead = ({ children, title }: any) => {
         />
         {children}
       </Head>
-      <style id="monaco-base" css={monacoStyles} />
+      <style id="monaco-base" css={styles} />
     </>
   );
 };

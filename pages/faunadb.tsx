@@ -3,9 +3,9 @@ import { SandboxHead, monoFontStyles } from 'toolbox/SandboxHead';
 import MonacoEditor from 'toolbox/Editor';
 import monaco from 'monaco';
 
-import 'plugins/workers';
-import { prettier, typings, faunadb } from 'plugins';
-import { useFiles } from 'toolbox/useFiles';
+import 'lib/plugins/workers';
+import { prettier, typings, faunadb } from 'lib/plugins';
+import { useFiles } from 'lib/hooks/useFiles';
 import { ActionButton } from 'toolbox/ActionButton';
 import { PlaySVG, CogSVG, CancelSVG } from 'toolbox/Icons';
 import { JSONResult } from 'toolbox/JSONViewer';

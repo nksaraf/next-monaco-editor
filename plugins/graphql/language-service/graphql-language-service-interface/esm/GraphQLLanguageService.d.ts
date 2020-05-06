@@ -1,8 +1,8 @@
-import { DocumentNode, FragmentSpreadNode, NamedTypeNode, GraphQLSchema } from 'graphql';
-import { CompletionItem, DefinitionQueryResult, Diagnostic, Uri, Position, Outline, GraphQLCacheInterface as GraphQLCache } from 'graphql-language-service-types';
-import { ContextToken } from 'graphql-language-service-parser';
-import { GraphQLConfig, GraphQLProjectConfig } from 'graphql-config';
-import { Hover, SymbolInformation } from 'vscode-languageserver-types';
+import { DocumentNode, FragmentSpreadNode, NamedTypeNode, GraphQLSchema } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql';
+import { CompletionItem, DefinitionQueryResult, Diagnostic, Uri, Position, Outline, GraphQLCacheInterface as GraphQLCache } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import { ContextToken } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+import { GraphQLConfig, GraphQLProjectConfig } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql-config';
+import { Hover, SymbolInformation } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/vscode-languageserver-types';
 export declare class GraphQLLanguageService {
     _graphQLCache: GraphQLCache;
     _graphQLConfig: GraphQLConfig;

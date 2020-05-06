@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import * as monaco from 'monaco-editor';
 import { defaultProviderConfig, setupWorkerProviders } from './providers';
-import { disposeAll, asDisposable } from './utils';
+import { disposeAll, asDisposable } from '../utils';
 
 declare module 'monaco-editor' {
   namespace worker {
@@ -45,7 +45,7 @@ declare module 'monaco-editor' {
       languageId?: string;
       // to be passed on to the worker
       options?: TOptions;
-      /* if boolean, all providers registered/not-registered, 
+      /* if boolean, all providers registered/not-registered,
       if object, more control over which specific providers are registered */
       providers?: boolean | ILangProvidersOptions;
     }
@@ -61,18 +61,25 @@ declare module 'monaco-editor' {
       config: worker.IWorkerConfig<TOptions>
     ): monaco.IDisposable;
 
-    function getClient<TOptions, TWorker extends any>(label: string): WorkerClient<TOptions, TWorker>;
+    function getClient<TOptions, TWorker extends any>(
+      label: string
+    ): WorkerClient<TOptions, TWorker>;
 
     // provided in MonacoEditor.tsx
     function setEditor(editor: monaco.editor.ICodeEditor): void;
-    function getLanguage<TWorker extends any>(...uri: monaco.Uri[]): Promise<TWorker>;
-    function get<TWorker extends any>(label: string, ...uri: monaco.Uri[]): Promise<TWorker>;
-    
+    function getLanguage<TWorker extends any>(
+      ...uri: monaco.Uri[]
+    ): Promise<TWorker>;
+    function get<TWorker extends any>(
+      label: string,
+      ...uri: monaco.Uri[]
+    ): Promise<TWorker>;
+
     function setEnvironment(
       getWorkerUrl?: (label: string) => string | undefined,
       getWorker?: (label: string) => Worker | undefined
-    ) : void
-    
+    ): void;
+
     function updateConfig<TOptions>(
       label: string,
       config?: Omit<
@@ -190,7 +197,7 @@ export class WorkerClient<TOptions, TWorker> implements monaco.IDisposable {
       this._providerDisposables = setupWorkerProviders(
         this.config.languageId,
         this.config.providers,
-        this,
+        this
       );
       this._disposables.push(asDisposable(this._providerDisposables));
     }
@@ -225,7 +232,7 @@ export class WorkerClient<TOptions, TWorker> implements monaco.IDisposable {
         label: this.config.label,
         createData: this.config.options,
       });
-      this._client = <Promise<TWorker>>(<any>this._worker.getProxy());
+      this._client = this._worker.getProxy() as Promise<TWorker>;
     }
 
     return this._client;
@@ -268,7 +275,6 @@ const typescriptClient: WorkerClient<
 
 export function noop() {}
 
-
 class MonacoWorkerApi {
   workerClients: { [key: string]: WorkerClient<any, any> } = {
     typescript: typescriptClient,
@@ -296,7 +302,9 @@ class MonacoWorkerApi {
     return client;
   }
 
-  register<TOptions>(config: monaco.worker.IWorkerRegistrationOptions<TOptions>) {
+  register<TOptions>(
+    config: monaco.worker.IWorkerRegistrationOptions<TOptions>
+  ) {
     if (config.languageId) {
       return monaco.languages.onLanguage(config.languageId, () => {
         return this._registerWorker(config);
@@ -341,14 +349,17 @@ class MonacoWorkerApi {
 
   async get<TWorker>(label: string, ...uri: monaco.Uri[]) {
     if (uri.length === 0 && this._editor) {
-      const editorUri =this._editor.getModel()?.uri;
+      const editorUri = this._editor.getModel()?.uri;
       editorUri && uri.push(editorUri);
     }
-    
+
     return this.getClient<any, TWorker>(label).getSyncedWorker(...uri);
   }
 
-  setConfig<TOptions>(label: string, config: monaco.worker.IWorkerConfig<TOptions>) {
+  setConfig<TOptions>(
+    label: string,
+    config: monaco.worker.IWorkerConfig<TOptions>
+  ) {
     this.getClient<TOptions, any>(label).config.setConfig(config);
   }
 
@@ -378,4 +389,6 @@ class MonacoWorkerApi {
 }
 
 // @ts-ignore
-monaco.worker = new MonacoWorkerApi();
+Object.assign(monaco, {
+  worker: new MonacoWorkerApi(),
+});

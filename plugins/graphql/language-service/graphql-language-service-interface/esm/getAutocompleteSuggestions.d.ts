@@ -1,6 +1,6 @@
-import { FragmentDefinitionNode, GraphQLDirective, GraphQLSchema } from 'graphql';
-import { CompletionItem, ContextToken, State, AllTypeInfo, Position } from 'graphql-language-service-types';
-import { CharacterStream } from 'graphql-language-service-parser';
+import { FragmentDefinitionNode, GraphQLDirective, GraphQLSchema } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql';
+import { CompletionItem, ContextToken, State, AllTypeInfo, Position } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import { CharacterStream } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 export declare function getAutocompleteSuggestions(schema: GraphQLSchema, queryText: string, cursor: Position, contextToken?: ContextToken): Array<CompletionItem>;
 export declare function getFragmentDefinitions(queryText: string): Array<FragmentDefinitionNode>;
 export declare function getTokenAtPosition(queryText: string, cursor: Position): ContextToken;

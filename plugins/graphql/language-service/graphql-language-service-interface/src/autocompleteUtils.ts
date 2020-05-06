@@ -17,9 +17,9 @@ import {
 import {
   CompletionItemBase,
   AllTypeInfo,
-} from 'graphql-language-service-types';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
-import { ContextTokenUnion, State } from 'graphql-language-service-parser';
+import { ContextTokenUnion, State } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 
 // Utility for returning the state representing the Definition this token state
 // is within, if any.

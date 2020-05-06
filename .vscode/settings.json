@@ -3,7 +3,15 @@
     "reference": true,
     "public": true,
     ".next": true,
-    ".vscode": true
+    "next": true,
+    "monaco": true,
+    "worker": true,
+    "themes": true,
+    "editor": true,
+    ".vscode": true,
+    "monaco-editor": true,
+    "split-panes": true,
+    "json-viewer": true
   },
   "search.exclude": {
     "**/node_modules": false

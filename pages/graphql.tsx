@@ -5,8 +5,8 @@ import MonacoEditor from 'toolbox/Editor';
 import monaco from 'monaco';
 import { fixPath } from 'toolbox/Editor/utils';
 
-import { useLocalStorage } from 'toolbox/useLocalStorage';
-import { useFiles } from 'toolbox/useFiles';
+import { useLocalStorage } from 'lib/hooks/useLocalStorage';
+import { useFiles } from 'lib/hooks/useFiles';
 import { SplitView } from 'toolbox/SplitView';
 import { JSONViewer, jsonViewerTheme } from 'toolbox/JSONViewer';
 import { ActionButton, ActionBar } from 'toolbox/ActionButton';
@@ -15,9 +15,9 @@ import { JSONResult } from 'toolbox/JSONViewer';
 import GraphiQLExplorer from 'sandboxes/graphql/Explorer';
 import { SandboxHead, monoFontStyles, RUBIK } from 'toolbox/SandboxHead';
 
-import { graphql, prettier } from 'plugins';
-import 'plugins/workers';
-import { UrlLoader } from 'plugins/graphql/url-schema-loader';
+import { graphql, prettier } from 'lib/plugins';
+import 'lib/plugins/workers';
+import { UrlLoader } from 'lib/plugins/graphql/url-schema-loader';
 
 import { ThemeProvider, Select } from 'react-ui';
 import YAML from 'yaml';

@@ -1,4 +1,4 @@
-import { Range } from 'graphql-language-service-utils';
+import { Range } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 export declare const DEFAULT_TAGS: string[];
 declare type TagResult = {
     tag: string;

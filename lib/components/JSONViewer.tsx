@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { monoFontStyles } from './SandboxHead';
-import dynamic from 'next/dynamic';
 import { important } from 'magic-components';
 
 export const jsonViewerTheme = {
@@ -22,9 +21,24 @@ export const jsonViewerTheme = {
   base0F: '#2882F9', //number, clipboard
 };
 
-export const ReactJSON = dynamic(() => import('react-json-view'), {
-  ssr: false,
-});
+let ReactJSON: any;
+if (typeof window !== 'undefined') {
+  const ReactJSONView: any = React.lazy(() => import('react-json-view'));
+  ReactJSONView.displayName = 'MonacoEditor';
+  ReactJSON = React.forwardRef((props, ref) => {
+    return (
+      <div>
+        <Suspense fallback={<div>Loaing...</div>}>
+          <ReactJSONView {...props} ref={ref} />
+        </Suspense>
+      </div>
+    );
+  });
+} else {
+  ReactJSON = React.forwardRef((props, ref) => {
+    return <div ref={ref as any} />;
+  });
+}
 
 export function JSONViewer(props: any) {
   return (

@@ -12,7 +12,7 @@ import { join } from 'path';
 import { GraphQLConfig } from 'graphql-config';
 import { GraphQLLanguageService } from '../GraphQLLanguageService';
 import { SymbolKind } from 'vscode-languageserver-protocol';
-import { Position } from 'graphql-language-service-utils';
+import { Position } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
 
 const MOCK_CONFIG = {
   filepath: join(__dirname, '.graphqlrc.yml'),

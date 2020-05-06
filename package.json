@@ -1,36 +1,47 @@
 {
-  "name": "next-monaco-editor",
+  "name": "sandkit",
   "author": "Nikhil Saraf",
   "version": "0.0.1-beta.22",
   "license": "MIT",
-  "main": "dist/next-monaco-editor/index.js",
-  "typings": "dist/next-monaco-editor/esm/index.d.ts",
-  "module": "dist/next-monaco-editor/esm/index.js",
-  "files": [
-    "dist",
-    "next-plugin",
-    "api",
-    "worker",
-    "plugins"
-  ],
   "scripts": {
-    "//bundler": "npx http-server node_modules/smooshpack/sandpack -a localhost -p 6969 ",
-    "//dev:bundler": "npm-run-all --parallel bundler dev",
     "start": "next start",
-    "package": "npm-run-all --parallel build:*",
     "build": "next build",
     "prepublishOnly": "yarn build",
     "dev": "next -p 6969",
-    "build:main": "tsdx build -i ./toolbox/index.tsx --name next-monaco-editor --tsconfig ./tsconfig.tsdx.json && yarn create:entry next-monaco-editor",
-    "build:api": "tsdx build -i ./next-monaco-editor/api/index.ts -T --tsconfig ./tsconfig.tsdx.json --name api && yarn create:entry api",
-    "build:plugins": "tsdx build -i ./next-monaco-editor/plugins/index.ts -T --tsconfig ./tsconfig.tsdx.json --name plugins && yarn create:entry plugins && yarn deno scripts/copy-workers.ts",
-    "build:worker": "tsdx build -i ./next-monaco-editor/worker/index.ts -T --tsconfig ./tsconfig.tsdx.json --name worker && yarn create:entry worker",
-    "create:entry": "yarn deno scripts/entry.ts",
     "deno": "deno --allow-all"
   },
   "peerDependencies": {
     "next": "*",
     "react": ">=16"
+  },
+  "pkger": {
+    "entries": [
+      "monaco",
+      "worker",
+      "themes",
+      "hooks",
+      {
+        "name": "next",
+        "target": "node"
+      },
+      {
+        "name": "monaco-editor",
+        "source": "./lib/components/MonacoEditor.tsx"
+      },
+      {
+        "name": "editor",
+        "source": "./lib/components/Editor.tsx"
+      },
+      {
+        "name": "split-panes",
+        "source": "./lib/components/SplitPanes.tsx"
+      },
+      {
+        "name": "json-viewer",
+        "source": "./lib/components/JSONViewer.tsx"
+      }
+    ],
+    "target": "browser"
   },
   "prettier": {
     "printWidth": 80,
@@ -39,33 +50,33 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.9.6",
     "@babel/node": "^7.8.7",
-    "@graphql-toolkit/common": "^0.10.3",
+    "@graphql-toolkit/common": "^0.10.6",
     "@types/color": "^3.0.1",
     "@types/dedent": "^0.7.0",
     "@types/jest": "^25.2.1",
-    "@types/react": "^16.9.32",
-    "@types/react-dom": "^16.9.6",
-    "@types/yaml": "^1.2.0",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "@types/yaml": "^1.9.7",
     "color": "^3.1.2",
     "dedent": "^0.7.0",
     "esm": "^3.2.25",
-    "graphiql-explorer": "^0.5.1",
+    "graphiql-explorer": "^0.6.2",
     "graphql": "^15.0.0",
-    "graphql-config": "^3.0.0-rc.2",
-    "husky": "^4.2.3",
-    "magic-components": "^0.0.2-beta.22",
+    "graphql-config": "^3.0.1",
+    "husky": "^4.2.5",
+    "magic-components": "^0.0.2-beta.30",
     "match-sorter": "^4.1.0",
     "monaco-themes": "^0.3.3",
     "next": "^9.3.4",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
+    "prettier": "^2.0.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-json-view": "^1.19.1",
-    "ts-morph": "^7.0.1",
-    "tsdx": "^0.13.1",
+    "ts-morph": "^7.0.3",
+    "tsdx": "^0.13.2",
     "tslib": "^1.11.1",
     "typescript": "^3.8.3",
     "vscode-languageserver-types": "^3.15.1"
@@ -75,7 +86,7 @@
     "babel-loader": "^8.1.0",
     "codesandbox-api": "^0.0.24",
     "codesandbox-import-utils": "^2.1.14",
-    "create-hook-context": "^0.0.3",
+    "create-hook-context": "^1.0.0",
     "faunadb": "^2.13.1",
     "graphql-ast-types": "^1.0.2",
     "idb-keyval": "^3.2.0",
@@ -84,9 +95,10 @@
     "monaco-editor": "^0.20.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "monaco-languages": "^1.10.0",
-    "next-transpile-modules": "^3.2.0",
+    "next-transpile-modules": "^3.3.0",
+    "pkger": "^0.0.2-next.16",
     "react-modal": "^3.11.2",
-    "react-query": "^1.2.7",
+    "react-query": "^1.3.3",
     "react-spectrum": "^1.1.7",
     "react-split": "^2.0.7",
     "react-tippy": "^1.3.4",
@@ -95,10 +107,29 @@
     "scope-eval": "^1.0.0",
     "smooshpack": "^0.0.62",
     "uniroll": "^1.0.9",
-    "use-debounce": "^3.4.1",
-    "use-effect-reducer": "^0.4.1",
+    "use-debounce": "^3.4.2",
+    "use-effect-reducer": "^0.5.0",
     "worker-loader": "^2.0.0",
     "workerize-loader": "^1.1.0",
-    "yaml": "^1.8.3"
-  }
+    "yaml": "^1.9.2"
+  },
+  "module": "dist/esm/sandkit.js",
+  "browser": "dist/esm/sandkit.js",
+  "main": "dist/cjs/sandkit.js",
+  "types": "dist/types",
+  "files": [
+    "dist",
+    "next-plugin",
+    "api",
+    "worker",
+    "plugins",
+    "monaco",
+    "dist/types",
+    "next",
+    "themes",
+    "editor",
+    "monaco-editor",
+    "split-panes",
+    "json-viewer"
+  ]
 }

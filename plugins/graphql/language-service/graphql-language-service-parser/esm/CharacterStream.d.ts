@@ -16,7 +16,7 @@ export default class CharacterStream implements CharacterStreamInterface {
     eatSpace: () => boolean;
     skipToEnd: () => void;
     skipTo: (position: number) => void;
-    match: (pattern: TokenPattern, consume?: import("plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types").Maybe<boolean>, caseFold?: import("plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types").Maybe<boolean>) => boolean | string[];
+    match: (pattern: TokenPattern, consume?: import("lib/plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types").Maybe<boolean>, caseFold?: import("lib/plugins/graphql/language-service/graphql-language-service-parser/src/node_modules/graphql-language-service-types").Maybe<boolean>) => boolean | string[];
     backUp: (num: number) => void;
     column: () => number;
     indentation: () => number;

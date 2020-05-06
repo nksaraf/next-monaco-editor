@@ -1,6 +1,6 @@
-import { DocumentNode, GraphQLSchema, SourceLocation, ValidationRule } from 'graphql';
-import { Range } from 'graphql-language-service-utils';
-import { DiagnosticSeverity, Diagnostic } from 'vscode-languageserver-types';
+import { DocumentNode, GraphQLSchema, SourceLocation, ValidationRule } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql';
+import { Range } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
+import { DiagnosticSeverity, Diagnostic } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/vscode-languageserver-types';
 export declare type SeverityLabels = 'Error' | 'Warning' | 'Information' | 'Hint';
 export declare const DIAGNOSTIC_SEVERITY: {
     [key: string]: DiagnosticSeverity;

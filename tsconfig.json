@@ -1,5 +1,5 @@
 {
-  "include": ["pages", "monaco", "toolbox", "plugins", "sandboxes"],
+  "include": ["lib", "pages", "toolbox", "lib/plugins", "sandboxes"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -13,23 +13,27 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "plugins": ["./plugins/index.ts"],
-      "plugins/*": ["./plugins/*"],
-      "toolbox": ["./toolbox/index.ts"],
-      "toolbox/*": ["./toolbox/*"],
-      "monaco": ["./monaco/index.ts"],
-      "monaco/worker": ["./monaco/worker/index.ts"],
+      "plugins": ["lib/plugins/index.ts"],
+      "plugins/*": ["lib/plugins/*"],
+      "@hooks": ["./lib/hooks/index.ts"],
+      "@monaco": ["./lib/monaco/index.ts"],
+      "@worker": ["./lib/worker/index.ts"],
+      "@themes": ["./lib/themes/index.ts"],
+      "@monaco-editor": ["./lib/components/MonacoEditor.tsx"],
+      "@editor": ["./lib/components/Editor.tsx"],
+      "@split-panes": ["./lib/components/SplitPanes.tsx"],
+      "@json-viewer": ["./lib/components/JSONViewer.tsx"],
       "graphql-language-service-parser": [
-        "./plugins/graphql/language-service/graphql-language-service-parser/src/index.ts"
+        "lib/plugins/graphql/language-service/graphql-language-service-parser/src/index.ts"
       ],
       "graphql-language-service-interface": [
-        "./plugins/graphql/language-service/graphql-language-service-interface/src/index.ts"
+        "lib/plugins/graphql/language-service/graphql-language-service-interface/src/index.ts"
       ],
       "graphql-language-service-types": [
-        "./plugins/graphql/language-service/graphql-language-service-types/src/index.ts"
+        "lib/plugins/graphql/language-service/graphql-language-service-types/src/index.ts"
       ],
       "graphql-language-service-utils": [
-        "./plugins/graphql/language-service/graphql-language-service-utils/src/index.ts"
+        "lib/plugins/graphql/language-service/graphql-language-service-utils/src/index.ts"
       ]
     },
     "jsx": "preserve",

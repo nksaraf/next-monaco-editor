@@ -1,0 +1,7 @@
+{
+  "name": "sandkit/split-panes",
+  "private": true,
+  "main": "../dist/cjs/split-panes.js",
+  "module": "../dist/esm/split-panes.js",
+  "types": "../dist/types"
+}

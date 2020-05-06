@@ -1,9 +1,5 @@
 // @ts-ignore
-import {
-  BaseWorker,
-  initialize,
-  IWorkerContext,
-} from 'monaco/worker';
+import { BaseWorker, initialize, IWorkerContext } from '@worker';
 
 // declare global {
 //   // const prettier: any
@@ -36,7 +32,7 @@ class FaunaDBWorker extends BaseWorker {
         q: query,
       });
 
-      const clean = (object: any) : any => {
+      const clean = (object: any): any => {
         if (object instanceof Expr) {
           return object.toString();
         }
@@ -48,7 +44,7 @@ class FaunaDBWorker extends BaseWorker {
           return object.map((val) => clean(val));
         }
 
-        let other : any = {};
+        let other: any = {};
         Object.keys(object).forEach((key) => {
           other[key] = clean(object[key]);
         });
@@ -57,7 +53,7 @@ class FaunaDBWorker extends BaseWorker {
 
       const cleaned = clean(result);
       if (!(typeof cleaned === 'object')) {
-        return { result: cleaned }
+        return { result: cleaned };
       } else {
         return cleaned;
       }

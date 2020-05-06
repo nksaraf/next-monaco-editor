@@ -8,15 +8,15 @@ import monaco from 'monaco';
 import {
   Range as GraphQLRange,
   Position as GraphQLPosition,
-} from 'graphql-language-service-types';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 
 import {
   getRange,
   getTokenAtPosition,
-} from 'graphql-language-service-interface';
+} from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src';
 
 import { LanguageService } from './language-service';
-import { RuleKinds } from 'graphql-language-service-parser';
+import { RuleKinds } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 import {
   visit,
   SelectionSetNode,

@@ -1,8 +1,8 @@
 import React from 'react';
-import allThemes from './themes';
+import allThemes from '@themes';
 import Spectrum from 'react-spectrum';
-import { EditorProps } from './Editor';
-import { fixPath } from './utils';
+import { EditorProps } from '@editor';
+import { fixPath } from '../utils';
 
 export function Loading({
   children,

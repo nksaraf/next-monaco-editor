@@ -1,6 +1,6 @@
-import { GraphQLField, GraphQLSchema, GraphQLType } from 'graphql';
-import { CompletionItemBase, AllTypeInfo } from 'graphql-language-service-types';
-import { ContextTokenUnion, State } from 'graphql-language-service-parser';
+import { GraphQLField, GraphQLSchema, GraphQLType } from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src/node_modules/graphql';
+import { CompletionItemBase, AllTypeInfo } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import { ContextTokenUnion, State } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
 export declare function getDefinitionState(tokenState: State): State | null | undefined;
 export declare function getFieldDef(schema: GraphQLSchema, type: GraphQLType, fieldName: string): GraphQLField<any, any> | null | undefined;
 export declare function forEachState(stack: State, fn: (state: State) => AllTypeInfo | null | void): void;

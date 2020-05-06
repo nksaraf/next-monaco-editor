@@ -1,6 +1,6 @@
 import { Kind } from 'graphql';
 import { _Kind } from 'graphql/language/kinds';
-import { Maybe } from 'graphql-language-service-types';
+import { Maybe } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
 import CharacterStream from './CharacterStream';
 
 export type ContextToken = {
