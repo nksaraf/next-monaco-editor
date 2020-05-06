@@ -1,14 +1,16 @@
-import monaco from 'monaco';
+import monaco from '@monaco';
 
 const extraLibs = new Map();
 
-declare module "monaco-editor" {
+declare module 'monaco-editor' {
   namespace languages.typescript {
-    export const loadTypes: (name: string, version: string) => Promise<{ [key: string]: string }>;
+    export const loadTypes: (
+      name: string,
+      version: string
+    ) => Promise<{ [key: string]: string }>;
     export const addGlobal: (code: string) => void;
   }
 }
-
 
 export const typings = (
   compilerOptions: monaco.languages.typescript.CompilerOptions = {}
@@ -39,8 +41,9 @@ export const typings = (
   api.languages.typescript.typescriptDefaults.setCompilerOptions(
     defaultCompilerOptions
   );
-  api.languages.typescript.typescriptDefaults.setCompilerOptions(defaultCompilerOptions);
-
+  api.languages.typescript.typescriptDefaults.setCompilerOptions(
+    defaultCompilerOptions
+  );
 
   Object.assign(api.languages.typescript, {
     loadTypes: async (name: string, version: string) => {
@@ -72,9 +75,7 @@ export const typings = (
         code,
         api.Uri.file('global.d.ts').toString()
       );
-      
-
-    }
+    },
   });
 
   return disposable;

@@ -1,5 +1,4 @@
-import monaco from 'monaco';
-import { asDisposable } from 'monaco/utils';
+import monaco, { asDisposable } from '@monaco';
 
 const parsers: { [key: string]: keyof typeof plugins } = {
   javascript: 'babel',
@@ -29,41 +28,44 @@ export const prettier = (
   languages: (
     | keyof typeof parsers
     | { [key: string]: keyof typeof plugins }
-  )[] = [], options: any = {}
+  )[] = [],
+  options: any = {}
 ) => (api: typeof monaco) => {
   let disposables: monaco.IDisposable[] = [];
   languages.forEach((langauge) => {
     if (typeof langauge === 'string') {
-      disposables.push(api.worker.register({
-        languageId: langauge,
-        label: 'prettier',
-        providers: {
-          documentFormattingEdit: true,
-        },
-        options: {
-          parser: parsers[langauge],
-          plugins: plugins[parsers[langauge]],
-          ...options
-        },
-      }));
-    } else if (typeof langauge === 'object') {
-      Object.keys(langauge).forEach((languageId) => {
-        disposables.push(api.worker.register({
-          languageId: languageId,
+      disposables.push(
+        api.worker.register({
+          languageId: langauge,
           label: 'prettier',
           providers: {
             documentFormattingEdit: true,
           },
           options: {
-            parser: langauge[languageId],
-            plugins: plugins[langauge[languageId]],
-            ...options
+            parser: parsers[langauge],
+            plugins: plugins[parsers[langauge]],
+            ...options,
           },
-        }));
+        })
+      );
+    } else if (typeof langauge === 'object') {
+      Object.keys(langauge).forEach((languageId) => {
+        disposables.push(
+          api.worker.register({
+            languageId: languageId,
+            label: 'prettier',
+            providers: {
+              documentFormattingEdit: true,
+            },
+            options: {
+              parser: langauge[languageId],
+              plugins: plugins[langauge[languageId]],
+              ...options,
+            },
+          })
+        );
       });
     }
   });
   return asDisposable(disposables);
 };
-
-

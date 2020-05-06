@@ -1,10 +1,6 @@
 // @ts-ignore
 import { compile } from 'uniroll';
-import {
-  BaseWorker,
-  initialize,
-  IWorkerContext,
-} from 'monaco/worker';
+import { BaseWorker, initialize, IWorkerContext } from '@worker';
 
 // declare global {
 //   // const prettier: any
@@ -20,7 +16,6 @@ class UnirollWorker extends BaseWorker {
 
   async doSomething() {
     try {
-
       const files = {
         '/foo.tsx': 'export default 1',
         '/index.tsx': "import foo from 'foo';\nconsole.log('hello', foo)",
@@ -31,8 +26,7 @@ class UnirollWorker extends BaseWorker {
         input: '/index.tsx',
       });
       console.log(await bundle.generate({ format: 'esm' }));
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 }
 

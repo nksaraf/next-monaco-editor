@@ -1,7 +1,7 @@
 /**
  * Worker to fetch typescript definitions for dependencies.
  * Credits to @CompuIves
- * https://github.com/CompuIves/codesandbox-client/blob/dcdb4169bcbe3e5aeaebae19ff1d45940c1af834/packages/app/src/app/components/CodeEditor/Monaco/workers/fetch-dependency-typings.js
+ * https://github.com/CompuIves/codesandbox-client/blob/dcdb4169bcbe3e5aeaebae19ff1d45940c1af834/packages/app/src/app/components/CodeEditor/@workers/fetch-dependency-typings.js
  *
  * global ts
  * @flow
@@ -9,7 +9,7 @@
 
 import path from 'path';
 import { Store, set as setItem, get as getItem } from 'idb-keyval';
-import { BaseWorker, initialize } from 'monaco/worker';
+import { BaseWorker, initialize } from '@worker';
 
 self.importScripts(
   'https://cdnjs.cloudflare.com/ajax/libs/typescript/3.8.3/typescript.min.js'
@@ -20,7 +20,7 @@ const ROOT_URL = `https://cdn.jsdelivr.net/`;
 const store = new Store('typescript-definitions-cache-v1');
 const fetchCache = new Map();
 
-const doFetch = url => {
+const doFetch = (url) => {
   const cached = fetchCache.get(url);
 
   if (cached) {
@@ -28,7 +28,7 @@ const doFetch = url => {
   }
 
   const promise = fetch(url)
-    .then(response => {
+    .then((response) => {
       if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response);
       }
@@ -37,7 +37,7 @@ const doFetch = url => {
 
       return Promise.reject(error);
     })
-    .then(response => response.text());
+    .then((response) => response.text());
 
   fetchCache.set(url, promise);
 
@@ -49,7 +49,7 @@ const fetchFromDefinitelyTyped = (dependency, version, fetchedPaths) =>
     `${ROOT_URL}npm/@types/${dependency
       .replace('@', '')
       .replace(/\//g, '__')}/index.d.ts`
-  ).then(typings => {
+  ).then((typings) => {
     fetchedPaths[`node_modules/${dependency}/index.d.ts`] = typings;
   });
 
@@ -64,7 +64,7 @@ const getRequireStatements = (title, code) => {
     self.ts.ScriptKind.TS
   );
 
-  self.ts.forEachChild(sourceFile, node => {
+  self.ts.forEachChild(sourceFile, (node) => {
     switch (node.kind) {
       case self.ts.SyntaxKind.ImportDeclaration: {
         requires.push(node.moduleSpecifier.text);
@@ -86,17 +86,17 @@ const getRequireStatements = (title, code) => {
   return requires;
 };
 
-const tempTransformFiles = files => {
+const tempTransformFiles = (files) => {
   const finalObj = {};
 
-  files.forEach(d => {
+  files.forEach((d) => {
     finalObj[d.name] = d;
   });
 
   return finalObj;
 };
 
-const transformFiles = dir =>
+const transformFiles = (dir) =>
   dir.files
     ? dir.files.reduce((prev, next) => {
         if (next.type === 'file') {
@@ -111,8 +111,10 @@ const getFileMetaData = (dependency, version, depPath) =>
   doFetch(
     `https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`
   )
-    .then(response => JSON.parse(response))
-    .then(response => response.files.filter(f => f.name.startsWith(depPath)))
+    .then((response) => JSON.parse(response))
+    .then((response) =>
+      response.files.filter((f) => f.name.startsWith(depPath))
+    )
     .then(tempTransformFiles);
 
 const resolveAppropiateFile = (fileMetaData, relativePath) => {
@@ -138,7 +140,7 @@ const getFileTypes = (
 
   if (fetchedPaths[virtualPath]) return null;
 
-  return doFetch(`${depUrl}/${depPath}`).then(typings => {
+  return doFetch(`${depUrl}/${depPath}`).then((typings) => {
     if (fetchedPaths[virtualPath]) return null;
 
     fetchedPaths[virtualPath] = typings;
@@ -148,11 +150,13 @@ const getFileTypes = (
       getRequireStatements(depPath, typings)
         .filter(
           // Don't add global deps
-          dep => dep.startsWith('.')
+          (dep) => dep.startsWith('.')
         )
-        .map(relativePath => path.join(path.dirname(depPath), relativePath))
-        .map(relativePath => resolveAppropiateFile(fileMetaData, relativePath))
-        .map(nextDepPath =>
+        .map((relativePath) => path.join(path.dirname(depPath), relativePath))
+        .map((relativePath) =>
+          resolveAppropiateFile(fileMetaData, relativePath)
+        )
+        .map((nextDepPath) =>
           getFileTypes(
             depUrl,
             dependency,
@@ -169,8 +173,8 @@ function fetchFromMeta(dependency, version, fetchedPaths) {
   const depUrl = `https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`;
 
   return doFetch(depUrl)
-    .then(response => JSON.parse(response))
-    .then(meta => {
+    .then((response) => JSON.parse(response))
+    .then((meta) => {
       const filterAndFlatten = (files, filter) =>
         files.reduce((paths, file) => {
           if (filter.test(file.name)) {
@@ -189,9 +193,9 @@ function fetchFromMeta(dependency, version, fetchedPaths) {
         throw new Error(`No inline typings found for ${dependency}@${version}`);
       }
 
-      dtsFiles.forEach(file => {
+      dtsFiles.forEach((file) => {
         doFetch(`https://cdn.jsdelivr.net/npm/${dependency}@${version}${file}`)
-          .then(dtsFile => {
+          .then((dtsFile) => {
             fetchedPaths[`node_modules/${dependency}${file}`] = dtsFile;
           })
           .catch(() => {});
@@ -203,8 +207,8 @@ function fetchFromTypings(dependency, version, fetchedPaths) {
   const depUrl = `${ROOT_URL}npm/${dependency}@${version}`;
 
   return doFetch(`${depUrl}/package.json`)
-    .then(response => JSON.parse(response))
-    .then(packageJSON => {
+    .then((response) => JSON.parse(response))
+    .then((packageJSON) => {
       const types = packageJSON.typings || packageJSON.types;
       if (types) {
         // Add package.json, since this defines where all types lie
@@ -217,7 +221,7 @@ function fetchFromTypings(dependency, version, fetchedPaths) {
           dependency,
           version,
           path.join('/', path.dirname(types))
-        ).then(fileData =>
+        ).then((fileData) =>
           getFileTypes(
             depUrl,
             dependency,
@@ -243,10 +247,10 @@ function fetchDefinitions(name, version) {
   const key = `${name}@${version}`;
 
   return getItem(key, store)
-    .catch(e => {
+    .catch((e) => {
       console.error('An error occurred when getting definitions from cache', e);
     })
-    .then(result => {
+    .then((result) => {
       if (result) {
         return result;
       }
@@ -279,7 +283,7 @@ function fetchDefinitions(name, version) {
 class TypingsWorker extends BaseWorker {
   async fetchTypings(name, version) {
     const typings = await fetchDefinitions(name, version);
-    console.log(`Fetching typings for ${name}@${version}...`)
+    console.log(`Fetching typings for ${name}@${version}...`);
     return { name, version, typings };
   }
 }

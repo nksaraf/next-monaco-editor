@@ -5,6 +5,7 @@ import './editor';
 import './plugin';
 
 export { monaco };
+export * from '../utils';
 export default monaco;
 
 // registerLanguage({

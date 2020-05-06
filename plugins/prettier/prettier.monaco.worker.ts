@@ -1,16 +1,19 @@
 // @ts-ignore
 import prettier from 'prettier/standalone';
-import{ BaseWorker, initialize, IWorkerContext } from 'monaco/worker';
+import { BaseWorker, initialize, IWorkerContext } from '@worker';
 
 declare global {
   // const prettier: any
-  const prettierPlugins: any
+  const prettierPlugins: any;
 }
 
 class PrettierWorker extends BaseWorker {
-  options: { parser: string, plugins: string[] };
+  options: { parser: string; plugins: string[] };
   loader: Promise<any>;
-  constructor(ctx: IWorkerContext<undefined>, config: { parser: string, plugins: string[] }) {
+  constructor(
+    ctx: IWorkerContext<undefined>,
+    config: { parser: string; plugins: string[] }
+  ) {
     super(ctx, config);
     this.options = config;
     this.loader = this.importPrettier();
@@ -23,13 +26,15 @@ class PrettierWorker extends BaseWorker {
     }
   }
 
-	provideDocumentFormattingEdits : BaseWorker['provideDocumentFormattingEdits'] = async (model) => {
+  provideDocumentFormattingEdits: BaseWorker['provideDocumentFormattingEdits'] = async (
+    model
+  ) => {
     await this.loader;
-    const { plugins,...options } = this.options;
-		const text = prettier.format(model.getValue(), {
+    const { plugins, ...options } = this.options;
+    const text = prettier.format(model.getValue(), {
       plugins: prettierPlugins,
       singleQuote: true,
-      ...options
+      ...options,
     });
 
     return [
@@ -38,7 +43,7 @@ class PrettierWorker extends BaseWorker {
         text,
       },
     ];
-	}
+  };
 }
 
 initialize(PrettierWorker);

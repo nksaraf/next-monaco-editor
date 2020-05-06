@@ -1,22 +1,18 @@
-import {
-  BaseWorker,
-  initialize,
-  IWorkerContext,
-} from 'monaco/worker';
-import monaco from 'monaco';
+import { BaseWorker, initialize, IWorkerContext } from '@worker';
+import monaco from '@monaco';
 
 import {
   Range as GraphQLRange,
   Position as GraphQLPosition,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+} from 'graphql-language-service-types';
 
 import {
   getRange,
   getTokenAtPosition,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-interface/src';
+} from 'graphql-language-service-interface';
 
 import { LanguageService } from './language-service';
-import { RuleKinds } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+import { RuleKinds } from 'graphql-language-service-parser';
 import {
   visit,
   SelectionSetNode,
@@ -38,7 +34,7 @@ export function toGraphQLPosition(position: monaco.Position): GraphQLPosition {
   return { line: position.lineNumber - 1, character: position.column - 1 };
 }
 
-const getBaseType = (t: any) : 'scalar' | 'object' => {
+const getBaseType = (t: any): 'scalar' | 'object' => {
   if (t.ofType) {
     return getBaseType(t.ofType);
   }
@@ -93,9 +89,7 @@ export function toCompletion(
   } as any;
 }
 
-export function toMarkerData(
-  diagnostic: any,
-): monaco.editor.IMarkerData {
+export function toMarkerData(diagnostic: any): monaco.editor.IMarkerData {
   return {
     startLineNumber: diagnostic.range.start.line + 1,
     endLineNumber: diagnostic.range.end.line + 1,
@@ -106,7 +100,6 @@ export function toMarkerData(
     code: (diagnostic.code as string) || undefined,
   };
 }
-
 
 class GraphQLWorker extends BaseWorker {
   languageService: LanguageService;
@@ -127,22 +120,29 @@ class GraphQLWorker extends BaseWorker {
     return graphqlDiagnostics.map(toMarkerData);
   }
 
-  provideCompletionItems : BaseWorker['provideCompletionItems'] = async (
+  provideCompletionItems: BaseWorker['provideCompletionItems'] = async (
     model,
     position,
-    context) =>  {
-      const graphQLPosition = toGraphQLPosition(position);
+    context
+  ) => {
+    const graphQLPosition = toGraphQLPosition(position);
     const token = getTokenAtPosition(model.getValue(), graphQLPosition);
     const state =
       token.state.kind === 'Invalid' ? token.state.prevState : token.state;
 
     let range: any = null;
-      range = {
-        startLineNumber: position.lineNumber,
-        startColumn: position.column - (!(context.triggerKind === 1 && context.triggerCharacter === '\n') ? state.name ? state.name.length : 0:  0),
-        endColumn: position.column,
-        endLineNumber: position.lineNumber,
-      };
+    range = {
+      startLineNumber: position.lineNumber,
+      startColumn:
+        position.column -
+        (!(context.triggerKind === 1 && context.triggerCharacter === '\n')
+          ? state.name
+            ? state.name.length
+            : 0
+          : 0),
+      endColumn: position.column,
+      endLineNumber: position.lineNumber,
+    };
 
     let suggestions = await this.languageService.getCompletion(
       model.getValue(),
@@ -207,7 +207,7 @@ class GraphQLWorker extends BaseWorker {
     const range = toMonacoRange(
       getRange(
         {
-          column: graphQLPosition.character+1,
+          column: graphQLPosition.character + 1,
           line: graphQLPosition.line + 1,
         },
         model.getValue()
@@ -217,7 +217,7 @@ class GraphQLWorker extends BaseWorker {
     if (hover) {
       return <monaco.languages.Hover>{
         contents: [{ value: hover }],
-        range
+        range,
       };
     }
 
