@@ -1,6 +1,6 @@
 import { Kind } from 'graphql';
 import { _Kind } from 'graphql/language/kinds';
-import { Maybe } from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+import { Maybe } from 'graphql-language-service-types';
 import CharacterStream from './CharacterStream';
 
 export type ContextToken = {
@@ -129,7 +129,7 @@ export interface CharacterStreamInterface {
   match: (
     pattern: TokenPattern,
     consume?: Maybe<boolean>,
-    caseFold?: Maybe<boolean>,
+    caseFold?: Maybe<boolean>
   ) => string[] | boolean;
   backUp: (num: number) => void;
   column: () => number;

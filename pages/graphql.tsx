@@ -1,22 +1,31 @@
 import React from 'react';
 
 import { important, useTheme, AnimatePresence } from 'magic-components';
-import MonacoEditor from '@editor';
 import monaco from '@monaco';
 import { fixPath } from '../lib/utils';
 
 import { useFiles, useLocalStorage } from '@hooks';
-import { SplitView } from 'toolbox/SplitView';
-import { JSONViewer, jsonViewerTheme } from 'toolbox/JSONViewer';
-import { ActionButton, ActionBar } from 'toolbox/ActionButton';
-import { PlaySVG, CancelSVG, CogSVG } from 'toolbox/Icons';
-import { JSONResult } from 'toolbox/JSONViewer';
+import {
+  ActionButton,
+  ActionBar,
+  JSONViewer,
+  jsonViewerTheme,
+  JSONResult,
+  Editor as MonacoEditor,
+  SplitView,
+  PlaySVG,
+  CancelSVG,
+  CogSVG,
+  SandboxHead,
+  monoFontStyles,
+  RUBIK,
+} from '@sandkit';
 import GraphiQLExplorer from 'sandboxes/graphql/Explorer';
-import { SandboxHead, monoFontStyles, RUBIK } from 'toolbox/SandboxHead';
 
-import { graphql, prettier } from 'lib/plugins';
-import 'lib/plugins/workers';
-import { UrlLoader } from 'lib/plugins/graphql/url-schema-loader';
+import { prettier } from '@plugins';
+import { graphql } from '@plugins/graphql';
+import '@plugins/workers';
+import { UrlLoader } from '@plugins/graphql/url-schema-loader';
 
 import { ThemeProvider, Select } from 'react-ui';
 import YAML from 'yaml';
@@ -300,7 +309,7 @@ function Editor({
         editorRef.current?.layout();
       }}
     >
-      <div height="100%">
+      <div>
         <style
           id="monaco"
           css={{

@@ -35,7 +35,6 @@ export const SpectrumLoading = (props: EditorProps) => {
     ...givenThemes,
     ...allThemes,
   };
-  console.log(files, path);
   const theme = typeof themeName === 'string' ? themes[themeName] : themeName;
   let colors = (Array.from(
     new Set(
@@ -56,6 +55,8 @@ export const SpectrumLoading = (props: EditorProps) => {
     lineHeight = fontSize * 1.5,
     lineNumbers = 'on',
   } = options;
+  console.log(files, path);
+
   const lines = files[fixPath(path)].split('\n');
   const paddingLeft = lineNumbers === 'off' ? 26 : 62;
   const width = Math.min(

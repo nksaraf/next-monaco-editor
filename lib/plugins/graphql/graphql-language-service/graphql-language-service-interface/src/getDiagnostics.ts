@@ -20,13 +20,13 @@ import {
 import invariant from 'assert';
 import { findDeprecatedUsages, parse } from 'graphql';
 
-import { CharacterStream, onlineParser } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+import { CharacterStream, onlineParser } from 'graphql-language-service-parser';
 
 import {
   Range,
   validateWithCustomRules,
   Position,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
+} from 'graphql-language-service-utils';
 
 import { DiagnosticSeverity, Diagnostic } from 'vscode-languageserver-types';
 
@@ -54,7 +54,7 @@ export function getDiagnostics(
   query: string,
   schema: GraphQLSchema | null | undefined = null,
   customRules?: Array<ValidationRule>,
-  isRelayCompatMode?: boolean,
+  isRelayCompatMode?: boolean
 ): Array<Diagnostic> {
   let ast = null;
   try {
@@ -78,7 +78,7 @@ export function validateQuery(
   ast: DocumentNode,
   schema: GraphQLSchema | null | undefined = null,
   customRules?: Array<ValidationRule> | null,
-  isRelayCompatMode?: boolean,
+  isRelayCompatMode?: boolean
 ): Array<Diagnostic> {
   // We cannot validate the query unless a schema is provided.
   if (!schema) {
@@ -87,15 +87,15 @@ export function validateQuery(
 
   const validationErrorAnnotations = mapCat(
     validateWithCustomRules(schema, ast, customRules, isRelayCompatMode),
-    error => annotations(error, DIAGNOSTIC_SEVERITY.Error, 'Validation'),
+    (error) => annotations(error, DIAGNOSTIC_SEVERITY.Error, 'Validation')
   );
 
   // Note: findDeprecatedUsages was added in graphql@0.9.0, but we want to
   // support older versions of graphql-js.
   const deprecationWarningAnnotations = !findDeprecatedUsages
     ? []
-    : mapCat(findDeprecatedUsages(schema, ast), error =>
-        annotations(error, DIAGNOSTIC_SEVERITY.Warning, 'Deprecation'),
+    : mapCat(findDeprecatedUsages(schema, ast), (error) =>
+        annotations(error, DIAGNOSTIC_SEVERITY.Warning, 'Deprecation')
       );
 
   return validationErrorAnnotations.concat(deprecationWarningAnnotations);
@@ -104,7 +104,7 @@ export function validateQuery(
 // General utility for map-cating (aka flat-mapping).
 function mapCat<T>(
   array: Array<T>,
-  mapper: (item: T) => Array<any>,
+  mapper: (item: T) => Array<any>
 ): Array<any> {
   return Array.prototype.concat.apply([], array.map(mapper));
 }
@@ -112,13 +112,13 @@ function mapCat<T>(
 function annotations(
   error: GraphQLError,
   severity: DiagnosticSeverity,
-  type: string,
+  type: string
 ): Diagnostic[] {
   if (!error.nodes) {
     return [];
   }
   const highlightedNodes: Diagnostic[] = [];
-  error.nodes.forEach(node => {
+  error.nodes.forEach((node) => {
     const highlightNode =
       node.kind !== 'Variable' && 'name' in node
         ? node.name
@@ -128,7 +128,7 @@ function annotations(
     if (highlightNode) {
       invariant(
         error.locations,
-        'GraphQL validation error requires locations.',
+        'GraphQL validation error requires locations.'
       );
 
       // @ts-ignore
@@ -142,7 +142,7 @@ function annotations(
         severity,
         range: new Range(
           new Position(loc.line - 1, loc.column - 1),
-          new Position(loc.line - 1, end),
+          new Position(loc.line - 1, end)
         ),
       });
     }
@@ -157,7 +157,7 @@ export function getRange(location: SourceLocation, queryText: string): Range {
 
   invariant(
     lines.length >= location.line,
-    'Query text must have more lines than where the error happened',
+    'Query text must have more lines than where the error happened'
   );
 
   let stream = null;

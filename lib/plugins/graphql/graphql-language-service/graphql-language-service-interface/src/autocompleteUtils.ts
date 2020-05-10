@@ -17,14 +17,14 @@ import {
 import {
   CompletionItemBase,
   AllTypeInfo,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+} from 'graphql-language-service-types';
 
-import { ContextTokenUnion, State } from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+import { ContextTokenUnion, State } from 'graphql-language-service-parser';
 
 // Utility for returning the state representing the Definition this token state
 // is within, if any.
 export function getDefinitionState(
-  tokenState: State,
+  tokenState: State
 ): State | null | undefined {
   let definitionState;
 
@@ -48,7 +48,7 @@ export function getDefinitionState(
 export function getFieldDef(
   schema: GraphQLSchema,
   type: GraphQLType,
-  fieldName: string,
+  fieldName: string
 ): GraphQLField<any, any> | null | undefined {
   if (fieldName === SchemaMetaFieldDef.name && schema.getQueryType() === type) {
     return SchemaMetaFieldDef;
@@ -69,7 +69,7 @@ export function getFieldDef(
 // Utility for iterating through a CodeMirror parse state stack bottom-up.
 export function forEachState(
   stack: State,
-  fn: (state: State) => AllTypeInfo | null | void,
+  fn: (state: State) => AllTypeInfo | null | void
 ): void {
   const reverseStateStack = [];
   let state: State | null | undefined = stack;
@@ -95,7 +95,7 @@ export function objectValues(object: Record<string, any>): Array<any> {
 // Create the expected hint response given a possible list and a token
 export function hintList<T extends CompletionItemBase>(
   token: ContextTokenUnion,
-  list: Array<T>,
+  list: Array<T>
 ): Array<T> {
   return filterAndSortList(list, normalizeText(token.string));
 }
@@ -104,37 +104,37 @@ export function hintList<T extends CompletionItemBase>(
 // provide a concise list.
 function filterAndSortList<T extends CompletionItemBase>(
   list: Array<T>,
-  text: string,
+  text: string
 ): Array<T> {
   if (!text) {
-    return filterNonEmpty<T>(list, entry => !entry.isDeprecated);
+    return filterNonEmpty<T>(list, (entry) => !entry.isDeprecated);
   }
 
-  const byProximity = list.map(entry => ({
+  const byProximity = list.map((entry) => ({
     proximity: getProximity(normalizeText(entry.label), text),
     entry,
   }));
 
   const conciseMatches = filterNonEmpty(
-    filterNonEmpty(byProximity, pair => pair.proximity <= 2),
-    pair => !pair.entry.isDeprecated,
+    filterNonEmpty(byProximity, (pair) => pair.proximity <= 2),
+    (pair) => !pair.entry.isDeprecated
   );
 
   const sortedMatches = conciseMatches.sort(
     (a, b) =>
       (a.entry.isDeprecated ? 1 : 0) - (b.entry.isDeprecated ? 1 : 0) ||
       a.proximity - b.proximity ||
-      a.entry.label.length - b.entry.label.length,
+      a.entry.label.length - b.entry.label.length
   );
 
-  return sortedMatches.map(pair => pair.entry);
+  return sortedMatches.map((pair) => pair.entry);
 }
 
 // Filters the array by the predicate, unless it results in an empty array,
 // in which case return the original array.
 function filterNonEmpty<T>(
   array: Array<T>,
-  predicate: (entry: T) => boolean,
+  predicate: (entry: T) => boolean
 ): Array<T> {
   const filtered = array.filter(predicate);
   return filtered.length === 0 ? array : filtered;
@@ -193,7 +193,7 @@ function lexicalDistance(a: string, b: string): number {
       d[i][j] = Math.min(
         d[i - 1][j] + 1,
         d[i][j - 1] + 1,
-        d[i - 1][j - 1] + cost,
+        d[i - 1][j - 1] + cost
       );
 
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {

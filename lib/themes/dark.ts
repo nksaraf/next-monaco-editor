@@ -1,4 +1,4 @@
-import monaco from 'monaco';
+import monaco from '@monaco';
 
 export default {
   base: 'vs-dark',

@@ -13,10 +13,11 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "plugins": ["lib/plugins/index.ts"],
-      "plugins/*": ["lib/plugins/*"],
+      "@plugins": ["lib/plugins/index.ts"],
+      "@plugins/*": ["lib/plugins/*"],
       "@hooks": ["./lib/hooks/index.ts"],
       "@monaco": ["./lib/monaco/index.ts"],
+      "@sandkit": ["./lib/index.ts"],
       "@worker": ["./lib/worker/index.ts"],
       "@themes": ["./lib/themes/index.ts"],
       "@monaco-editor": ["./lib/components/MonacoEditor.tsx"],
@@ -45,5 +46,5 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", ""]
 }

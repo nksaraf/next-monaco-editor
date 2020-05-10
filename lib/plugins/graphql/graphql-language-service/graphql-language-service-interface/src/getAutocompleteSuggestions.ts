@@ -26,7 +26,7 @@ import {
   State,
   AllTypeInfo,
   Position,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+} from 'graphql-language-service-types';
 
 import {
   GraphQLBoolean,
@@ -50,7 +50,7 @@ import {
   onlineParser,
   RuleKind,
   RuleKinds,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-parser/src';
+} from 'graphql-language-service-parser';
 
 import {
   forEachState,
@@ -68,7 +68,7 @@ export function getAutocompleteSuggestions(
   schema: GraphQLSchema,
   queryText: string,
   cursor: Position,
-  contextToken?: ContextToken,
+  contextToken?: ContextToken
 ): Array<CompletionItem> {
   const token = contextToken || getTokenAtPosition(queryText, cursor);
 
@@ -112,13 +112,13 @@ export function getAutocompleteSuggestions(
     if (argDefs) {
       return hintList(
         token,
-        argDefs.map(argDef => ({
+        argDefs.map((argDef) => ({
           astNode: argDefs,
           label: argDef.name,
           detail: String(argDef.type),
           documentation: argDef.description,
           kind: CompletionItemKind.Variable,
-        })),
+        }))
       );
     }
   }
@@ -133,12 +133,12 @@ export function getAutocompleteSuggestions(
           : CompletionItemKind.Field;
       return hintList(
         token,
-        objectFields.map(field => ({
+        objectFields.map((field) => ({
           label: field.name,
           detail: String(field.type),
           documentation: field.description,
           kind: completionKind,
-        })),
+        }))
       );
     }
   }
@@ -164,7 +164,7 @@ export function getAutocompleteSuggestions(
       token,
       typeInfo,
       schema,
-      kind,
+      kind
     );
   }
 
@@ -175,7 +175,7 @@ export function getAutocompleteSuggestions(
       typeInfo,
       schema,
       queryText,
-      kind,
+      kind
     );
   }
 
@@ -204,7 +204,7 @@ function getSuggestionsForFieldNames(
   token: ContextToken,
   typeInfo: AllTypeInfo,
   schema: GraphQLSchema,
-  kind: RuleKind.SelectionSet | RuleKind.Field | RuleKind.AliasedField,
+  kind: RuleKind.SelectionSet | RuleKind.Field | RuleKind.AliasedField
 ): Array<CompletionItem> {
   if (typeInfo.parentType) {
     const parentType = typeInfo.parentType;
@@ -229,7 +229,7 @@ function getSuggestionsForFieldNames(
         isDeprecated: field.isDeprecated,
         deprecationReason: field.deprecationReason,
         kind: CompletionItemKind.Field,
-      })),
+      }))
     );
   }
   return [];
@@ -238,7 +238,7 @@ function getSuggestionsForFieldNames(
 function getSuggestionsForInputValues(
   token: ContextToken,
   typeInfo: AllTypeInfo,
-  kind: string,
+  kind: string
 ): CompletionItem[] {
   const namedInputType = getNamedType(typeInfo.inputType as GraphQLType);
   if (namedInputType instanceof GraphQLEnumType) {
@@ -254,8 +254,8 @@ function getSuggestionsForInputValues(
           isDeprecated: value.isDeprecated,
           deprecationReason: value.deprecationReason,
           kind: CompletionItemKind.EnumMember,
-        }),
-      ),
+        })
+      )
     );
   } else if (namedInputType === GraphQLBoolean) {
     return hintList(token, [
@@ -282,7 +282,7 @@ function getSuggestionsForFragmentTypeConditions(
   token: ContextToken,
   typeInfo: AllTypeInfo,
   schema: GraphQLSchema,
-  kind: Kind.TypeCondition | Kind.NamedType,
+  kind: Kind.TypeCondition | Kind.NamedType
 ): Array<CompletionItem> {
   let possibleTypes: GraphQLType[];
   if (typeInfo.parentType) {
@@ -292,8 +292,8 @@ function getSuggestionsForFragmentTypeConditions(
       // they implement.
       const possibleObjTypes = schema.getPossibleTypes(abstractType);
       const possibleIfaceMap = Object.create(null);
-      possibleObjTypes.forEach(type => {
-        type.getInterfaces().forEach(iface => {
+      possibleObjTypes.forEach((type) => {
+        type.getInterfaces().forEach((iface) => {
           possibleIfaceMap[iface.name] = iface;
         });
       });
@@ -316,7 +316,7 @@ function getSuggestionsForFragmentTypeConditions(
         documentation: (namedType && namedType.description) || '',
         kind: CompletionItemKind.Field,
       };
-    }),
+    })
   );
 }
 
@@ -325,7 +325,7 @@ function getSuggestionsForFragmentSpread(
   typeInfo: AllTypeInfo,
   schema: GraphQLSchema,
   queryText: string,
-  kind: string,
+  kind: string
 ): Array<CompletionItem> {
   const typeMap = schema.getTypeMap();
   const defState = getDefinitionState(token.state);
@@ -333,7 +333,7 @@ function getSuggestionsForFragmentSpread(
 
   // Filter down to only the fragments which may exist here.
   const relevantFrags = fragments.filter(
-    frag =>
+    (frag) =>
       // Only include fragments with known types.
       typeMap[frag.typeCondition.name.value] &&
       // Only include fragments which are not cyclic.
@@ -348,23 +348,23 @@ function getSuggestionsForFragmentSpread(
       doTypesOverlap(
         schema,
         typeInfo.parentType,
-        typeMap[frag.typeCondition.name.value] as GraphQLCompositeType,
-      ),
+        typeMap[frag.typeCondition.name.value] as GraphQLCompositeType
+      )
   );
 
   return hintList(
     token,
-    relevantFrags.map(frag => ({
+    relevantFrags.map((frag) => ({
       label: frag.name.value,
       detail: String(typeMap[frag.typeCondition.name.value]),
       documentation: `fragment ${frag.name.value} on ${frag.typeCondition.name.value}`,
       kind: CompletionItemKind.Field,
-    })),
+    }))
   );
 }
 
 export function getFragmentDefinitions(
-  queryText: string,
+  queryText: string
 ): Array<FragmentDefinitionNode> {
   const fragmentDefs: FragmentDefinitionNode[] = [];
   runOnlineParser(queryText, (_, state: State) => {
@@ -398,7 +398,7 @@ export function getFragmentDefinitions(
 function getSuggestionsForVariableDefinition(
   token: ContextToken,
   schema: GraphQLSchema,
-  kind: string,
+  kind: string
 ): Array<CompletionItem> {
   const inputTypeMap = schema.getTypeMap();
   const inputTypes = objectValues(inputTypeMap).filter(isInputType);
@@ -409,7 +409,7 @@ function getSuggestionsForVariableDefinition(
       label: type.name,
       documentation: type.description,
       kind: CompletionItemKind.TypeParameter,
-    })),
+    }))
   );
 }
 
@@ -417,19 +417,19 @@ function getSuggestionsForDirective(
   token: ContextToken,
   state: State,
   schema: GraphQLSchema,
-  kind: string,
+  kind: string
 ): Array<CompletionItem> {
   if (state.prevState && state.prevState.kind) {
     const directives = schema
       .getDirectives()
-      .filter(directive => canUseDirective(state.prevState, directive));
+      .filter((directive) => canUseDirective(state.prevState, directive));
     return hintList(
       token,
-      directives.map(directive => ({
+      directives.map((directive) => ({
         label: directive.name,
         documentation: directive.description || '',
         kind: CompletionItemKind.Function,
-      })),
+      }))
     );
   }
   return [];
@@ -437,7 +437,7 @@ function getSuggestionsForDirective(
 
 export function getTokenAtPosition(
   queryText: string,
-  cursor: Position,
+  cursor: Position
 ): ContextToken {
   let styleAtCursor = null;
   let stateAtCursor = null;
@@ -475,12 +475,12 @@ type callbackFnType = (
   stream: CharacterStream,
   state: State,
   style: string,
-  index: number,
+  index: number
 ) => void | 'BREAK';
 
 export function runOnlineParser(
   queryText: string,
-  callback: callbackFnType,
+  callback: callbackFnType
 ): ContextToken {
   const lines = queryText.split('\n');
   const parser = onlineParser();
@@ -519,7 +519,7 @@ export function runOnlineParser(
 
 export function canUseDirective(
   state: State['prevState'],
-  directive: GraphQLDirective,
+  directive: GraphQLDirective
 ): boolean {
   if (!state || !state.kind) {
     return false;
@@ -579,7 +579,7 @@ export function canUseDirective(
 // from the graphql-mode parser.
 export function getTypeInfo(
   schema: GraphQLSchema,
-  tokenState: State,
+  tokenState: State
 ): AllTypeInfo {
   let argDef: AllTypeInfo['argDef'];
   let argDefs: AllTypeInfo['argDefs'];
@@ -591,7 +591,7 @@ export function getTypeInfo(
   let parentType: AllTypeInfo['parentType'];
   let type: AllTypeInfo['type'];
 
-  forEachState(tokenState, state => {
+  forEachState(tokenState, (state) => {
     switch (state.kind) {
       case 'Query':
       case 'ShortQuery':
@@ -675,7 +675,7 @@ export function getTypeInfo(
           enumType instanceof GraphQLEnumType
             ? find(
                 enumType.getValues(),
-                (val: GraphQLEnumValue) => val.value === state.name,
+                (val: GraphQLEnumValue) => val.value === state.name
               )
             : null;
         break;

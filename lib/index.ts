@@ -5,4 +5,3 @@ export * from './components/SandboxHead';
 export * from './components/ActionButton';
 export * from './components/Modal';
 export * from './components/Icons';
-export {};

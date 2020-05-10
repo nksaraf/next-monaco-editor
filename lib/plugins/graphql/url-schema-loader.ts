@@ -1,4 +1,9 @@
-import { getIntrospectionQuery, buildClientSchema, print, printSchema } from 'graphql';
+import {
+  getIntrospectionQuery,
+  buildClientSchema,
+  print,
+  printSchema,
+} from 'graphql';
 import { fetch } from 'cross-fetch';
 import { makeRemoteExecutableSchema } from 'graphql-tools-fork';
 import { parse } from 'graphql';
@@ -14,15 +19,14 @@ export class UrlLoader {
   //     return !!isWebUri(pointer);
   // }
   async load(pointer: string, options: any) {
-    console.log("Loading schema from ", pointer, options);
+    console.log('Loading schema from ', pointer, options);
     let headers = {};
     let fetch$1 = fetch;
     let method = 'POST';
     if (options) {
       if (Array.isArray(options.headers)) {
         headers = options.headers.reduce((prev, v) => ({ ...prev, ...v }), {});
-      }
-      else if (typeof options.headers === 'object') {
+      } else if (typeof options.headers === 'object') {
         headers = options.headers;
       }
       // if (options.customFetch) {
@@ -40,13 +44,21 @@ export class UrlLoader {
       'Content-Type': 'application/json',
       ...headers,
     };
-    const fetcher = async ({ query: queryDocument, variables, operationName }: any) => {
+    const fetcher = async ({
+      query: queryDocument,
+      variables,
+      operationName,
+    }: any) => {
       const fetchResult = await fetch$1(pointer, {
         method,
         ...(method === 'POST'
           ? {
-            body: JSON.stringify({ query: print(queryDocument), variables, operationName }),
-          }
+              body: JSON.stringify({
+                query: print(queryDocument),
+                variables,
+                operationName,
+              }),
+            }
           : {}),
         headers: extraHeaders,
       });
@@ -60,8 +72,7 @@ export class UrlLoader {
     let errorMessage;
     if (body.errors && body.errors.length > 0) {
       errorMessage = body.errors.map((item) => item.message).join(', ');
-    }
-    else if (!body.data) {
+    } else if (!body.data) {
       errorMessage = JSON.stringify(body, null, 2);
     }
     if (errorMessage) {

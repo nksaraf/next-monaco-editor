@@ -1,4 +1,5 @@
-import monaco, { asDisposable } from '@monaco';
+import { asDisposable } from '../../utils';
+import monaco from '@monaco';
 
 const parsers: { [key: string]: keyof typeof plugins } = {
   javascript: 'babel',

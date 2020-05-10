@@ -1,5 +1,5 @@
 import React from 'react';
-import { fixPath } from './Editor/utils';
+import { fixPath } from '../utils';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useFiles(
@@ -7,11 +7,7 @@ export function useFiles(
   initialFiles: any,
   override: boolean = false
 ) {
-  const [files, setFiles] = useLocalStorage(
-    directory + '-files',
-    initialFiles,
-    override
-  );
+  const [files, setFiles] = useLocalStorage(directory, initialFiles, override);
   const filesRef = React.useRef<{ [key: string]: string }>(files);
   filesRef.current = files;
   const setFile = React.useCallback(

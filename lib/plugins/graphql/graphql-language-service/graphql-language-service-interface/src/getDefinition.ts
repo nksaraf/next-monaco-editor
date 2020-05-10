@@ -25,9 +25,9 @@ import {
   Range,
   Uri,
   ObjectTypeInfo,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+} from 'graphql-language-service-types';
 
-import { locToRange, offsetToPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
+import { locToRange, offsetToPosition } from 'graphql-language-service-utils';
 import assert from 'assert';
 
 export const LANGUAGE = 'GraphQL';
@@ -47,11 +47,11 @@ function getPosition(text: string, node: ASTNode): Position {
 export async function getDefinitionQueryResultForNamedType(
   text: string,
   node: NamedTypeNode,
-  dependencies: Array<ObjectTypeInfo>,
+  dependencies: Array<ObjectTypeInfo>
 ): Promise<DefinitionQueryResult> {
   const name = node.name.value;
   const defNodes = dependencies.filter(
-    ({ definition }) => definition.name && definition.name.value === name,
+    ({ definition }) => definition.name && definition.name.value === name
   );
 
   if (defNodes.length === 0) {
@@ -59,23 +59,23 @@ export async function getDefinitionQueryResultForNamedType(
   }
   const definitions: Array<Definition> = defNodes.map(
     ({ filePath, content, definition }) =>
-      getDefinitionForNodeDefinition(filePath || '', content, definition),
+      getDefinitionForNodeDefinition(filePath || '', content, definition)
   );
 
   return {
     definitions,
-    queryRange: definitions.map(_ => getRange(text, node)),
+    queryRange: definitions.map((_) => getRange(text, node)),
   };
 }
 
 export async function getDefinitionQueryResultForFragmentSpread(
   text: string,
   fragment: FragmentSpreadNode,
-  dependencies: Array<FragmentInfo>,
+  dependencies: Array<FragmentInfo>
 ): Promise<DefinitionQueryResult> {
   const name = fragment.name.value;
   const defNodes = dependencies.filter(
-    ({ definition }) => definition.name.value === name,
+    ({ definition }) => definition.name.value === name
   );
 
   if (defNodes.length === 0) {
@@ -83,19 +83,19 @@ export async function getDefinitionQueryResultForFragmentSpread(
   }
   const definitions: Array<Definition> = defNodes.map(
     ({ filePath, content, definition }) =>
-      getDefinitionForFragmentDefinition(filePath || '', content, definition),
+      getDefinitionForFragmentDefinition(filePath || '', content, definition)
   );
 
   return {
     definitions,
-    queryRange: definitions.map(_ => getRange(text, fragment)),
+    queryRange: definitions.map((_) => getRange(text, fragment)),
   };
 }
 
 export function getDefinitionQueryResultForDefinitionNode(
   path: Uri,
   text: string,
-  definition: FragmentDefinitionNode | OperationDefinitionNode,
+  definition: FragmentDefinitionNode | OperationDefinitionNode
 ): DefinitionQueryResult {
   return {
     definitions: [getDefinitionForFragmentDefinition(path, text, definition)],
@@ -106,7 +106,7 @@ export function getDefinitionQueryResultForDefinitionNode(
 function getDefinitionForFragmentDefinition(
   path: Uri,
   text: string,
-  definition: FragmentDefinitionNode | OperationDefinitionNode,
+  definition: FragmentDefinitionNode | OperationDefinitionNode
 ): Definition {
   const name = definition.name;
   if (!name) {
@@ -129,7 +129,7 @@ function getDefinitionForFragmentDefinition(
 function getDefinitionForNodeDefinition(
   path: Uri,
   text: string,
-  definition: TypeDefinitionNode,
+  definition: TypeDefinitionNode
 ): Definition {
   const name = definition.name;
   assert(name, 'Expected ASTNode to have a Name.');

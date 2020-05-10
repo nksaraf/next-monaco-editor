@@ -25,7 +25,7 @@ import {
   Outline,
   OutlineTree,
   GraphQLCache,
-} from 'lib/plugins/graphql/language-service/graphql-language-service-types/src';
+} from 'graphql-language-service-types';
 
 import { GraphQLConfig, GraphQLProjectConfig } from 'graphql-config';
 import {
@@ -46,7 +46,7 @@ import {
 
 import { getOutline } from './getOutline';
 
-import { getASTNodeAtPosition } from 'lib/plugins/graphql/language-service/graphql-language-service-utils/src';
+import { getASTNodeAtPosition } from 'graphql-language-service-utils';
 
 const {
   FRAGMENT_DEFINITION,
@@ -116,7 +116,7 @@ export class GraphQLLanguageService {
   public async getDiagnostics(
     query: string,
     uri: Uri,
-    isRelayCompatMode?: boolean,
+    isRelayCompatMode?: boolean
   ): Promise<Array<Diagnostic>> {
     // Perform syntax diagnostics first, as this doesn't require
     // schema/fragment definitions, even the project configuration.
@@ -130,7 +130,7 @@ export class GraphQLLanguageService {
     try {
       const queryAST = parse(query);
       if (!schemaPath || uri !== schemaPath) {
-        queryHasExtensions = queryAST.definitions.some(definition => {
+        queryHasExtensions = queryAST.definitions.some((definition) => {
           switch (definition.kind) {
             case OBJECT_TYPE_DEFINITION:
             case INTERFACE_TYPE_DEFINITION:
@@ -166,17 +166,17 @@ export class GraphQLLanguageService {
     // If there's a matching config, proceed to prepare to run validation
     let source = query;
     const fragmentDefinitions = await this._graphQLCache.getFragmentDefinitions(
-      projectConfig,
+      projectConfig
     );
 
     const fragmentDependencies = await this._graphQLCache.getFragmentDependencies(
       query,
-      fragmentDefinitions,
+      fragmentDefinitions
     );
 
     const dependenciesSource = fragmentDependencies.reduce(
       (prev, cur) => `${prev} ${print(cur.definition)}`,
-      '',
+      ''
     );
 
     source = `${source} ${dependenciesSource}`;
@@ -202,7 +202,7 @@ export class GraphQLLanguageService {
     }
     const schema = await this._graphQLCache.getSchema(
       projectName,
-      queryHasExtensions,
+      queryHasExtensions
     );
 
     if (!schema) {
@@ -213,14 +213,14 @@ export class GraphQLLanguageService {
       validationAst,
       schema,
       customRules as ValidationRule[],
-      isRelayCompatMode,
+      isRelayCompatMode
     );
   }
 
   public async getAutocompleteSuggestions(
     query: string,
     position: Position,
-    filePath: Uri,
+    filePath: Uri
   ): Promise<Array<CompletionItem>> {
     const projectConfig = this.getConfigForURI(filePath);
     const schema = await this._graphQLCache.getSchema(projectConfig.name);
@@ -234,7 +234,7 @@ export class GraphQLLanguageService {
   public async getHoverInformation(
     query: string,
     position: Position,
-    filePath: Uri,
+    filePath: Uri
   ): Promise<Hover['contents']> {
     const projectConfig = this.getConfigForURI(filePath);
     const schema = await this._graphQLCache.getSchema(projectConfig.name);
@@ -248,7 +248,7 @@ export class GraphQLLanguageService {
   public async getDefinition(
     query: string,
     position: Position,
-    filePath: Uri,
+    filePath: Uri
   ): Promise<DefinitionQueryResult | null> {
     const projectConfig = this.getConfigForURI(filePath);
 
@@ -268,7 +268,7 @@ export class GraphQLLanguageService {
             ast,
             node,
             filePath,
-            projectConfig,
+            projectConfig
           );
 
         case FRAGMENT_DEFINITION:
@@ -276,7 +276,7 @@ export class GraphQLLanguageService {
           return getDefinitionQueryResultForDefinitionNode(
             filePath,
             query,
-            node,
+            node
           );
 
         case NAMED_TYPE:
@@ -285,7 +285,7 @@ export class GraphQLLanguageService {
             ast,
             node,
             filePath,
-            projectConfig,
+            projectConfig
           );
       }
     }
@@ -294,7 +294,7 @@ export class GraphQLLanguageService {
 
   public async getDocumentSymbols(
     document: string,
-    filePath: Uri,
+    filePath: Uri
   ): Promise<SymbolInformation[]> {
     const outline = await this.getOutline(document);
     if (!outline) {
@@ -328,7 +328,7 @@ export class GraphQLLanguageService {
         },
         containerName: parent ? parent.representativeName : undefined,
       });
-      input.push(...tree.children.map(child => [tree, child]));
+      input.push(...tree.children.map((child) => [tree, child]));
     }
     return output;
   }
@@ -346,24 +346,24 @@ export class GraphQLLanguageService {
     ast: DocumentNode,
     node: NamedTypeNode,
     filePath: Uri,
-    projectConfig: GraphQLProjectConfig,
+    projectConfig: GraphQLProjectConfig
   ): Promise<DefinitionQueryResult | null> {
     const objectTypeDefinitions = await this._graphQLCache.getObjectTypeDefinitions(
-      projectConfig,
+      projectConfig
     );
 
     const dependencies = await this._graphQLCache.getObjectTypeDependenciesForAST(
       ast,
-      objectTypeDefinitions,
+      objectTypeDefinitions
     );
 
     const localObjectTypeDefinitions = ast.definitions.filter(
-      definition =>
+      (definition) =>
         definition.kind === OBJECT_TYPE_DEFINITION ||
         definition.kind === INPUT_OBJECT_TYPE_DEFINITION ||
         definition.kind === ENUM_TYPE_DEFINITION ||
         definition.kind === SCALAR_TYPE_DEFINITION ||
-        definition.kind === INTERFACE_TYPE_DEFINITION,
+        definition.kind === INTERFACE_TYPE_DEFINITION
     );
 
     const typeCastedDefs = (localObjectTypeDefinitions as any) as Array<
@@ -375,13 +375,13 @@ export class GraphQLLanguageService {
         filePath,
         content: query,
         definition,
-      }),
+      })
     );
 
     const result = await getDefinitionQueryResultForNamedType(
       query,
       node,
-      dependencies.concat(localOperationDefinationInfos),
+      dependencies.concat(localOperationDefinationInfos)
     );
 
     return result;
@@ -392,19 +392,19 @@ export class GraphQLLanguageService {
     ast: DocumentNode,
     node: FragmentSpreadNode,
     filePath: Uri,
-    projectConfig: GraphQLProjectConfig,
+    projectConfig: GraphQLProjectConfig
   ): Promise<DefinitionQueryResult | null> {
     const fragmentDefinitions = await this._graphQLCache.getFragmentDefinitions(
-      projectConfig,
+      projectConfig
     );
 
     const dependencies = await this._graphQLCache.getFragmentDependenciesForAST(
       ast,
-      fragmentDefinitions,
+      fragmentDefinitions
     );
 
     const localFragDefinitions = ast.definitions.filter(
-      definition => definition.kind === FRAGMENT_DEFINITION,
+      (definition) => definition.kind === FRAGMENT_DEFINITION
     );
 
     const typeCastedDefs = (localFragDefinitions as any) as Array<
@@ -416,13 +416,13 @@ export class GraphQLLanguageService {
         filePath,
         content: query,
         definition,
-      }),
+      })
     );
 
     const result = await getDefinitionQueryResultForFragmentSpread(
       query,
       node,
-      dependencies.concat(localFragInfos),
+      dependencies.concat(localFragInfos)
     );
 
     return result;

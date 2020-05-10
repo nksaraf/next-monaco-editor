@@ -2,7 +2,6 @@
   "files.exclude": {
     "reference": true,
     "public": true,
-    ".next": true,
     "next": true,
     "monaco": true,
     "worker": true,
@@ -11,7 +10,8 @@
     ".vscode": true,
     "monaco-editor": true,
     "split-panes": true,
-    "json-viewer": true
+    "json-viewer": true,
+    "plugins": true
   },
   "search.exclude": {
     "**/node_modules": false
