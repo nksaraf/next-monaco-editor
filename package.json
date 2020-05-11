@@ -1,7 +1,7 @@
 {
   "name": "sandkit",
   "author": "Nikhil Saraf",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.4",
   "license": "MIT",
   "scripts": {
     "start": "next start",
@@ -102,6 +102,8 @@
     "monaco-editor",
     "split-panes",
     "json-viewer",
-    "hooks"
+    "hooks",
+    "prettier.monaco.worker",
+    "typings.monaco.worker"
   ]
 }
