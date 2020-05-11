@@ -24,7 +24,8 @@ import GraphiQLExplorer from 'sandboxes/graphql/Explorer';
 
 import { prettier } from '@plugins';
 import { graphql } from '@plugins/graphql';
-import '@plugins/workers';
+import '@workers/prettier.monaco.worker';
+import '@workers/graphql.monaco.worker';
 import { UrlLoader } from '@plugins/graphql/url-schema-loader';
 
 import { ThemeProvider, Select } from 'react-ui';

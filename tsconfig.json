@@ -1,5 +1,13 @@
 {
-  "include": ["lib", "pages", "toolbox", "lib/plugins", "sandboxes"],
+  "include": [
+    "lib",
+    "pages",
+    "toolbox",
+    "lib/plugins",
+    "sandboxes",
+    "workers/all.monaco.worker.ts",
+    "workers/all.monaco.worker.ts"
+  ],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
@@ -19,6 +27,7 @@
       "@monaco": ["./lib/monaco/index.ts"],
       "@sandkit": ["./lib/index.ts"],
       "@worker": ["./lib/worker/index.ts"],
+      "@workers/*": ["./workers/*"],
       "@themes": ["./lib/themes/index.ts"],
       "@monaco-editor": ["./lib/components/MonacoEditor.tsx"],
       "@editor": ["./lib/components/Editor.tsx"],

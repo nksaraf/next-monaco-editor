@@ -1,5 +1,6 @@
-// @ts-ignore
+// @ts-nocheck
 import prettier from 'prettier/standalone';
+// @ts-ignore
 import { BaseWorker, initialize, IWorkerContext } from '@worker';
 
 declare global {

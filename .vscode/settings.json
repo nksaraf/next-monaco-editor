@@ -11,7 +11,9 @@
     "monaco-editor": true,
     "split-panes": true,
     "json-viewer": true,
-    "plugins": true
+    "plugins": true,
+    "prettier.monaco.worker": true,
+    "typings.monaco.worker": true
   },
   "search.exclude": {
     "**/node_modules": false

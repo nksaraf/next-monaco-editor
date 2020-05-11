@@ -29,10 +29,8 @@ export function processDimensions(
   };
 }
 
-
 export const getNextWorkerPath = (label: string) => {
-  console.log(label);
-  return `_next/static/workers/${label}.worker.js`;
+  return `_next/static/workers/${label}.monaco.worker.js`;
 };
 
 export const fixPath = (path: string) =>

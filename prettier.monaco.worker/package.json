@@ -1,0 +1,6 @@
+{
+  "name": "sandkit/prettier.monaco.worker",
+  "private": true,
+  "module": "../dist/esm/prettier.monaco.worker.js",
+  "types": "../dist/types"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "sandkit/typings.monaco.worker",
+  "private": true,
+  "module": "../dist/esm/typings.monaco.worker.js",
+  "types": "../dist/types"
+}

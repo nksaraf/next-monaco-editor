@@ -1,5 +1,5 @@
 import monaco from '@monaco';
-import { LanguageService } from './language-service';
+
 export const graphql = (settings: any) => (api: typeof monaco) => {
   return api.languages.register({
     id: 'graphql',
