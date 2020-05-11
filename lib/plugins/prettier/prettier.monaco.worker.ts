@@ -8,7 +8,7 @@ declare global {
   const prettierPlugins: any;
 }
 
-class PrettierWorker extends BaseWorker {
+export class PrettierWorker extends BaseWorker {
   options: { parser: string; plugins: string[] };
   loader: Promise<any>;
   constructor(
