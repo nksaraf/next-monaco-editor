@@ -14,6 +14,7 @@
     "baseUrl": "./lib",
     "jsx": "react",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -21,13 +22,9 @@
     "emitDeclarationOnly": true,
     "paths": {
       "@monaco": ["./monaco/index.ts"],
-      "@hooks": ["./hooks/index.ts"],
       "@worker": ["./worker/index.ts"],
       "@themes": ["./themes/index.ts"],
-      "@monaco-editor": ["./components/MonacoEditor.tsx"],
-      "@editor": ["./components/Editor.tsx"],
-      "@split-panes": ["./components/SplitPanes.tsx"],
-      "@json-viewer": ["./components/JSONViewer.tsx"],
+      "@MonacoEditor": ["./components/MonacoEditor.tsx"],
       "graphql-language-service-parser": [
         "./plugins/graphql/graphql-language-service/graphql-language-service-parser/src/index.ts"
       ],

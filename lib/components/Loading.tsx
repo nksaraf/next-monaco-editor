@@ -1,7 +1,7 @@
 import React from 'react';
 import allThemes from '@themes';
 import Spectrum from 'react-spectrum';
-import { EditorProps } from '@editor';
+import { EditorProps } from './Editor';
 import { fixPath } from '../utils';
 
 export function Loading({

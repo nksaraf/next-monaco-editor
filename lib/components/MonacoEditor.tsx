@@ -6,8 +6,9 @@ import {
   getNextWorkerPath,
   fixPath,
 } from '../utils';
-import monaco from '@monaco';
+import monaco from '../monaco';
 import defaultThemes, { ThemeNames, themeNames } from '@themes';
+import { useRefWithEffects } from '../hooks';
 
 function setupThemes(
   monacoApi: typeof monaco,
@@ -121,22 +122,6 @@ export interface MonacoEditorProps {
 
 // const editorStates = new Map();
 // const useFS = ({ files }) => {};
-
-function useRefWithEffects<T>(): [
-  React.MutableRefObject<T | undefined>,
-  (effect: (obj: T) => void, deps: any[]) => void
-] {
-  const ref = React.useRef<T>();
-  const useRefEffect = (effect: (obj: T) => void, deps: any[]) => {
-    React.useEffect(() => {
-      if (ref.current) {
-        return effect(ref.current);
-      }
-    }, [...deps]);
-  };
-
-  return [ref, useRefEffect];
-}
 
 function findModel(path: string) {
   return monaco.editor.getModel(monaco.Uri.file(fixPath(path)));
@@ -404,3 +389,5 @@ export const MonacoEditor = React.forwardRef<
 );
 
 export default MonacoEditor;
+// import MONACO = monaco;
+// export { MONACO };

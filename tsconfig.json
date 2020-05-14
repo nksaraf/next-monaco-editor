@@ -28,8 +28,8 @@
       "@sandkit": ["./lib/index.ts"],
       "@worker": ["./lib/worker/index.ts"],
       "@workers/*": ["./workers/*"],
-      "@themes": ["./lib/themes/index.ts"],
-      "@monaco-editor": ["./lib/components/MonacoEditor.tsx"],
+      "@themes": ["lib/components/themes/index.ts"],
+      "@MonacoEditor": ["./lib/components/MonacoEditor.tsx"],
       "graphql-language-service-parser": [
         "./lib/plugins/graphql/graphql-language-service/graphql-language-service-parser/src/index.ts"
       ],

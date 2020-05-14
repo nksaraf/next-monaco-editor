@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { MonacoEditorProps } from './MonacoEditor';
+import MONACO from '../monaco';
 import { processDimensions } from '../utils';
-import monaco from '@monaco';
 import { Loading, SpectrumLoading } from './Loading';
 export interface EditorProps extends MonacoEditorProps {
   loading?: React.ReactNode;
@@ -9,12 +9,12 @@ export interface EditorProps extends MonacoEditorProps {
 
 let Editor: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<EditorProps> &
-    React.RefAttributes<monaco.editor.IStandaloneCodeEditor>
+    React.RefAttributes<MONACO.editor.IStandaloneCodeEditor>
 >;
 if (typeof window !== 'undefined') {
-  const MonacoEditor: any = React.lazy(() => import('@monaco-editor'));
+  const MonacoEditor: any = React.lazy(() => import('@MonacoEditor'));
   MonacoEditor.displayName = 'MonacoEditor';
-  Editor = React.forwardRef<monaco.editor.IStandaloneCodeEditor, EditorProps>(
+  Editor = React.forwardRef<MONACO.editor.IStandaloneCodeEditor, EditorProps>(
     (
       {
         width = 800,
@@ -44,6 +44,7 @@ if (typeof window !== 'undefined') {
                 <SpectrumLoading
                   {...props}
                   id={id}
+                  // themes={allThemes}
                   width={width}
                   height={height}
                 />
@@ -57,7 +58,7 @@ if (typeof window !== 'undefined') {
     }
   );
 } else {
-  Editor = React.forwardRef<monaco.editor.IStandaloneCodeEditor, EditorProps>(
+  Editor = React.forwardRef<MONACO.editor.IStandaloneCodeEditor, EditorProps>(
     ({ width = 800, height = 600 }: EditorProps, ref) => {
       return <div style={processDimensions(width, height)} ref={ref as any} />;
     }
