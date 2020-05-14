@@ -1,7 +1,7 @@
 {
   "name": "sandkit",
   "author": "Nikhil Saraf",
-  "version": "0.0.1-beta.7",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "start": "next start",
