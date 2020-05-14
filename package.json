@@ -1,7 +1,7 @@
 {
   "name": "sandkit",
   "author": "Nikhil Saraf",
-  "version": "0.0.2-canary.5",
+  "version": "0.0.2-canary.6",
   "license": "MIT",
   "scripts": {
     "start": "next start",
@@ -92,11 +92,9 @@
     "dist",
     "worker",
     "plugins",
-    "monaco",
     "dist/types",
     "next",
     "themes",
-    "monaco-editor",
     "prettier.monaco.worker",
     "typings.monaco.worker",
     "MonacoEditor"
