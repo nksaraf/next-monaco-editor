@@ -30,9 +30,6 @@
       "@workers/*": ["./workers/*"],
       "@themes": ["./lib/themes/index.ts"],
       "@monaco-editor": ["./lib/components/MonacoEditor.tsx"],
-      "@editor": ["./lib/components/Editor.tsx"],
-      "@split-panes": ["./lib/components/SplitPanes.tsx"],
-      "@json-viewer": ["./lib/components/JSONViewer.tsx"],
       "graphql-language-service-parser": [
         "./lib/plugins/graphql/graphql-language-service/graphql-language-service-parser/src/index.ts"
       ],

@@ -71,7 +71,7 @@
 //                 monaco.languages.typescript.addGlobal(
 //                   `
 //                 import * as faunadb from "./node_modules/faunadb";
-                
+
 //                 declare global {
 //                   export const q: typeof faunadb.query
 //                 }
@@ -173,3 +173,5 @@
 //     </>
 //   );
 // };
+
+export {};

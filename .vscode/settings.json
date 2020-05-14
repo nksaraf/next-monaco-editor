@@ -1,16 +1,12 @@
 {
   "files.exclude": {
-    "reference": true,
     "public": true,
     "next": true,
     "monaco": true,
     "worker": true,
     "themes": true,
-    "editor": true,
     ".vscode": true,
     "monaco-editor": true,
-    "split-panes": true,
-    "json-viewer": true,
     "plugins": true,
     "prettier.monaco.worker": true,
     "typings.monaco.worker": true

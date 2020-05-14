@@ -1,7 +1,0 @@
-{
-  "name": "sandkit/json-viewer",
-  "private": true,
-  "main": "../dist/cjs/json-viewer.js",
-  "module": "../dist/esm/json-viewer.js",
-  "types": "../dist/types"
-}

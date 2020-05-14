@@ -1,12 +1,10 @@
 module.exports = {
-  typecheck: false,
+  typecheck: true,
   silent: true,
   entries: [
     'monaco',
     'worker',
     'themes',
-    'hooks',
-
     {
       name: 'next',
       target: 'node',
@@ -29,18 +27,18 @@ module.exports = {
       source: './lib/plugins/typings/typings.monaco.worker.js',
       format: 'esm',
     },
-    {
-      name: 'editor',
-      source: './lib/components/Editor.tsx',
-    },
-    {
-      name: 'split-panes',
-      source: './lib/components/SplitPanes.tsx',
-    },
-    {
-      name: 'json-viewer',
-      source: './lib/components/JSONViewer.tsx',
-    },
+    // {
+    //   name: 'editor',
+    //   source: './lib/components/Editor.tsx',
+    // },
+    // {
+    //   name: 'split-panes',
+    //   source: './lib/components/SplitPanes.tsx',
+    // },
+    // {
+    //   name: 'components/JSONViewer',
+    //   // source: './lib/components/JSONViewer.tsx',
+    // },
   ],
   target: 'browser',
   // rollup: (config, options) => {
@@ -49,6 +47,23 @@ module.exports = {
   //   }
 
   //   return config;
+  // },
+  // preBuild: async (toolbox) => {
+  //   const path = require('path');
+
+  //   await new (require('npm-dts').Generator)(
+  //     {
+  //       entry: './lib/monaco/index.ts',
+  //       root: path.resolve(process.cwd()),
+  //       logLevel: 'debug',
+  //       throwOnErrors: true,
+  //       // tmp: path.resolve(process.cwd(), 'cache/tmp'),
+  //       tsc: '-p tsconfig.build.json',
+  //     },
+  //     true
+  //   ).generate();
+
+  //   process.exit(0);
   // },
 };
 

@@ -27,10 +27,22 @@
       "@monaco-editor": ["./components/MonacoEditor.tsx"],
       "@editor": ["./components/Editor.tsx"],
       "@split-panes": ["./components/SplitPanes.tsx"],
-      "@json-viewer": ["./components/JSONViewer.tsx"]
+      "@json-viewer": ["./components/JSONViewer.tsx"],
+      "graphql-language-service-parser": [
+        "./plugins/graphql/graphql-language-service/graphql-language-service-parser/src/index.ts"
+      ],
+      "graphql-language-service-interface": [
+        "./plugins/graphql/graphql-language-service/graphql-language-service-interface/src/index.ts"
+      ],
+      "graphql-language-service-types": [
+        "./plugins/graphql/graphql-language-service/graphql-language-service-types/src/index.ts"
+      ],
+      "graphql-language-service-utils": [
+        "./plugins/graphql/graphql-language-service/graphql-language-service-utils/src/index.ts"
+      ]
     },
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "exclude": ["node_modules", "lib/plugins/graphql/language-service"]
+  "exclude": ["node_modules", "lib/plugins/graphql/graphql-language-service"]
 }

@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { MonacoEditorProps } from '@monaco-editor';
+import { MonacoEditorProps } from './MonacoEditor';
 import { processDimensions } from '../utils';
 import monaco from '@monaco';
 import { Loading, SpectrumLoading } from './Loading';
