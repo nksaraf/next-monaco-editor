@@ -1,7 +1,7 @@
 {
   "name": "sandkit",
   "author": "Nikhil Saraf",
-  "version": "0.0.2-canary.2",
+  "version": "0.0.2-canary.3",
   "license": "MIT",
   "scripts": {
     "start": "next start",
