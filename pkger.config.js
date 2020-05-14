@@ -1,8 +1,9 @@
+const magic = require('magic-components/babel');
+
 module.exports = {
   typecheck: true,
   silent: true,
   entries: [
-    'monaco',
     'worker',
     'themes',
     {
@@ -10,7 +11,7 @@ module.exports = {
       target: 'node',
     },
     {
-      name: 'monaco-editor',
+      name: 'MonacoEditor',
       source: './lib/components/MonacoEditor.tsx',
     },
     {
@@ -27,44 +28,94 @@ module.exports = {
       source: './lib/plugins/typings/typings.monaco.worker.js',
       format: 'esm',
     },
-    // {
-    //   name: 'editor',
-    //   source: './lib/components/Editor.tsx',
-    // },
-    // {
-    //   name: 'split-panes',
-    //   source: './lib/components/SplitPanes.tsx',
-    // },
-    // {
-    //   name: 'components/JSONViewer',
-    //   // source: './lib/components/JSONViewer.tsx',
-    // },
   ],
+  babel: (config, options) => {
+    return {
+      ...config,
+      plugins: [magic, ...config.plugins],
+    };
+  },
   target: 'browser',
-  // rollup: (config, options) => {
-  //   // if (options.entryName && options.entryName.endsWith('.monaco.worker')) {
-  //   //   // config.external
-  //   }
+  rollup: (config, options) => {
+    const external = config.external;
+    config.external = (imported, importer) => {
+      const ext = external(imported, importer);
+      if (imported.startsWith('@') && !(imported.indexOf('/') >= 0)) {
+        return true;
+      }
+      return ext;
+    };
+    return config;
+  },
+  postBuild: async (toolbox) => {
+    // for (var path of toolbox.filesystem.find('dist', {
+    //   matching: ['cjs/**/*.js', 'esm/**/*.js'],
+    // })) {
+    //   await toolbox.patching.update(path, (data) => {
+    //     return data
+    //       .replace('@MonacoEditor', './MonacoEditor')
+    //       .replace(/[\'\"]@([A-Za-z\-]+)[\'\"]/, (a, b) => {
+    //         return `'./${b}'`;
+    //       });
+    //   });
+    // }
 
-  //   return config;
-  // },
-  // preBuild: async (toolbox) => {
-  //   const path = require('path');
+    // const entry = Object.fromEntries(
+    //   toolbox.config.allEntries.map((o) => [
+    //     o.entryName,
+    //     toolbox.path.join(process.cwd(), o.source),
+    //   ])
+    // );
 
-  //   await new (require('npm-dts').Generator)(
-  //     {
-  //       entry: './lib/monaco/index.ts',
-  //       root: path.resolve(process.cwd()),
-  //       logLevel: 'debug',
-  //       throwOnErrors: true,
-  //       // tmp: path.resolve(process.cwd(), 'cache/tmp'),
-  //       tsc: '-p tsconfig.build.json',
-  //     },
-  //     true
-  //   ).generate();
+    // const other = (path, b) => {
+    //   if (entry[b]) {
+    //     const myPath = toolbox.path.dirname(
+    //       toolbox.path.join(
+    //         process.cwd(),
+    //         path.replace('dist/types', 'lib').replace('.d.ts', '.ts')
+    //       )
+    //     );
+    //     let relPath = toolbox.path.from(myPath, entry[b]);
+    //     if (relPath.endsWith('index.ts') || relPath.endsWith('index.tsx')) {
+    //       relPath = toolbox.path.dirname(relPath);
+    //     }
+    //     // console.log(myPath, entry[b], toolbox.path.from(myPath, entry[b]));
+    //     return `'./${relPath}'`;
+    //   }
+    //   return b;
+    // };
 
-  //   process.exit(0);
-  // },
+    // for (var path of toolbox.filesystem.find('dist', {
+    //   matching: ['types/**/*.d.ts'],
+    // })) {
+    //   await toolbox.patching.update(path, (data) => {
+    //     return data.replace(/[\'\"]@([a-zA-Z\-]+)[\'\"]/, (a, b) =>
+    //       other(path, b)
+    //     );
+    //   });
+    // }
+
+    try {
+      for (var i of toolbox.config.allEntries) {
+        if (i.entryName) {
+          await toolbox.patching.update(
+            toolbox.path.join(process.cwd(), i.entryName, 'package.json'),
+            (data) => {
+              return {
+                ...data,
+                types: toolbox.path.join(
+                  data.types,
+                  i.source.replace('lib/', '').replace(/\.tsx?/, '')
+                ),
+              };
+            }
+          );
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  },
 };
 
 // preBuild: async (toolbox, config) => {

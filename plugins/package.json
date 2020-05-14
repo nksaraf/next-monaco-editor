@@ -3,5 +3,5 @@
   "private": true,
   "main": "../dist/cjs/plugins.js",
   "module": "../dist/esm/plugins.js",
-  "types": "../dist/types"
+  "types": "../dist/types/plugins/index"
 }

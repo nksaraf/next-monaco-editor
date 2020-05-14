@@ -2,5 +2,5 @@
   "name": "sandkit/next",
   "private": true,
   "main": "../dist/cjs/next.js",
-  "types": "../dist/types"
+  "types": "../dist/types/next/index.js"
 }

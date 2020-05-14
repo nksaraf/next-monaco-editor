@@ -80,6 +80,9 @@ export interface MonacoEditorProps {
   containerProps?: any;
   defaultValue?: string;
   line?: number;
+  monacoRef?:
+    | ((instance: typeof monaco) => void)
+    | React.MutableRefObject<typeof monaco>;
   style?: React.CSSProperties;
   path?: string;
   language?: string;
@@ -179,6 +182,7 @@ export const MonacoEditor = React.forwardRef<
       language,
       syncAllFiles = false,
       theme = 'vs-dark',
+      monacoRef,
       path = `model${
         // @ts-ignore
         (monaco.languages.getLanguages().find((l) => l.id === language)
@@ -202,7 +206,7 @@ export const MonacoEditor = React.forwardRef<
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
     const [editorRef, useEditorEffect] = useRefWithEffects<
-      monaco.editor.IStandaloneCodeEditor
+      monaco.editor.IStandaloneCodeEditor & { monaco: typeof monaco }
     >();
     const subscriptionRef = React.useRef<monaco.IDisposable>(null);
 
@@ -233,12 +237,15 @@ export const MonacoEditor = React.forwardRef<
         );
       }
 
-      editorRef.current = monaco.editor.create(
-        containerRef.current,
-        options,
-        typeof overrideServices === 'function'
-          ? overrideServices(monaco)
-          : overrideServices
+      editorRef.current = Object.assign(
+        monaco.editor.create(
+          containerRef.current,
+          options,
+          typeof overrideServices === 'function'
+            ? overrideServices(monaco)
+            : overrideServices
+        ),
+        { monaco: monaco }
       );
 
       // editor ref
@@ -247,6 +254,14 @@ export const MonacoEditor = React.forwardRef<
           ref(editorRef.current);
         } else {
           (ref as any).current = editorRef.current;
+        }
+      }
+
+      if (monacoRef) {
+        if (typeof monacoRef === 'function') {
+          monacoRef(monaco);
+        } else {
+          (monacoRef as any).current = monaco;
         }
       }
 

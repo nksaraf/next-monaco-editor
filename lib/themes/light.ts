@@ -1,5 +1,3 @@
-import monaco from '@monaco';
-
 export default {
   base: 'vs',
   inherit: true,
@@ -70,4 +68,4 @@ export default {
     'editorIndentGuide.background': '#ecebec',
     'editorIndentGuide.activeBackground': '#e0e0e0',
   },
-} as monaco.editor.IStandaloneThemeData;
+};

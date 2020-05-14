@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function useRefWithEffects<T>(): [
   React.MutableRefObject<T | undefined>,
   (effect: (obj: T) => void, deps: any[]) => void

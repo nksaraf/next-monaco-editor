@@ -1,7 +1,0 @@
-{
-  "name": "sandkit/monaco",
-  "private": true,
-  "main": "../dist/cjs/monaco.js",
-  "module": "../dist/esm/monaco.js",
-  "types": "../dist/types"
-}

@@ -2,12 +2,8 @@
   "files.exclude": {
     "public": true,
     "next": true,
-    "monaco": true,
-    "worker": true,
     "themes": true,
     ".vscode": true,
-    "monaco-editor": true,
-    "plugins": true,
     "prettier.monaco.worker": true,
     "typings.monaco.worker": true
   },

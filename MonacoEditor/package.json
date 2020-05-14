@@ -1,0 +1,7 @@
+{
+  "name": "sandkit/MonacoEditor",
+  "private": true,
+  "main": "../dist/cjs/MonacoEditor.js",
+  "module": "../dist/esm/MonacoEditor.js",
+  "types": "../dist/types/components/MonacoEditor"
+}
