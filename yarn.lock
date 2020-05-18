@@ -1607,10 +1607,10 @@
     estree-walker "^1.0.1"
     micromatch "^4.0.2"
 
-"@scarf/scarf@^0.1.3":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-0.1.5.tgz#fc4cc88294eca336eed9a91549180346de5e6946"
-  integrity sha512-Fx6atDc7JM1r0WkPCDhNetVZNp+DO21q/HGlomAKBG+k8vb1B8fg8Yige4oCf1P9OWTZWm5tM5i3jlXhrSbNOg==
+"@scarf/scarf@^1.0.0":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-1.0.5.tgz#accee0bce88a9047672f7c8faf3cada59c996b81"
+  integrity sha512-9WKaGVpQH905Aqkk+BczFEeLQxS07rl04afFRPUG9IcSlOwmo5EVVuuNu0d4M9LMYucObvK0LoAe+5HfMW2QhQ==
 
 "@ts-morph/common@~0.4.0":
   version "0.4.0"
@@ -7627,12 +7627,12 @@ react-modal@^3.11.2:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
-react-query@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-1.2.7.tgz#9c18fd1d6db6f961421b00b14d8ce9b49753fb53"
-  integrity sha512-oaVpIxAr3fepE1HRx9rEbQKHMwTT4MkVf+0lgkjWBY4MnIKY0/ozM/ImW1T5iJvgFh0AFI+KCPljR9FER5hy8g==
+react-query@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-1.5.2.tgz#955d20ee2f3418476e9ab1080b54ccbc73018858"
+  integrity sha512-dXN75mZiF3mBR2HAPBpsNvltPAW8MwLn/psKwjtippEBMoSa2Cqy7JxizAY23cKvXA0551RIsp5W01GNh/vw8w==
   dependencies:
-    "@scarf/scarf" "^0.1.3"
+    "@scarf/scarf" "^1.0.0"
     ts-toolbelt "^6.4.2"
 
 react-spectrum@^1.1.7:
