@@ -1,7 +1,0 @@
-{
-  "name": "sandkit/worker",
-  "private": true,
-  "main": "../dist/cjs/worker.js",
-  "module": "../dist/esm/worker.js",
-  "types": "../dist/types/worker/index"
-}

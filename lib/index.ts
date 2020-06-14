@@ -6,10 +6,3 @@ export * from './components/ActionButton';
 export * from './components/Modal';
 export * from './components/Icons';
 export * from './hooks';
-
-import * as MONACO from './monaco';
-declare namespace M {
-  export type monaco = typeof MONACO.monaco;
-}
-
-export type monaco = M.monaco;

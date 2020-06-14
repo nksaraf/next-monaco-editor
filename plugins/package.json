@@ -1,7 +1,0 @@
-{
-  "name": "sandkit/plugins",
-  "private": true,
-  "main": "../dist/cjs/plugins.js",
-  "module": "../dist/esm/plugins.js",
-  "types": "../dist/types/plugins/index"
-}

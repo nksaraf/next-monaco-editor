@@ -48,52 +48,52 @@ module.exports = {
     return config;
   },
   postBuild: async (toolbox) => {
-    // for (var path of toolbox.filesystem.find('dist', {
-    //   matching: ['cjs/**/*.js', 'esm/**/*.js'],
-    // })) {
-    //   await toolbox.patching.update(path, (data) => {
-    //     return data
-    //       .replace('@MonacoEditor', './MonacoEditor')
-    //       .replace(/[\'\"]@([A-Za-z\-]+)[\'\"]/, (a, b) => {
-    //         return `'./${b}'`;
-    //       });
-    //   });
-    // }
+    for (var path of toolbox.filesystem.find('dist', {
+      matching: ['cjs/**/*.js', 'esm/**/*.js'],
+    })) {
+      await toolbox.patching.update(path, (data) => {
+        return data
+          .replace('@MonacoEditor', './MonacoEditor')
+          .replace(/[\'\"]@([A-Za-z\-]+)[\'\"]/, (a, b) => {
+            return `'./${b}'`;
+          });
+      });
+    }
 
-    // const entry = Object.fromEntries(
-    //   toolbox.config.allEntries.map((o) => [
-    //     o.entryName,
-    //     toolbox.path.join(process.cwd(), o.source),
-    //   ])
-    // );
+    const entry = Object.fromEntries(
+      toolbox.config.allEntries.map((o) => [
+        o.entryName,
+        toolbox.path.join(process.cwd(), o.source),
+      ])
+    );
 
-    // const other = (path, b) => {
-    //   if (entry[b]) {
-    //     const myPath = toolbox.path.dirname(
-    //       toolbox.path.join(
-    //         process.cwd(),
-    //         path.replace('dist/types', 'lib').replace('.d.ts', '.ts')
-    //       )
-    //     );
-    //     let relPath = toolbox.path.from(myPath, entry[b]);
-    //     if (relPath.endsWith('index.ts') || relPath.endsWith('index.tsx')) {
-    //       relPath = toolbox.path.dirname(relPath);
-    //     }
-    //     // console.log(myPath, entry[b], toolbox.path.from(myPath, entry[b]));
-    //     return `'./${relPath}'`;
-    //   }
-    //   return b;
-    // };
+    const other = (path, b) => {
+      if (entry[b]) {
+        const myPath = toolbox.path.dirname(
+          toolbox.path.join(
+            process.cwd(),
+            path.replace('dist/types', 'lib').replace('.d.ts', '.ts')
+          )
+        );
+        let relPath = toolbox.path.from(myPath, entry[b]);
+        if (relPath.endsWith('index.ts') || relPath.endsWith('index.tsx')) {
+          relPath = toolbox.path.dirname(relPath);
+        }
+        // console.log(myPath, entry[b], toolbox.path.from(myPath, entry[b]));
+        return `'./${relPath}'`;
+      }
+      return b;
+    };
 
-    // for (var path of toolbox.filesystem.find('dist', {
-    //   matching: ['types/**/*.d.ts'],
-    // })) {
-    //   await toolbox.patching.update(path, (data) => {
-    //     return data.replace(/[\'\"]@([a-zA-Z\-]+)[\'\"]/, (a, b) =>
-    //       other(path, b)
-    //     );
-    //   });
-    // }
+    for (var path of toolbox.filesystem.find('dist', {
+      matching: ['types/**/*.d.ts'],
+    })) {
+      await toolbox.patching.update(path, (data) => {
+        return data.replace(/[\'\"]@([a-zA-Z\-]+)[\'\"]/, (a, b) =>
+          other(path, b)
+        );
+      });
+    }
 
     try {
       for (var i of toolbox.config.allEntries) {

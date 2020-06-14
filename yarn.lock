@@ -2206,6 +2206,13 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
 
+"@types/use-deep-compare-effect@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/use-deep-compare-effect/-/use-deep-compare-effect-1.2.0.tgz#d55d9bda6fea5ff7c93038c53052db1b3145f5d9"
+  integrity sha512-2uNqaSobMvUTGR7G72tUHDX+Kx341q25OuM0m2B6VID7eljIvYuDaFTKfmDnbvej67yEhCc35zA6dmIYriwOXA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/warning@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/warning/-/warning-3.0.0.tgz#0d2501268ad8f9962b740d387c4654f5f8e23e52"
@@ -4348,6 +4355,11 @@ deprecated-decorator@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/deprecated-decorator/-/deprecated-decorator-0.1.6.tgz#00966317b7a12fe92f3cc831f7583af329b86c37"
   integrity sha1-AJZjF7ehL+kvPMgx91g68ym4bDc=
+
+dequal@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/dequal/-/dequal-1.0.0.tgz#41c6065e70de738541c82cdbedea5292277a017e"
+  integrity sha512-/Nd1EQbQbI9UbSHrMiKZjFLrXSnU328iQdZKPQf78XQI6C+gutkFUeoHpG5J08Ioa6HeRbRNFpSIclh1xyG0mw==
 
 des.js@^1.0.0:
   version "1.0.1"
@@ -11541,12 +11553,30 @@ use-debounce@^3.4.2:
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-3.4.2.tgz#f4333cca59504244b916159600427bf977ec4c46"
   integrity sha512-rW44wZaFPh3XiwUzGBA0JRuklpbfKO/szU/5CYD2Q/erLmCem63lJ650p3a+NJE6S+g0rulKtBOfa/3rw/GN+Q==
 
+use-deep-compare-effect@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/use-deep-compare-effect/-/use-deep-compare-effect-1.3.1.tgz#90bdbed97e1acb8423f7bb0bf24de58590d021af"
+  integrity sha512-ejL+Al+aeDyC9Sywx56ti4PtSwkf6BH27tEptMWF2cfO41/auG0nRRsArh6Vv5bUyBe3z7IyxmgQCK5nas70hg==
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+    "@types/use-deep-compare-effect" "^1.2.0"
+    dequal "^1.0.0"
+
 use-effect-reducer@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/use-effect-reducer/-/use-effect-reducer-0.5.0.tgz#da1387160931915888f9c1a641b5d4306cebad73"
   integrity sha512-m2et3PukZ9MKROOcr83Ylg1IARlsMgUwsTO6tDZNXtikUn6vC6J3el1vxOckhf8JlCGtDw8tXKw88n9hegJ11Q==
   dependencies:
     lint-staged "^10.1.6"
+
+use-monaco@^0.0.2-beta.2:
+  version "0.0.2-beta.2"
+  resolved "https://registry.yarnpkg.com/use-monaco/-/use-monaco-0.0.2-beta.2.tgz#9fc786a3eff805213ac173ea8cf19b20d5ddc2d5"
+  integrity sha512-JDWAozVZ9bw0IZ2KXxPjZWo6FEgp+hdhVEBGnDIYujM0xFYxj3yiKY6SBbpaa7ZwYdT9xmEGby3Xa/Dm9q2hSQ==
+  dependencies:
+    monaco-editor "^0.20.0"
+    use-debounce "^3.4.2"
+    use-deep-compare-effect "^1.3.1"
 
 use-subscription@1.1.1:
   version "1.1.1"
