@@ -9364,10 +9364,10 @@ use-debounce@^3.4.1:
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-3.4.1.tgz#361a20e583c1bd4a44f8b29a26793a52a0b84d2c"
   integrity sha512-KHZPsL+cZvOt/ZAsHTcoAK65ImXU0iG9FDeofuj9uJTdUULF6Gjws8HpK+JlIjZpZ7LTqPHZtEknc+Im4cB3AA==
 
-use-effect-reducer@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/use-effect-reducer/-/use-effect-reducer-0.4.1.tgz#a4a9d1f49d3cd72e19e3f7b0f6dc99dfb3cf9315"
-  integrity sha512-DtM/l3mUxTF2rtvViWbFhNEoQu7ikZjPkGykxkksedvBC2pMETsNmphRREXWPl5J/j7/Z7rWg+3+MxEnNW5hjA==
+use-effect-reducer@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/use-effect-reducer/-/use-effect-reducer-0.7.0.tgz#7e08714145a44b84c39c101e8898750b400d61de"
+  integrity sha512-TinyyjN4AdKztczq0nG0GuGPWwOLjUw29qWEOSxv/YDc954EbVNFbobQQwnzSAhM4xpE/2zt5rw0t/EZjJ0HSA==
 
 use-subscription@1.1.1:
   version "1.1.1"
