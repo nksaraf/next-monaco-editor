@@ -1069,10 +1069,10 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.4.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.9.2"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.2.tgz#d90df0583a3a252f09aaa619665367bae518db06"
-  integrity sha512-NE2DtOdufG7R5vnfQUTehdTfNycfUANEtCa9PssN9O/xmTzP4E08UI797ixaei6hBEVL9BI/PsdJS5x7mWoB9Q==
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+  version "7.12.13"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
+  integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1606,11 +1606,6 @@
     "@types/estree" "0.0.39"
     estree-walker "^1.0.1"
     micromatch "^4.0.2"
-
-"@scarf/scarf@^0.1.3":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-0.1.5.tgz#fc4cc88294eca336eed9a91549180346de5e6946"
-  integrity sha512-Fx6atDc7JM1r0WkPCDhNetVZNp+DO21q/HGlomAKBG+k8vb1B8fg8Yige4oCf1P9OWTZWm5tM5i3jlXhrSbNOg==
 
 "@ts-morph/common@~0.4.0":
   version "0.4.0"
@@ -6297,6 +6292,14 @@ match-sorter@^4.1.0:
     "@babel/runtime" "^7.9.2"
     remove-accents "0.4.2"
 
+match-sorter@^6.0.2:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-6.2.0.tgz#e3f29d4733ef835a0baccc7b9d291c07264985e8"
+  integrity sha512-yhmUTR5q6JP/ssR1L1y083Wp+C+TdR8LhYTxWI4IRgEUr8IXJu2mE6L3SwryCgX95/5J7qZdEg0G091sOxr1FQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    remove-accents "0.4.2"
+
 md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -7627,13 +7630,13 @@ react-modal@^3.11.2:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
-react-query@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-1.2.7.tgz#9c18fd1d6db6f961421b00b14d8ce9b49753fb53"
-  integrity sha512-oaVpIxAr3fepE1HRx9rEbQKHMwTT4MkVf+0lgkjWBY4MnIKY0/ozM/ImW1T5iJvgFh0AFI+KCPljR9FER5hy8g==
+react-query@^3.9.8:
+  version "3.9.8"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.9.8.tgz#b6345af86f81b342eb228b11d2415a7a04ca5ada"
+  integrity sha512-cO3DdlHFSE/FDeIhrYVfYaUPm7ElmMW/3sp1QaMSP/aiGfsM62a2gRwd34YVA4dBchNk22L9yu2fZ657A6cdvA==
   dependencies:
-    "@scarf/scarf" "^0.1.3"
-    ts-toolbelt "^6.4.2"
+    "@babel/runtime" "^7.5.5"
+    match-sorter "^6.0.2"
 
 react-spectrum@^1.1.7:
   version "1.1.7"
@@ -9080,11 +9083,6 @@ ts-pnp@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
-
-ts-toolbelt@^6.4.2:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.5.0.tgz#9dcd68583e47dde2b2618945d7d7fff5bc599494"
-  integrity sha512-QvfAq5xK+lN2R1YpRMyQ/mDlP962u0ZTNJWMelpB4HWzsEqk0bJx0hz0ApVxrtH7dfyqBhMN31ju2z/wS15TqQ==
 
 tsdx@^0.13.1:
   version "0.13.2"
